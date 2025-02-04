@@ -5,10 +5,4 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
-import 'adyen_in_pay_platform_interface.dart';
-
-class AdyenInPay {
-  Future<String?> getPlatformVersion() {
-    return AdyenInPayPlatform.instance.getPlatformVersion();
-  }
-}
+export 'src/platform/platform.dart';
