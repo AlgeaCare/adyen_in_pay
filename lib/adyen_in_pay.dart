@@ -6,3 +6,5 @@
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
 export 'src/platform/platform.dart';
+export 'package:adyen_checkout/src/common/model/payment_result.dart';
+export 'src/models/pay_configuration.dart' hide PayConfiguration;
