@@ -1,0 +1,124 @@
+<html>
+
+<head>
+    <!-- Embed the Adyen Web stylesheet. You can add your own styling by overriding the rules in the CSS file -->
+    <link rel="stylesheet" href="https://checkoutshopper-test.cdn.adyen.com/checkoutshopper/sdk/6.5.1/adyen.css">
+</head>
+
+<body>
+    <div id="adyen_container"></div>
+    <!-- Embed the Adyen Web script element above any other JavaScript in your checkout page. -->
+    <script src="https://checkoutshopper-test.cdn.adyen.com/checkoutshopper/sdk/6.5.1/adyen.js"></script>
+    <script>
+        async function init(clientKey, sessionId, sessionData, env, redirectURL, amount, currency) {
+            const globalConfiguration = {
+                session: {
+                    id: sessionId, // Unique identifier for the payment session.
+                    sessionData: sessionData // The payment session data.
+                },
+                environment: env ?? 'test', // Change to 'live' for the live environment.
+                amount: {
+                    value: amount,
+                    currency: currency
+                },
+                locale: 'en-US',
+                countryCode: 'DE',
+                clientKey: clientKey, // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
+                onPaymentCompleted: (result, component) => {
+                    console.log("onPaymentCompleted");
+                    console.info(result, component);
+                    // Submit the redirectResult value you extracted from the returnUrl.
+                    paymentDone(result)
+                },
+                onError: (error, component) => {
+                    console.error(error.name, error.message, error.stack, component);
+                    paymentError(error.message)
+                },
+                onChange: (state, component) => {
+                    console.log("onChange");
+
+                    console.info(state, component);
+                },
+                // onAdditionalDetails: async (state, component, actions) => {
+
+                // },
+                // onSubmit: (state, comp) => {
+                //     console.info(state.data);
+                //     //  state.data  
+                //     //  paymentMethod: {
+                //     //     type: "scheme",
+                //     //     encryptedCardNumber: "adyenjs_0_1_18$k7s65M5V0KdPxTErhBIPoMPI8HlC..",
+                //     //     encryptedExpiryMonth: "adyenjs_0_1_18$p2OZxW2XmwAA8C1Avxm3G9UB6e4..",
+                //     //     encryptedExpiryYear: "adyenjs_0_1_18$CkCOLYZsdqpxGjrALWHj3QoGHqe+..",
+                //     //     encryptedSecurityCode: "adyenjs_0_1_18$XUyMJyHebrra/TpSda9fha978+.."
+                //     //     holderName: "S. Hopper"
+                //     //   }
+                // },
+                beforeSubmit: (data, component, actions) => {
+                    actions.resolve(data);
+                },
+            };
+            try {
+                const checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
+                console.log(checkout)
+                const dropin = new AdyenWeb.Dropin(checkout, {
+                    paymentMethodComponents: [AdyenWeb.Card],
+                    paymentMethodsConfiguration: {
+                        paymentMethods: {
+                            "brands": [
+                                "visa",
+                                "mc",
+                                "amex"
+                            ],
+                            "name": "Cards",
+                            "type": "scheme"
+                        },
+                        card: {
+                            hasHolderName: true,
+                            holderNameRequired: true,
+                            // onError configuration for card payments. Overrides the global configuration.
+                            onError: () => { }
+                        }
+                    }
+                }).mount('#adyen_container');//createFromAction
+                //const cardComponent = new AdyenWeb.Card(checkout, {}).mount('#adyen_container');
+                onStarted();
+            } catch (error) {
+                console.error('Checkout initialization error:', error);
+                paymentError(error.message);
+            }
+            onStarted();
+        }
+
+        async function redirectResult(sessionId, redirectResult) {
+            const globalConfiguration = {
+                session: {
+                    id: sessionId, // Unique identifier for the payment session.
+                },
+                environment: env ?? 'test', // Change to 'live' for the live environment.
+                locale: 'en-US',
+                countryCode: 'DE',
+                clientKey: clientKey, // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
+                onPaymentCompleted: (result, component) => {
+                    console.info(result, component);
+                    onPaymentCompleted(result)
+                },
+                onError: (error, component) => {
+                    console.error(error.name, error.message, error.stack, component);
+                    onPaymentError(error.message)
+                },
+                onChange: (state, component) => {
+                    console.info(state, component);
+                },
+                beforeSubmit: (data, component, actions) => {
+                    actions.resolve(data);
+                },
+            };
+            const checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
+            checkout.submitDetails({ details: { redirectResult: redirectResult } });
+        }
+
+    </script>
+</body>
+
+</html>
