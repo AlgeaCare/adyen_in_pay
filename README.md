@@ -84,11 +84,6 @@ Check the `example` directory for a complete implementation example.
 - ✅ iOS
 - ✅ Web
 
-## Additional Resources
-
-- [Adyen Documentation](https://docs.adyen.com)
-- [Flutter Documentation](https://flutter.dev/docs)
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
