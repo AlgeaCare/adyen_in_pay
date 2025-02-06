@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -39,10 +38,35 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Text(
-                      paymentStatus!,
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          paymentStatus!.contains('error') ||
+                                  paymentStatus!.contains('cancelled')
+                              ? Icons.error_outline
+                              : Icons.check_circle_outline,
+                          color: paymentStatus!.contains('error') ||
+                                  paymentStatus!.contains('cancelled')
+                              ? Colors.red
+                              : Colors.green,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            paymentStatus!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: paymentStatus!.contains('error') ||
+                                      paymentStatus!.contains('cancelled')
+                                  ? Colors.red
+                                  : Colors.green,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
@@ -76,13 +100,22 @@ class _MyAppState extends State<MyApp> {
                   setState(() {
                     switch (payment) {
                       case PaymentAdvancedFinished():
-                        paymentStatus = "Payment completed successfully";
+                        paymentStatus =
+                            "Your payment has been completed successfully!";
                       case PaymentSessionFinished():
-                        paymentStatus = "Payment session finished";
+                        if (payment.resultCode == ResultCode.authorised ||
+                            payment.resultCode == ResultCode.received) {
+                          paymentStatus =
+                              "Payment session completed successfully!";
+                        } else {
+                          paymentStatus =
+                              "Payment session failed: ${payment.resultCode.name}";
+                        }
                       case PaymentCancelledByUser():
-                        paymentStatus = "Payment cancelled by user";
+                        paymentStatus = "Payment was cancelled";
                       case PaymentError():
-                        paymentStatus = "Payment error occurred";
+                        paymentStatus =
+                            "An error occurred during payment processing";
                     }
                   });
                 },

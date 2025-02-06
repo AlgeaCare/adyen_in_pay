@@ -1,7 +1,6 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
-import 'package:adyen_in_pay/src/client/adyen_client.dart';
+import 'package:adyen_client_api/adyen_client_api.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
-import 'package:adyen_in_pay/src/models/session_response.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

@@ -40,6 +40,9 @@ class PayWidget extends StatelessWidget {
       ),
       paymentMethod: paymentM,
       onPaymentResult: (paymentResult) async {
+        if(paymentResult is PaymentSessionFinished){
+            debugPrint(paymentResult.resultCode.name);
+        }
         onPaymentResult(paymentResult);
       },
     );
