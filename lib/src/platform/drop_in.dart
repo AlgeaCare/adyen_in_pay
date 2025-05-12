@@ -1,8 +1,10 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 class DropInPlatform {
+  static String? paymentData;
   static Future<void> dropInAdvanced({
     required AdyenClient client,
     required int amount,
@@ -12,6 +14,7 @@ class DropInPlatform {
     Function(Object error)? onErrorSessionPreparationWidget,
     bool acceptOnlyCard = false,
   }) async {
+    paymentData = null;
     final paymentMethods = await client.getPaymentMethods();
 
     final dropInConfig = DropInConfiguration(
@@ -58,8 +61,29 @@ class DropInPlatform {
           if (data.containsKey('paymentMethod')) {
             switch (data['paymentMethod']['type'].toLowerCase()) {
               case 'scheme':
-                await Future.delayed(const Duration(seconds: 2));
-                break;
+                final result = await client.makePayment(
+                  data
+                    ..putIfAbsent(
+                      'channel',
+                      () =>
+                          kIsWeb
+                              ? 'web'
+                              : defaultTargetPlatform == TargetPlatform.android
+                              ? 'android'
+                              : 'ios',
+                    )
+                    ..putIfAbsent('reference', () => reference)
+                    ..putIfAbsent('returnUrl', () => configuration.redirectURL),
+                );
+                if (result.action?.type == 'threeDS2' ||
+                    result.action?.type == 'redirect') {
+                  paymentData = result.action?.paymentData;
+                  return Action(actionResponse: result.action!.toJson());
+                }
+                if (result.resultCode == PaymentResultCode.authorised) {
+                  return Finished(resultCode: '201');
+                }
+                return Error(errorMessage: result.resultCode.toString());
               case 'klarna':
               case 'paybybank':
               case 'klarna_paynow':
@@ -74,7 +98,14 @@ class DropInPlatform {
           return Error(errorMessage: 'error');
         },
         onAdditionalDetails: (paymentResult) async {
-          return Finished(resultCode: '201');
+          final result = await client.makeDetailPayment(
+            paymentResult..putIfAbsent('paymentData', () => paymentData),
+          );
+          if (result.resultCode.toLowerCase() ==
+              PaymentResultCode.authorised.name.toLowerCase()) {
+            return Finished(resultCode: '201');
+          }
+          return Error(errorMessage: result.resultCode.toString());
         },
       ),
     );
