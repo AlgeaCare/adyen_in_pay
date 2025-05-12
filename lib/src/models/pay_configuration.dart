@@ -12,6 +12,7 @@ class AdyenConfiguration {
   });
 }
 
+
 class PayConfiguration {
   final String clientKey;
   final String sessionId;
