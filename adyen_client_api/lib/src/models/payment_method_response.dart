@@ -12,6 +12,67 @@ class PaymentMethodResponse {
           .toList(),
     );
   }
+  Map<String, dynamic> onlyCards() {
+    return {
+      "paymentMethods": paymentMethods
+          .where((e) => e.type == 'scheme')
+          .map((e) => e.toAllMap())
+          .toList(),
+    };
+  }
+
+  List<String> onlyCardBrands() {
+    return paymentMethods
+            .where((e) => e.type == 'scheme')
+            .map((e) => e.brand)
+            .toList()
+            .reduce((value, element) {
+          final list = List<String>.from(value ?? []);
+          list.addAll(element ?? []);
+          return list;
+        }) ??
+        <String>[];
+  }
+
+  Map<String, dynamic> onlyKlarna() {
+    return {
+      "paymentMethods": paymentMethods
+          .where((e) => e.type.toLowerCase().contains('klarna'))
+          .map((e) => e.toAllMap())
+          .toList(),
+    };
+  }
+
+  Map<String, dynamic> onlyKlarnaPaynow() {
+    return {
+      "paymentMethods": paymentMethods
+          .where((e) => e.type.toLowerCase().contains('klarna_paynow'))
+          .map((e) => e.toAllMap())
+          .toList(),
+    };
+  }
+
+  Map<String, dynamic> onlyCustom(String typeName) {
+    return {
+      "paymentMethods": paymentMethods
+          .where((e) => e.type.toLowerCase().contains(typeName))
+          .map((e) => e.toAllMap())
+          .toList(),
+    };
+  }
+
+  Map<String, dynamic> toAllMap() {
+    return {
+      "paymentMethods": paymentMethods
+          .where((e) => e.type != 'multibanco')
+          .map((e) => e.toAllMap())
+          .toList(),
+    };
+  }
+
+  Map<String, String> toMap() => paymentMethods
+      .map((e) => e.toMap())
+      .reduce((value, element) => value..addAll(element));
 }
 
 class PaymentMethodConfig {
@@ -31,5 +92,23 @@ class PaymentMethodConfig {
       name: json['name'],
       brand: json['brand'],
     );
+  }
+
+  Map<String, String> toMap() {
+    final map = <String, String>{};
+
+    map[type] = name;
+    return map;
+  }
+
+  Map<String, String> toAllMap() {
+    final map = <String, String>{};
+
+    map["type"] = type;
+    map["name"] = name;
+    if (brand != null) {
+      map['brand'] = brand!.join(',');
+    }
+    return map;
   }
 }
