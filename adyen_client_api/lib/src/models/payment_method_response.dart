@@ -22,7 +22,18 @@ class PaymentMethodResponse {
   }
 
   List<String> onlyCardBrands() {
-    return paymentMethods
+    return <String>[
+      'applepay',
+      'googlepay',
+      'visa',
+      'mc',
+      'amex',
+      'diners',
+      'jcb',
+      'discover',
+      'klarna_paynow'
+    ]
+        /*   paymentMethods
             .where((e) => e.type == 'scheme')
             .map((e) => e.brand)
             .toList()
@@ -30,8 +41,8 @@ class PaymentMethodResponse {
           final list = List<String>.from(value ?? []);
           list.addAll(element ?? []);
           return list;
-        }) ??
-        <String>[];
+        }) ?? */
+        ;
   }
 
   Map<String, dynamic> onlyKlarna() {

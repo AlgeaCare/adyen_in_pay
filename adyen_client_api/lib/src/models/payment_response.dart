@@ -20,6 +20,29 @@ enum PaymentResultCode {
   }
 }
 
+class DetailPaymentResponse {
+  final String resultCode;
+  final String? pspReference;
+  DetailPaymentResponse({
+    required this.resultCode,
+    this.pspReference,
+  });
+
+  factory DetailPaymentResponse.fromJson(Map<String, dynamic> json) {
+    return DetailPaymentResponse(
+      resultCode: json['resultCode'] as String,
+      pspReference: json['pspReference'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'resultCode': resultCode,
+      if (pspReference != null) 'pspReference': pspReference,
+    };
+  }
+}
+
 class PaymentResponse {
   final String? pspReference;
   final PaymentResultCode resultCode;

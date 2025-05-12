@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:adyen_client_api/src/models/payment_response.dart';
 import 'package:adyen_client_api/src/models/session_response.dart';
 import 'package:adyen_client_api/src/models/payment_method_response.dart';
-import 'package:adyen_client_api/src/models/payment_request.dart';
+// import 'package:adyen_client_api/src/models/payment_request.dart';
 import 'package:http/http.dart' as http;
 
 class AdyenClient {
@@ -64,18 +64,40 @@ class AdyenClient {
     }
   }
 
-  Future<PaymentResponse> makePayment(PaymentRequest request) async {
+  Future<PaymentResponse> makePayment(
+      Map<String, dynamic> data /* PaymentRequest request */) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/payments'),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode(request.toJson()),
+        body: json.encode(data /* request.toJson() */),
       );
 
       if (response.statusCode == 200) {
         return PaymentResponse.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to process payment: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error processing payment: $e');
+    }
+  }
+
+  Future<DetailPaymentResponse> makeDetailPayment(
+      Map<String, dynamic> data /* PaymentRequest request */) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/payments/detail'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(data /* request.toJson() */),
+      );
+
+      if (response.statusCode == 200) {
+        return DetailPaymentResponse.fromJson(json.decode(response.body));
       } else {
         throw Exception('Failed to process payment: ${response.statusCode}');
       }

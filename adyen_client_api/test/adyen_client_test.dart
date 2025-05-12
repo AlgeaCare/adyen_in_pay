@@ -143,7 +143,7 @@ void main() {
         )).thenAnswer(
             (_) async => http.Response(json.encode(mockResponse), 200));
 
-        final response = await adyenClient.makePayment(paymentRequest);
+        final response = await adyenClient.makePayment(paymentRequest.toJson());
 
         expect(response, isA<PaymentResponse>());
         expect(response.resultCode, equals(PaymentResultCode.authorised));
@@ -173,7 +173,7 @@ void main() {
         )).thenAnswer((_) async => http.Response('Server Error', 500));
 
         expect(
-          () => adyenClient.makePayment(paymentRequest),
+          () => adyenClient.makePayment(paymentRequest.toJson()),
           throwsException,
         );
       });
