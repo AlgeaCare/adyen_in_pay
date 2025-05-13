@@ -11,7 +11,6 @@ class DropInPlatform {
     required String reference,
     required AdyenConfiguration configuration,
     required Function(PaymentResult payment) onPaymentResult,
-    Function(Object error)? onErrorSessionPreparationWidget,
     bool acceptOnlyCard = false,
   }) async {
     paymentData = null;
@@ -123,7 +122,6 @@ class DropInPlatform {
     required String reference,
     required AdyenConfiguration configuration,
     required Function(PaymentResult payment) onPaymentResult,
-    Function(Object error)? onErrorSessionPreparationWidget,
   }) async {
     final paymentMethods = await client.getPaymentMethods();
 
