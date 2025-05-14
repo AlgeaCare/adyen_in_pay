@@ -24,14 +24,14 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
   Future<String> Function(Map<String, dynamic>)? onPaymentDetail;
   Function(Map<String, dynamic>)? onPaymentAdvancedDone;
   Function(String)? onPaymentError;
+  Function(double)? onListenHeightAdyen;
 
-  MethodChannelAdyenWebFlutter._({
-    required this.messenger,
-  }) : methodChannel = MethodChannel(
-          viewType,
-          const StandardMethodCodec(),
-          messenger,
-        );
+  MethodChannelAdyenWebFlutter._({required this.messenger})
+    : methodChannel = MethodChannel(
+        viewType,
+        const StandardMethodCodec(),
+        messenger,
+      );
   factory MethodChannelAdyenWebFlutter() {
     _instance ??=
         MethodChannelAdyenWebFlutter._instance as MethodChannelAdyenWebFlutter;
@@ -39,8 +39,9 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
   }
   static void registerWith(Registrar registrar) {
     final messenger = registrar;
-    MethodChannelAdyenWebFlutter._instance =
-        MethodChannelAdyenWebFlutter._(messenger: messenger);
+    MethodChannelAdyenWebFlutter._instance = MethodChannelAdyenWebFlutter._(
+      messenger: messenger,
+    );
     bindingWebAdyen();
   }
 
@@ -72,12 +73,7 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
     String redirectURL,
   ) async {
     await interop
-        .initAdvanced(
-          id.toJS,
-          clientKey.toJS,
-          env.toJS,
-          redirectURL.toJS,
-        )
+        .initAdvanced(id.toJS, clientKey.toJS, env.toJS, redirectURL.toJS)
         .toDart;
   }
 
@@ -91,11 +87,13 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
     required Function(String) onPaymentError,
     required Future<String> Function(Map<String, dynamic>) onPayment,
     required Future<String> Function(Map<String, dynamic>) onPaymentDetail,
+    required Function(double) onListenHeightAdyen,
   }) {
     onStartedDone = onStarted;
     this.onPaymentDone = onPaymentDone;
     this.onPaymentError = onPaymentError;
     this.onPayment = onPayment;
     this.onPaymentDetail = onPaymentDetail;
+    this.onListenHeightAdyen = onListenHeightAdyen;
   }
 }

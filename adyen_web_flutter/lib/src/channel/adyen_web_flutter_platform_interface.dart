@@ -18,12 +18,23 @@ void bindingWebAdyen() {
   interop.onPaymentDone = onPaymentDone.toJS;
   interop.onPayment = payment.toJS as JSPromise;
   interop.paymentDetail = paymentDetail.toJS as JSPromise<JSAny?>;
+  interop.onListenHeightAdyenView = onListenHeightAdyenView.toJS;
 }
 
 void onStarted(JSNumber paymentId) {
   try {
     final plugin = MethodChannelAdyenWebFlutter();
     plugin.onStartedDone?.call();
+  } catch (e, trace) {
+    debugPrint(trace.toString());
+    rethrow;
+  }
+}
+
+void onListenHeightAdyenView(JSNumber paymentId, JSNumber height) {
+  try {
+    final plugin = MethodChannelAdyenWebFlutter();
+    plugin.onListenHeightAdyen?.call(height.dartify() as double);
   } catch (e, trace) {
     debugPrint(trace.toString());
     rethrow;
@@ -42,9 +53,6 @@ JSPromise payment(JSNumber paymentId, JSString data) {
         });
       }.toJS,
     );
-    // final result = await plugin.onPayment?.call(json.decode(data.toDart));
-    // debugPrint('result from dart : ${result.toString()}');
-    // return result ?? '{result: "1"}';
   } catch (e, trace) {
     debugPrint("error : ${trace.toString()}");
     return JSPromise((() => '{result: "1"}').toJS);
@@ -61,12 +69,6 @@ JSPromise paymentDetail(JSNumber paymentId, JSString data) {
         });
       }.toJS,
     );
-    // return plugin.onPaymentDetail?.call(json.decode(data.toDart)).toJS ??
-    //     JSPromise(
-    //       () {
-    //         return '{}'.toJS;
-    //       }.toJS,
-    //     );
   } catch (e, trace) {
     debugPrint(trace.toString());
     rethrow;

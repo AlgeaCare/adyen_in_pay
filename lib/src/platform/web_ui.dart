@@ -23,7 +23,6 @@ class PayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.sizeOf(context).height,
       child: AdyenWebView(
         clientKey: configuration.clientKey,
         sessionId: configuration.sessionId,

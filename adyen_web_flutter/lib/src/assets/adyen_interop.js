@@ -26,6 +26,10 @@ class AdyenPayJS {
         }));
         return result;
     }
+    onHeightAdyenView(height) {
+        console.log("interop height" + height)
+        heightAdyenView(this.viewId, height);
+    }
     paymentError(errorMsg) {
         onPaymentError(this.viewId, errorMsg);
     }

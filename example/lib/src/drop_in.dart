@@ -17,7 +17,8 @@ class _DropInWidgetState extends State<DropInWidget> {
       body: Center(
         child: TextButton(
           onPressed: () {
-            DropInPlatform.dropInAdvanced(
+            DropInPlatform.dropInAdvancedFlowPlatform(
+              context: context,
               client: AdyenClient(
                 baseUrl: 'http://192.168.178.26:3000',
               ),

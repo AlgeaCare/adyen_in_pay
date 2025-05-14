@@ -15,6 +15,7 @@ class AdyenWebView extends StatefulWidget {
   final VoidCallback onPaymentFailed;
   final Future<String> Function(Map<String, dynamic>) onPayment;
   final Future<String> Function(Map<String, dynamic>) onPaymentDetail;
+  final bool _isAdvancedFlow;
   const AdyenWebView({
     super.key,
     required this.clientKey,
@@ -27,7 +28,7 @@ class AdyenWebView extends StatefulWidget {
     required this.onPaymentFailed,
     required this.onPayment,
     required this.onPaymentDetail,
-  });
+  }) : _isAdvancedFlow = false;
   const AdyenWebView.advancedFlow({
     super.key,
     required this.clientKey,
@@ -39,7 +40,8 @@ class AdyenWebView extends StatefulWidget {
     required this.onPayment,
     required this.onPaymentDetail,
   }) : sessionId = '',
-       sessionData = '';
+       sessionData = '',
+       _isAdvancedFlow = true;
 
   @override
   State<AdyenWebView> createState() => _AdyenWebViewState();
@@ -48,6 +50,7 @@ class AdyenWebView extends StatefulWidget {
 class _AdyenWebViewState extends State<AdyenWebView> {
   late final MethodChannelAdyenWebFlutter channelWeb =
       MethodChannelAdyenWebFlutter();
+  double _height = 400;
   web.HTMLIFrameElement? _frame;
   late web.HTMLDivElement _div;
   web.HTMLScriptElement? mapScript;
@@ -85,6 +88,7 @@ class _AdyenWebViewState extends State<AdyenWebView> {
               as web.HTMLDivElement; //web.HTMLDivElement(); //html.DivElement()
       _div.style.width = '100%';
       _div.style.height = '100%';
+      //'${400 * MediaQuery.devicePixelRatioOf(context)}';
       ui.platformViewRegistry.registerViewFactory(
         MethodChannelAdyenWebFlutter.getViewType(0),
         (int viewId) {
@@ -101,6 +105,7 @@ class _AdyenWebViewState extends State<AdyenWebView> {
                 ..style.border = 'none'
                 ..style.width = '100%'
                 ..style.height = '100%';
+          //'${400 * MediaQuery.devicePixelRatioOf(context)}';
           _div.appendChild(_frame!);
           return _div;
         },
@@ -123,28 +128,45 @@ class _AdyenWebViewState extends State<AdyenWebView> {
           debugPrint(err);
           widget.onPaymentFailed();
         },
+        onListenHeightAdyen: (height) {
+          setState(() {
+            _height = height + 15;
+          });
+        },
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
-      return HtmlElementView(
-        viewType: MethodChannelAdyenWebFlutter.getViewType(0),
-        onPlatformViewCreated: (int id) {
-          Future.delayed(const Duration(milliseconds: 1000), () async {
-            await channelWeb.setup(0);
-            await channelWeb.initAdvanced(
-              0,
-              widget.clientKey,
-              // widget.sessionId,
-              // widget.sessionData,
-              widget.env,
-              widget.redirectURL,
-            );
-          });
-        },
+    if (kIsWeb || kIsWasm) {
+      return SizedBox(
+        height: _height,
+        child: HtmlElementView(
+          viewType: MethodChannelAdyenWebFlutter.getViewType(0),
+          onPlatformViewCreated: (int id) {
+            Future.delayed(const Duration(milliseconds: 1000), () async {
+              await channelWeb.setup(0);
+              if (widget._isAdvancedFlow) {
+                await channelWeb.initAdvanced(
+                  0,
+                  widget.clientKey,
+                  widget.env,
+                  widget.redirectURL,
+                );
+              } else {
+                await channelWeb.init(
+                  0,
+                  widget.clientKey,
+                  widget.sessionId,
+                  widget.sessionData,
+                  widget.env,
+                  widget.redirectURL,
+                );
+              }
+            });
+          },
+        ),
       );
     }
     return const SizedBox.shrink(); // Fallback for non-web platforms

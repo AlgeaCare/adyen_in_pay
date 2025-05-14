@@ -36,8 +36,11 @@
                 },
                 onChange: (state, component) => {
                     console.log("onChange");
-
                     console.info(state, component);
+                    let box = document.getElementById('adyen_container');
+                    const domRect = box.getBoundingClientRect();
+                    console.log(domRect.height);
+                    onHeightAdyenView(domRect.height);
                 },
                 beforeSubmit: (data, component, actions) => {
                     actions.resolve(data);
@@ -70,15 +73,18 @@
                             // onError configuration for card payments. Overrides the global configuration.
                             onError: () => { }
                         }
+                    },
+                    onReady: () => {
+                        console.log('onReady');
+                        onStarted();
+
                     }
                 }).mount('#adyen_container');//createFromAction
                 //const cardComponent = new AdyenWeb.Card(checkout, {}).mount('#adyen_container');
-                onStarted();
             } catch (error) {
                 console.error('Checkout initialization error:', error);
                 paymentError(error.message);
             }
-            onStarted();
         }
         async function initAdvanced(clientKey, env, redirectURL, amount, currency) {
             console.log('initAdvanced');//clientKey
@@ -150,6 +156,7 @@
                 const checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
                 console.log(checkout)
                 const dropin = new AdyenWeb.Dropin(checkout, {
+
                     paymentMethodComponents: [AdyenWeb.Card, AdyenWeb.ApplePay],
                     paymentMethodsConfiguration: {
                         // paymentMethods: {
@@ -166,16 +173,25 @@
                             holderNameRequired: true,
                             // onError configuration for card payments. Overrides the global configuration.
                             onError: () => { }
-                        }
+                        },
+
+                    },
+                    onReady: () => {
+                        console.log('onReady');
+                        //const cardComponent = new AdyenWeb.Card(checkout, {}).mount('#adyen_container');
+                        onStarted();
+                        let box = document.getElementById('adyen_container');
+                        const domRect = box.getBoundingClientRect();
+                        console.log(domRect.height);
+                        onHeightAdyenView(domRect.height);
                     }
                 }).mount('#adyen_container');//createFromAction
-                //const cardComponent = new AdyenWeb.Card(checkout, {}).mount('#adyen_container');
-                onStarted();
+
             } catch (error) {
                 console.error('Checkout initialization error:', error);
                 paymentError(error.message);
             }
-            onStarted();
+
         }
         async function redirectResult(sessionId, redirectResult) {
             const globalConfiguration = {

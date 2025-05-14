@@ -21,6 +21,9 @@ external JSPromise initAdvanced(
 @JS('setUpJS')
 external JSPromise<JSNumber> setUpJS(JSNumber viewID);
 
+@JS('heightAdyenView')
+external set onListenHeightAdyenView(JSFunction f);
+
 @JS('onPaymentDone')
 external set onPaymentDone(JSFunction f);
 

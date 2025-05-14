@@ -19,6 +19,7 @@ async function redirectResult(viewID, sessionId, redirectResult) {
     await innerWindow.redirectResult(clientKey, sessionId, redirectResult);
     return 200;
 }
+
 async function setUpJS(viewID) {
     const vJS = new AdyenPayJS(viewID);
     adyenLinks.set(viewID, vJS);
@@ -52,7 +53,14 @@ async function setUpJS(viewID) {
         }
     };
     innerWindow.paymentError = (errorMsg) => { adyenLinks.get(viewID).paymentError(errorMsg) };
-    console.log("done")
+    innerWindow.onHeightAdyenView = (data) => {
+        try {
+            console.log("height" + data)
+            adyenLinks.get(viewID).onHeightAdyenView(data)
+        } catch (e) {
+            throw (e);
+        }
+    };
     return 200;
 }
 

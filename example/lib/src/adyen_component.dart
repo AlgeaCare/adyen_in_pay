@@ -24,6 +24,7 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (paymentStatus != null)
@@ -89,7 +90,7 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
               reference: generateRandomString(10),
               configuration: AdyenConfiguration(
                 clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
-                adyenAPI: "http://192.168.178.26:3000",
+                adyenAPI: "http://localhost:3001",
                 env: 'test',
                 redirectURL:
                     '${kIsWeb || kIsWasm ? 'https://app.staging.bloomwell.de/checkout?shopperOrder=2222' : 'adyenExample://com.example.adyenExample'}/checkout?shopperOrder=2222',
