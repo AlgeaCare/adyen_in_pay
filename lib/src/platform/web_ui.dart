@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
 import 'package:adyen_web_flutter/adyen_web_flutter.dart';
@@ -29,10 +31,11 @@ class PayWidget extends StatelessWidget {
         env: configuration.env,
         redirectURL: configuration.redirectURL,
         onPaymentFailed: () {},
-        onPaymentSession: (result) {
+        onPaymentDone: (result) {
           onPaymentResult(
             PaymentSessionFinished(
-              resultCode: ResultCode.values.firstWhereOrNull(
+              resultCode:
+                  ResultCode.values.firstWhereOrNull(
                     (e) => e.name == result["resultCode"],
                   ) ??
                   ResultCode.unknown,
@@ -43,6 +46,12 @@ class PayWidget extends StatelessWidget {
           );
         },
         onStarted: () {},
+        onPayment: (Map<String, dynamic> data) async {
+          return json.encode({"resultCode": "1"});
+        },
+        onPaymentDetail: (Map<String, dynamic> data) async {
+          return json.encode({"resultCode": "1"});
+        },
       ),
     );
   }

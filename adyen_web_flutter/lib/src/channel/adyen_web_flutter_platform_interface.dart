@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:adyen_web_flutter/src/channel/adyen_web_flutter_method_channel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'dart:js_interop';
 import 'package:adyen_web_flutter/src/platform/interop.dart' as interop;
 
@@ -17,9 +16,11 @@ void bindingWebAdyen() {
   interop.onStarted = onStarted.toJS;
   interop.onPaymentError = onPaymentError.toJS;
   interop.onPaymentDone = onPaymentDone.toJS;
+  interop.onPayment = payment.toJS as JSPromise;
+  interop.paymentDetail = paymentDetail.toJS as JSPromise<JSAny?>;
 }
 
-void onStarted(JSNumber mapId) {
+void onStarted(JSNumber paymentId) {
   try {
     final plugin = MethodChannelAdyenWebFlutter();
     plugin.onStartedDone?.call();
@@ -29,17 +30,60 @@ void onStarted(JSNumber mapId) {
   }
 }
 
-void onPaymentDone(JSNumber mapId, JSString data) {
+JSPromise payment(JSNumber paymentId, JSString data) {
+  try {
+    debugPrint('in dart payment ');
+    debugPrint(data.toString());
+    final plugin = MethodChannelAdyenWebFlutter();
+    return JSPromise(
+      (JSFunction resolve, JSFunction reject) {
+        plugin.onPayment?.call(json.decode(data.toDart)).then((value) {
+          resolve.callAsFunction(resolve, value.toJS);
+        });
+      }.toJS,
+    );
+    // final result = await plugin.onPayment?.call(json.decode(data.toDart));
+    // debugPrint('result from dart : ${result.toString()}');
+    // return result ?? '{result: "1"}';
+  } catch (e, trace) {
+    debugPrint("error : ${trace.toString()}");
+    return JSPromise((() => '{result: "1"}').toJS);
+  }
+}
+
+JSPromise paymentDetail(JSNumber paymentId, JSString data) {
   try {
     final plugin = MethodChannelAdyenWebFlutter();
-    plugin.onPaymentSessionDone?.call(json.decode(data.toDart));
+    return JSPromise(
+      (JSFunction resolve, JSFunction reject) {
+        plugin.onPaymentDetail?.call(json.decode(data.toDart)).then((value) {
+          resolve.callAsFunction(resolve, value.toJS);
+        });
+      }.toJS,
+    );
+    // return plugin.onPaymentDetail?.call(json.decode(data.toDart)).toJS ??
+    //     JSPromise(
+    //       () {
+    //         return '{}'.toJS;
+    //       }.toJS,
+    //     );
   } catch (e, trace) {
     debugPrint(trace.toString());
     rethrow;
   }
 }
 
-void onPaymentError(JSNumber mapId, JSString err) {
+void onPaymentDone(JSNumber paymentId, JSString data) {
+  try {
+    final plugin = MethodChannelAdyenWebFlutter();
+    plugin.onPaymentDone?.call(json.decode(data.toDart));
+  } catch (e, trace) {
+    debugPrint(trace.toString());
+    rethrow;
+  }
+}
+
+void onPaymentError(JSNumber paymentId, JSString err) {
   try {
     final plugin = MethodChannelAdyenWebFlutter();
     plugin.onPaymentError?.call(err.toDart);

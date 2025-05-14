@@ -4,7 +4,7 @@ version: 0.0.1
 homepage:
 
 environment:
-  sdk: ^3.5.3
+  sdk: ^3.7.1
   flutter: '>=3.3.0'
 
 dependencies:
@@ -12,8 +12,8 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  web: ^1.1.0
-  plugin_platform_interface: ^2.0.2
+  web: ^1.1.1
+  plugin_platform_interface: ^2.1.8
   stream_transform: ^2.1.1
 dev_dependencies:
   flutter_test:

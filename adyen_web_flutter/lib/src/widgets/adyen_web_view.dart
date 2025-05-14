@@ -11,8 +11,10 @@ class AdyenWebView extends StatefulWidget {
   final String redirectURL;
   final String env;
   final VoidCallback onStarted;
-  final Function(Map<String, dynamic>) onPaymentSession;
+  final Function(Map<String, dynamic>) onPaymentDone;
   final VoidCallback onPaymentFailed;
+  final Future<String> Function(Map<String, dynamic>) onPayment;
+  final Future<String> Function(Map<String, dynamic>) onPaymentDetail;
   const AdyenWebView({
     super.key,
     required this.clientKey,
@@ -21,9 +23,23 @@ class AdyenWebView extends StatefulWidget {
     required this.env,
     required this.redirectURL,
     required this.onStarted,
-    required this.onPaymentSession,
+    required this.onPaymentDone,
     required this.onPaymentFailed,
+    required this.onPayment,
+    required this.onPaymentDetail,
   });
+  const AdyenWebView.advancedFlow({
+    super.key,
+    required this.clientKey,
+    required this.env,
+    required this.redirectURL,
+    required this.onStarted,
+    required this.onPaymentDone,
+    required this.onPaymentFailed,
+    required this.onPayment,
+    required this.onPaymentDetail,
+  }) : sessionId = '',
+       sessionData = '';
 
   @override
   State<AdyenWebView> createState() => _AdyenWebViewState();
@@ -41,18 +57,20 @@ class _AdyenWebViewState extends State<AdyenWebView> {
     debugPrint("div added iframe");
     if (web.window.document.getElementById("adyen_interop") == null) {
       body.appendChild(
-          web.document.createElement('script') as web.HTMLScriptElement
-            ..id = "adyen_interop"
-            ..src =
-                '${kReleaseMode ? "assets/" : ''}packages/adyen_web_flutter/src/assets/adyen_interop.js'
-            ..type = 'text/javascript');
+        web.document.createElement('script') as web.HTMLScriptElement
+          ..id = "adyen_interop"
+          ..src =
+              '${kReleaseMode ? "assets/" : ''}packages/adyen_web_flutter/src/assets/adyen_interop.js'
+          ..type = 'text/javascript',
+      );
     }
     if (web.window.document.getElementById("jsScript") == null) {
-      mapScript = web.document.createElement('script') as web.HTMLScriptElement
-        ..id = "jsScript"
-        ..src =
-            '${kReleaseMode ? "assets/" : ''}packages/adyen_web_flutter/src/assets/adyen_web.js'
-        ..type = 'text/javascript';
+      mapScript =
+          web.document.createElement('script') as web.HTMLScriptElement
+            ..id = "jsScript"
+            ..src =
+                '${kReleaseMode ? "assets/" : ''}packages/adyen_web_flutter/src/assets/adyen_web.js'
+            ..type = 'text/javascript';
       body.appendChild(mapScript!);
     }
   }
@@ -62,39 +80,47 @@ class _AdyenWebViewState extends State<AdyenWebView> {
     super.initState();
     if (kIsWeb) {
       // Register the view
-      _div = web.document.createElement('div')
-          as web.HTMLDivElement; //web.HTMLDivElement(); //html.DivElement()
+      _div =
+          web.document.createElement('div')
+              as web.HTMLDivElement; //web.HTMLDivElement(); //html.DivElement()
       _div.style.width = '100%';
       _div.style.height = '100%';
       ui.platformViewRegistry.registerViewFactory(
-          MethodChannelAdyenWebFlutter.getViewType(0), (int viewId) {
-        debugPrint("viewId : $viewId");
-        _div.id = 'adyen_bloomweel_0';
-        const idFrame = "frame_verify_0";
-        debugPrint(idFrame);
-        _frame = web.document.createElement("iframe") as web.HTMLIFrameElement
-          ..id = idFrame
-          ..src =
-              "${kReleaseMode ? "assets/" : ''}/packages/adyen_web_flutter/src/assets/adyen.html"
-          ..allowFullscreen = true
-          ..style.border = 'none'
-          ..style.width = '100%'
-          ..style.height = '100%';
-        _div.appendChild(_frame!);
-        return _div;
-      });
+        MethodChannelAdyenWebFlutter.getViewType(0),
+        (int viewId) {
+          debugPrint("viewId : $viewId");
+          _div.id = 'adyen_bloomweel_0';
+          const idFrame = "frame_verify_0";
+          debugPrint(idFrame);
+          _frame =
+              web.document.createElement("iframe") as web.HTMLIFrameElement
+                ..id = idFrame
+                ..src =
+                    "${kReleaseMode ? "assets/" : ''}/packages/adyen_web_flutter/src/assets/adyen.html"
+                ..allowFullscreen = true
+                ..style.border = 'none'
+                ..style.width = '100%'
+                ..style.height = '100%';
+          _div.appendChild(_frame!);
+          return _div;
+        },
+      );
       createHtml();
       channelWeb.handleMethodChannel(
         onStarted: () {
           widget.onStarted();
         },
-        onPaymentSessionDone: (result) {
-          widget.onPaymentSession(result);
+        onPayment: (data) async {
+          return await widget.onPayment(data);
         },
-        onPaymentAdvancedDone: (result) {
-          widget.onPaymentSession(result);
+        onPaymentDetail: (data) async {
+          return await widget.onPaymentDetail(data);
+        },
+        onPaymentDone: (result) {
+          widget.onPaymentDone(result);
         },
         onPaymentError: (err) {
+          debugPrint(err);
           widget.onPaymentFailed();
         },
       );
@@ -109,11 +135,11 @@ class _AdyenWebViewState extends State<AdyenWebView> {
         onPlatformViewCreated: (int id) {
           Future.delayed(const Duration(milliseconds: 1000), () async {
             await channelWeb.setup(0);
-            await channelWeb.init(
+            await channelWeb.initAdvanced(
               0,
               widget.clientKey,
-              widget.sessionId,
-              widget.sessionData,
+              // widget.sessionId,
+              // widget.sessionData,
               widget.env,
               widget.redirectURL,
             );

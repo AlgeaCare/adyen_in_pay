@@ -19,7 +19,9 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
   static MethodChannelAdyenWebFlutter? _instance;
 
   VoidCallback? onStartedDone;
-  Function(Map<String, dynamic>)? onPaymentSessionDone;
+  Function(Map<String, dynamic>)? onPaymentDone;
+  Future<String> Function(Map<String, dynamic>)? onPayment;
+  Future<String> Function(Map<String, dynamic>)? onPaymentDetail;
   Function(Map<String, dynamic>)? onPaymentAdvancedDone;
   Function(String)? onPaymentError;
 
@@ -63,19 +65,37 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
         .toDart;
   }
 
+  Future<void> initAdvanced(
+    int id,
+    String clientKey,
+    String env,
+    String redirectURL,
+  ) async {
+    await interop
+        .initAdvanced(
+          id.toJS,
+          clientKey.toJS,
+          env.toJS,
+          redirectURL.toJS,
+        )
+        .toDart;
+  }
+
   Future<void> setup(int id) async {
     await interop.setUpJS(id.toJS).toDart;
   }
 
   void handleMethodChannel({
     required VoidCallback onStarted,
-    required Function(Map<String, dynamic>) onPaymentSessionDone,
-    required Function(Map<String, dynamic>) onPaymentAdvancedDone,
+    required Function(Map<String, dynamic>) onPaymentDone,
     required Function(String) onPaymentError,
+    required Future<String> Function(Map<String, dynamic>) onPayment,
+    required Future<String> Function(Map<String, dynamic>) onPaymentDetail,
   }) {
     onStartedDone = onStarted;
-    this.onPaymentSessionDone = onPaymentSessionDone;
-    this.onPaymentAdvancedDone = onPaymentAdvancedDone;
+    this.onPaymentDone = onPaymentDone;
     this.onPaymentError = onPaymentError;
+    this.onPayment = onPayment;
+    this.onPaymentDetail = onPaymentDetail;
   }
 }

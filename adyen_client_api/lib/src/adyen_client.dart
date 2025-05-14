@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:adyen_client_api/src/models/payment_response.dart';
 import 'package:adyen_client_api/src/models/session_response.dart';
 import 'package:adyen_client_api/src/models/payment_method_response.dart';
+import 'package:flutter/foundation.dart';
 // import 'package:adyen_client_api/src/models/payment_request.dart';
 import 'package:http/http.dart' as http;
 
@@ -66,6 +67,7 @@ class AdyenClient {
 
   Future<PaymentResponse> makePayment(
       Map<String, dynamic> data /* PaymentRequest request */) async {
+    debugPrint("in client => $data");
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/payments'),
@@ -74,7 +76,8 @@ class AdyenClient {
         },
         body: json.encode(data /* request.toJson() */),
       );
-
+      debugPrint("in client statusCode => ${response.statusCode}");
+      debugPrint("in client response => ${response.body}");
       if (response.statusCode == 200) {
         return PaymentResponse.fromJson(json.decode(response.body));
       } else {
