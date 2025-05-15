@@ -208,7 +208,11 @@ class DropInWebWidget extends StatelessWidget {
                           ),
                           color: Colors.transparent,
                         ),
-                        child: const Icon(Icons.close, size: 24),
+                        child: const Icon(
+                          Icons.close,
+                          size: 24,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
               ),
