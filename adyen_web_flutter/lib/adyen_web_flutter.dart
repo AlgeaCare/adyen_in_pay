@@ -7,3 +7,4 @@
 
 export 'src/channel/adyen_web_flutter_method_channel.dart';
 export 'src/widgets/adyen_web_view.dart';
+export 'src/common/configuration.dart';
