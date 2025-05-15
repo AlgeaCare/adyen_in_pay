@@ -20,14 +20,14 @@ class _DropInWidgetState extends State<DropInWidget> {
             DropInPlatform.dropInAdvancedFlowPlatform(
               context: context,
               client: AdyenClient(
-                baseUrl: 'http://192.168.178.26:3000',
+                baseUrl: 'http://localhost:3001',
               ),
               amount: amount,
               reference: '2222',
               acceptOnlyCard: true,
               configuration: AdyenConfiguration(
                 clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
-                adyenAPI: "http://192.168.178.26:3000",
+                adyenAPI: "http://localhost:3001",
                 env: 'test',
                 redirectURL:
                     '${kIsWeb || kIsWasm ? 'https://app.staging.bloomwell.de/checkout?shopperOrder=2222' : 'adyenExample://com.example.adyenExample'}/checkout?shopperOrder=2222',
