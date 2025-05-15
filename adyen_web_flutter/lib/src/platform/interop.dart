@@ -18,6 +18,12 @@ external JSPromise initAdvanced(
   JSString redirectURL,
 );
 
+@JS('refresh')
+external JSPromise refresh(JSNumber viewID);
+
+@JS('unmount')
+external JSPromise unmount(JSNumber viewID);
+
 @JS('setUpJS')
 external JSPromise<JSNumber> setUpJS(JSNumber viewID);
 

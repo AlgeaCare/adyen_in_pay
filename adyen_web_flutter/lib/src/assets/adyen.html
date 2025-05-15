@@ -10,6 +10,7 @@
     <!-- Embed the Adyen Web script element above any other JavaScript in your checkout page. -->
     <script src="https://checkoutshopper-test.cdn.adyen.com/checkoutshopper/sdk/6.12.0/adyen.js"></script>
     <script>
+        var checkout, dropin;
         async function init(clientKey, sessionId, sessionData, env, redirectURL, amount, currency) {
             const globalConfiguration = {
                 session: {
@@ -47,9 +48,9 @@
                 },
             };
             try {
-                const checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
+                checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
                 console.log(checkout)
-                const dropin = new AdyenWeb.Dropin(checkout, {
+                dropin = new AdyenWeb.Dropin(checkout, {
                     paymentMethodComponents: [AdyenWeb.Card],
                     paymentMethodsConfiguration: {
                         paymentMethods: {
@@ -82,13 +83,10 @@
                 }).mount('#adyen_container');//createFromAction
                 //const cardComponent = new AdyenWeb.Card(checkout, {}).mount('#adyen_container');
             } catch (error) {
-                console.error('Checkout initialization error:', error);
                 paymentError(error.message);
             }
         }
         async function initAdvanced(clientKey, env, redirectURL, amount, currency) {
-            console.log('initAdvanced');//clientKey
-            console.log(clientKey);//
             const globalConfiguration = {
                 environment: env ?? 'test', // Change to 'live' for the live environment.
                 amount: {
@@ -153,21 +151,11 @@
                 },
             };
             try {
-                const checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
-                console.log(checkout)
-                const dropin = new AdyenWeb.Dropin(checkout, {
+                checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
+                dropin = new AdyenWeb.Dropin(checkout, {
 
                     paymentMethodComponents: [AdyenWeb.Card, AdyenWeb.ApplePay],
                     paymentMethodsConfiguration: {
-                        // paymentMethods: {
-                        //     "brands": [
-                        //         'visa',
-                        //         'mc',
-                        //         'amex',
-                        //     ],
-                        //     "name": "Cards",
-                        //     "type": "scheme"
-                        // },
                         card: {
                             hasHolderName: true,
                             holderNameRequired: true,
@@ -188,7 +176,6 @@
                 }).mount('#adyen_container');//createFromAction
 
             } catch (error) {
-                console.error('Checkout initialization error:', error);
                 paymentError(error.message);
             }
 
@@ -220,7 +207,12 @@
             const checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
             checkout.submitDetails({ details: { redirectResult: redirectResult } });
         }
-
+        function unmount() {
+            dropin.unmount();
+        }
+        function refresh() {
+            dropin.closeActivePaymentMethod();
+        }
     </script>
 </body>
 

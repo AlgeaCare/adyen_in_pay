@@ -1,8 +1,11 @@
 import 'package:adyen_web_flutter/src/channel/adyen_web_flutter_method_channel.dart';
+import 'package:adyen_web_flutter/src/common/web_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web/web.dart' as web; // Add
 import 'dart:ui_web' as ui;
+
+int _viewId = 0;
 
 class AdyenWebView extends StatefulWidget {
   final String clientKey;
@@ -43,11 +46,15 @@ class AdyenWebView extends StatefulWidget {
        sessionData = '',
        _isAdvancedFlow = true;
 
+  static WebMixin? of(BuildContext context) {
+    return context.findAncestorStateOfType<_AdyenWebViewState>();
+  }
+
   @override
   State<AdyenWebView> createState() => _AdyenWebViewState();
 }
 
-class _AdyenWebViewState extends State<AdyenWebView> {
+class _AdyenWebViewState extends State<AdyenWebView> with WebMixin {
   late final MethodChannelAdyenWebFlutter channelWeb =
       MethodChannelAdyenWebFlutter();
   double _height = 400;
@@ -82,6 +89,7 @@ class _AdyenWebViewState extends State<AdyenWebView> {
   void initState() {
     super.initState();
     if (kIsWeb) {
+      _viewId++;
       // Register the view
       _div =
           web.document.createElement('div')
@@ -90,11 +98,11 @@ class _AdyenWebViewState extends State<AdyenWebView> {
       _div.style.height = '100%';
       //'${400 * MediaQuery.devicePixelRatioOf(context)}';
       ui.platformViewRegistry.registerViewFactory(
-        MethodChannelAdyenWebFlutter.getViewType(0),
+        MethodChannelAdyenWebFlutter.getViewType(_viewId),
         (int viewId) {
           debugPrint("viewId : $viewId");
-          _div.id = 'adyen_bloomweel_0';
-          const idFrame = "frame_verify_0";
+          _div.id = 'adyen_bloomweel_$_viewId';
+          final idFrame = "frame_verify_$_viewId";
           debugPrint(idFrame);
           _frame =
               web.document.createElement("iframe") as web.HTMLIFrameElement
@@ -143,20 +151,20 @@ class _AdyenWebViewState extends State<AdyenWebView> {
       return SizedBox(
         height: _height,
         child: HtmlElementView(
-          viewType: MethodChannelAdyenWebFlutter.getViewType(0),
+          viewType: MethodChannelAdyenWebFlutter.getViewType(_viewId),
           onPlatformViewCreated: (int id) {
             Future.delayed(const Duration(milliseconds: 1000), () async {
-              await channelWeb.setup(0);
+              await channelWeb.setup(_viewId);
               if (widget._isAdvancedFlow) {
                 await channelWeb.initAdvanced(
-                  0,
+                  _viewId,
                   widget.clientKey,
                   widget.env,
                   widget.redirectURL,
                 );
               } else {
                 await channelWeb.init(
-                  0,
+                  _viewId,
                   widget.clientKey,
                   widget.sessionId,
                   widget.sessionData,
@@ -170,5 +178,15 @@ class _AdyenWebViewState extends State<AdyenWebView> {
       );
     }
     return const SizedBox.shrink(); // Fallback for non-web platforms
+  }
+
+  @override
+  void refresh() {
+    channelWeb.refresh(_viewId);
+  }
+
+  @override
+  void unmount() {
+    channelWeb.unmount(_viewId);
   }
 }

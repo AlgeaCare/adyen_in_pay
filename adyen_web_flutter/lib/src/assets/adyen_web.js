@@ -19,6 +19,17 @@ async function redirectResult(viewID, sessionId, redirectResult) {
     await innerWindow.redirectResult(clientKey, sessionId, redirectResult);
     return 200;
 }
+function refresh(viewID,) {
+    var innerWindow = getIframe(viewID).contentWindow;
+    innerWindow.refresh();
+    return 200;
+}
+
+function unmount(viewID) {
+    var innerWindow = getIframe(viewID).contentWindow;
+    innerWindow.unmount();
+    return 200;
+}
 
 async function setUpJS(viewID) {
     const vJS = new AdyenPayJS(viewID);

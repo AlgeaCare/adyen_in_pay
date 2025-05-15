@@ -81,6 +81,14 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
     await interop.setUpJS(id.toJS).toDart;
   }
 
+  void refresh(int id) {
+    interop.refresh(id.toJS);
+  }
+
+  void unmount(int id) {
+    interop.unmount(id.toJS);
+  }
+
   void handleMethodChannel({
     required VoidCallback onStarted,
     required Function(Map<String, dynamic>) onPaymentDone,
