@@ -1,12 +1,12 @@
 
-async function init(viewID, clientKey, sessionId, sessionData, env, redirectURL, amount, currency) {
+async function init(viewID, clientKey, sessionId, sessionData, env, redirectURL, currency, amount, paymentMethod, brands) {
     var innerWindow = getIframe(viewID).contentWindow;
-    await innerWindow.init(clientKey, sessionId, sessionData, env, redirectURL, amount, currency);
+    await innerWindow.init(clientKey, sessionId, sessionData, env, redirectURL, currency, amount, paymentMethod, brands);
     return 200;
 }
-async function initAdvanced(viewID, clientKey, env, redirectURL, amount, currency) {
+async function initAdvanced(viewID, clientKey, env, redirectURL, amount, currency, paymentMethod, brands) {
     var innerWindow = getIframe(viewID).contentWindow;
-    await innerWindow.initAdvanced(clientKey, env, redirectURL, amount, currency);
+    await innerWindow.initAdvanced(clientKey, env, redirectURL, amount, currency, paymentMethod, brands);
     return 200;
 }
 async function redirectResultAdvanced(viewID, sessionId, redirectResult) {

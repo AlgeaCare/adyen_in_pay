@@ -25,6 +25,8 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
   Function(Map<String, dynamic>)? onPaymentAdvancedDone;
   Function(String)? onPaymentError;
   Function(double)? onListenHeightAdyen;
+  Future<String> Function()? onPaymentMethodOnlyCards;
+  Future<String> Function()? onPaymentMethod;
 
   MethodChannelAdyenWebFlutter._({required this.messenger})
     : methodChannel = MethodChannel(
@@ -53,6 +55,10 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
     String sessionData,
     String env,
     String redirectURL,
+    String currency,
+    int amount,
+    String paymentMethod,
+    List<String> cardBrands,
   ) async {
     await interop
         .init(
@@ -62,6 +68,10 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
           sessionData.toJS,
           env.toJS,
           redirectURL.toJS,
+          currency.toJS,
+          amount.toJS,
+          paymentMethod.toJS,
+          cardBrands.map((e) => e.toJS).toList().toJS,
         )
         .toDart;
   }
@@ -71,9 +81,22 @@ class MethodChannelAdyenWebFlutter extends AdyenWebFlutterPlatform {
     String clientKey,
     String env,
     String redirectURL,
+    String currency,
+    int amount,
+    String methodPayment,
+    List<String> cardBrands,
   ) async {
     await interop
-        .initAdvanced(id.toJS, clientKey.toJS, env.toJS, redirectURL.toJS)
+        .initAdvanced(
+          id.toJS,
+          clientKey.toJS,
+          env.toJS,
+          redirectURL.toJS,
+          currency.toJS,
+          amount.toJS,
+          methodPayment.toJS,
+          cardBrands.map((e) => e.toJS).toList().toJS,
+        )
         .toDart;
   }
 

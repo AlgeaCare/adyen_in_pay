@@ -13,11 +13,16 @@ class AdyenWebView extends StatefulWidget {
   final String sessionData;
   final String redirectURL;
   final String env;
+  final String currency;
+  final int amount;
   final VoidCallback onStarted;
   final Function(Map<String, dynamic>) onPaymentDone;
   final VoidCallback onPaymentFailed;
   final Future<String> Function(Map<String, dynamic>) onPayment;
   final Future<String> Function(Map<String, dynamic>) onPaymentDetail;
+  final Future<String> Function() onPaymentMethod;
+  final Future<List<String>> Function() cardBrands;
+
   final bool _isAdvancedFlow;
   const AdyenWebView({
     super.key,
@@ -26,22 +31,30 @@ class AdyenWebView extends StatefulWidget {
     required this.sessionData,
     required this.env,
     required this.redirectURL,
+    required this.currency,
+    required this.amount,
     required this.onStarted,
     required this.onPaymentDone,
     required this.onPaymentFailed,
     required this.onPayment,
     required this.onPaymentDetail,
+    required this.onPaymentMethod,
+    required this.cardBrands,
   }) : _isAdvancedFlow = false;
   const AdyenWebView.advancedFlow({
     super.key,
     required this.clientKey,
     required this.env,
     required this.redirectURL,
+    required this.currency,
+    required this.amount,
     required this.onStarted,
     required this.onPaymentDone,
     required this.onPaymentFailed,
     required this.onPayment,
     required this.onPaymentDetail,
+    required this.onPaymentMethod,
+    required this.cardBrands,
   }) : sessionId = '',
        sessionData = '',
        _isAdvancedFlow = true;
@@ -155,12 +168,18 @@ class _AdyenWebViewState extends State<AdyenWebView> with WebMixin {
           onPlatformViewCreated: (int id) {
             Future.delayed(const Duration(milliseconds: 1000), () async {
               await channelWeb.setup(_viewId);
+              final paymentMethods = await widget.onPaymentMethod();
+              final cardBrands = await widget.cardBrands();
               if (widget._isAdvancedFlow) {
                 await channelWeb.initAdvanced(
                   _viewId,
                   widget.clientKey,
                   widget.env,
                   widget.redirectURL,
+                  widget.currency,
+                  widget.amount,
+                  paymentMethods,
+                  cardBrands,
                 );
               } else {
                 await channelWeb.init(
@@ -170,6 +189,10 @@ class _AdyenWebViewState extends State<AdyenWebView> with WebMixin {
                   widget.sessionData,
                   widget.env,
                   widget.redirectURL,
+                  widget.currency,
+                  widget.amount,
+                  paymentMethods,
+                  cardBrands,
                 );
               }
             });

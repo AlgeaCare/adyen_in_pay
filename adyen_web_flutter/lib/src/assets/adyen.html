@@ -11,7 +11,8 @@
     <script src="https://checkoutshopper-test.cdn.adyen.com/checkoutshopper/sdk/6.12.0/adyen.js"></script>
     <script>
         var checkout, dropin;
-        async function init(clientKey, sessionId, sessionData, env, redirectURL, amount, currency) {
+        async function init(clientKey, sessionId, sessionData, env, redirectURL, currency, amount, paymentMethod, brands) {
+            console.log("paymentMethod " + paymentMethod);
             const globalConfiguration = {
                 session: {
                     id: sessionId, // Unique identifier for the payment session.
@@ -24,7 +25,8 @@
                 },
                 locale: 'en-US',
                 countryCode: 'DE',
-                clientKey: clientKey, // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
+                clientKey: clientKey,
+                paymentMethodsResponse: JSON.parse(paymentMethod),
                 onPaymentCompleted: (result, component) => {
                     console.log("onPaymentCompleted");
                     console.info(result, component);
@@ -51,23 +53,8 @@
                 checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
                 console.log(checkout)
                 dropin = new AdyenWeb.Dropin(checkout, {
-                    paymentMethodComponents: [AdyenWeb.Card],
+                    paymentMethodComponents: brands,// [AdyenWeb.Card],
                     paymentMethodsConfiguration: {
-                        paymentMethods: {
-                            "brands": [
-                                'applepay',
-                                'googlepay',
-                                'visa',
-                                'mc',
-                                'amex',
-                                'diners',
-                                'jcb',
-                                'discover',
-                                'klarna_paynow'
-                            ],
-                            "name": "Cards",
-                            "type": "scheme"
-                        },
                         card: {
                             hasHolderName: true,
                             holderNameRequired: true,
@@ -86,7 +73,8 @@
                 paymentError(error.message);
             }
         }
-        async function initAdvanced(clientKey, env, redirectURL, amount, currency) {
+        async function initAdvanced(clientKey, env, redirectURL, currency, amount, paymentMethod, brands) {
+            console.log("paymentMethod " + paymentMethod);
             const globalConfiguration = {
                 environment: env ?? 'test', // Change to 'live' for the live environment.
                 amount: {
@@ -96,19 +84,7 @@
                 locale: 'en-US',
                 countryCode: 'DE',
                 clientKey: clientKey, // Public key used for client-side authentication: https://docs.adyen.com/development-resources/client-side-authentication
-                paymentMethodsResponse: {
-                    paymentMethods: [{
-                        "brands": [
-                            "amex",
-                            "bcmc",
-                            "cartebancaire",
-                            "mc",
-                            "visa"
-                        ],
-                        "name": "Cards",
-                        "type": "scheme"
-                    }]
-                },
+                paymentMethodsResponse: JSON.parse(paymentMethod),
                 onPaymentCompleted: (result, component) => {
                     console.log("onPaymentCompleted");
                     console.info(result, component);
@@ -153,8 +129,7 @@
             try {
                 checkout = await AdyenWeb.AdyenCheckout(globalConfiguration);
                 dropin = new AdyenWeb.Dropin(checkout, {
-
-                    paymentMethodComponents: [AdyenWeb.Card, AdyenWeb.ApplePay],
+                    paymentMethodComponents: brands,// [AdyenWeb.Card],
                     paymentMethodsConfiguration: {
                         card: {
                             hasHolderName: true,

@@ -8,6 +8,10 @@ external JSPromise init(
   JSString sessionData,
   JSString env,
   JSString redirectURL,
+  JSString currency,
+  JSNumber amount,
+  JSString methodPayment,
+  JSArray cardBrands,
 );
 
 @JS('initAdvanced')
@@ -16,6 +20,10 @@ external JSPromise initAdvanced(
   JSString clientKey,
   JSString env,
   JSString redirectURL,
+  JSString currency,
+  JSNumber amount,
+  JSString methodPayment,
+  JSArray cardBrands,
 );
 
 @JS('refresh')
