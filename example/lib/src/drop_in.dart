@@ -1,4 +1,5 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay_example/src/commons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -19,11 +20,12 @@ class _DropInWidgetState extends State<DropInWidget> {
           onPressed: () {
             DropInPlatform.dropInAdvancedFlowPlatform(
               context: context,
+              sizeWeb: const Size(450, 600),
               client: AdyenClient(
                 baseUrl: 'http://localhost:3001',
               ),
               amount: amount,
-              reference: '2222',
+              reference: 'ref_${generateRandomString(6)}',
               acceptOnlyCard: true,
               configuration: AdyenConfiguration(
                 clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",

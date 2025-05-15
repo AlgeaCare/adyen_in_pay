@@ -46,6 +46,7 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (paymentStatus != null) ...[
                 Padding(
@@ -105,43 +106,45 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                 ),
               ],
               if (!isError) ...[
-                AdyenPayWidget(
-                  amount: amount,
-                  reference: generateRandomString(10),
-                  configuration: AdyenConfiguration(
-                    acceptOnlyCard: onlyCards,
-                    clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
-                    adyenAPI: "http://localhost:3001",
-                    env: 'test',
-                    redirectURL:
-                        '${kIsWeb || kIsWasm ? 'https://app.staging.bloomwell.de/checkout?shopperOrder=2222' : 'adyenExample://com.example.adyenExample'}/checkout?shopperOrder=2222',
-                  ),
-                  onPaymentResult: (PaymentResult payment) {
-                    setState(() {
-                      switch (payment) {
-                        case PaymentAdvancedFinished():
-                          paymentStatus =
-                              "Your payment has been completed successfully!";
-                        case PaymentSessionFinished():
-                          if (payment.resultCode == ResultCode.authorised ||
-                              payment.resultCode == ResultCode.received) {
+                Center(
+                  child: AdyenPayWidget(
+                    amount: amount,
+                    reference: generateRandomString(10),
+                    configuration: AdyenConfiguration(
+                      acceptOnlyCard: onlyCards,
+                      clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
+                      adyenAPI: "http://localhost:3001",
+                      env: 'test',
+                      redirectURL:
+                          '${kIsWeb || kIsWasm ? 'https://app.staging.bloomwell.de/checkout?shopperOrder=2222' : 'adyenExample://com.example.adyenExample'}/checkout?shopperOrder=2222',
+                    ),
+                    onPaymentResult: (PaymentResult payment) {
+                      setState(() {
+                        switch (payment) {
+                          case PaymentAdvancedFinished():
                             paymentStatus =
-                                "Payment session completed successfully!";
-                          } else {
-                            paymentStatus =
-                                "Payment session failed: ${payment.resultCode.name}";
+                                "Your payment has been completed successfully!";
+                          case PaymentSessionFinished():
+                            if (payment.resultCode == ResultCode.authorised ||
+                                payment.resultCode == ResultCode.received) {
+                              paymentStatus =
+                                  "Payment session completed successfully!";
+                            } else {
+                              paymentStatus =
+                                  "Payment session failed: ${payment.resultCode.name}";
+                              isError = true;
+                            }
+                          case PaymentCancelledByUser():
+                            paymentStatus = "Payment was cancelled";
                             isError = true;
-                          }
-                        case PaymentCancelledByUser():
-                          paymentStatus = "Payment was cancelled";
-                          isError = true;
-                        case PaymentError():
-                          paymentStatus =
-                              "An error occurred during payment processing";
-                          isError = true;
-                      }
-                    });
-                  },
+                          case PaymentError():
+                            paymentStatus =
+                                "An error occurred during payment processing";
+                            isError = true;
+                        }
+                      });
+                    },
+                  ),
                 ),
               ]
             ],
