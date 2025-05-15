@@ -5,7 +5,7 @@ import 'package:adyen_in_pay/src/platform/drop_in.dart'
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart'
-    show BuildContext, Widget, TargetPlatform;
+    show BuildContext, Widget, TargetPlatform, Size;
 
 void dropIn({
   required BuildContext context,
@@ -16,6 +16,7 @@ void dropIn({
   required Function(PaymentResult payment) onPaymentResult,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
+  Size? sizeWeb,
 }) => dropInAdvancedMobile(
   client: client,
   amount: amount,

@@ -1,5 +1,5 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:flutter/material.dart' show BuildContext, Widget;
+import 'package:flutter/material.dart' show BuildContext, Size, Widget;
 import 'stub_drop_in.dart'
     if (dart.library.io) 'mobile_drop_in.dart'
     if (dart.library.js_interop) 'web_drop_in.dart';
@@ -13,6 +13,7 @@ void dropInPlatform({
   required Function(PaymentResult payment) onPaymentResult,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
+  Size? sizeWeb,
 }) => dropIn(
   context: context,
   client: client,
@@ -22,4 +23,5 @@ void dropInPlatform({
   onPaymentResult: onPaymentResult,
   widgetChildCloseForWeb: widgetChildCloseForWeb,
   acceptOnlyCard: acceptOnlyCard,
+  sizeWeb: sizeWeb,
 );

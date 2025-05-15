@@ -12,62 +12,69 @@ class PayWidget extends StatelessWidget {
   final PayConfiguration configuration;
   final Map<String, dynamic> paymentMethods;
   final Function(PaymentResult payment) onPaymentResult;
-
+  final Size? sizeWeb;
   const PayWidget({
     super.key,
     required this.amount,
     required this.configuration,
     required this.paymentMethods,
     required this.onPaymentResult,
+    this.sizeWeb = const Size(400, 400),
   });
 
   @override
   Widget build(BuildContext context) {
     return AdyenWebView(
-      clientKey: configuration.clientKey,
-      sessionId: configuration.sessionId,
-      sessionData: configuration.sessionData,
-      amount: amount,
-      currency: 'EUR',
-      env: configuration.env,
-      redirectURL: configuration.redirectURL,
-      onPaymentFailed: () {},
-      onPaymentDone: (result) {
-        onPaymentResult(
-          PaymentSessionFinished(
-            resultCode:
-                ResultCode.values.firstWhereOrNull(
-                  (e) => e.name == result["resultCode"],
-                ) ??
-                ResultCode.unknown,
-            sessionId: result["sessionId"],
-            sessionData: configuration.sessionData,
-            sessionResult: result['sessionResult'],
-          ),
-        );
-      },
-      onStarted: () {},
-      onPaymentMethod: () async {
-        debugPrint("paymentMethods: ${json.encode(paymentMethods)}");
-        return json.encode(paymentMethods);
-      },
-      cardBrands: () async {
-        final brands =
-            (paymentMethods["paymentMethods"] as List<Map<String, dynamic>>)
-                .where((item) => item['type'] == 'scheme')
-                .map((entry) => entry['brand'])
-                .toList()
-                .whereType<String>()
-                .toList();
-        debugPrint(brands.toString());
-        return brands;
-      },
-      onPayment: (Map<String, dynamic> data) async {
-        return json.encode({"resultCode": "1"});
-      },
-      onPaymentDetail: (Map<String, dynamic> data) async {
-        return json.encode({"resultCode": "1"});
-      },
+      configuration: WebConfiguration(
+        configurationType: WebConfigurationTypeSession(
+          clientKey: configuration.clientKey,
+          sessionId: configuration.sessionId,
+          sessionData: configuration.sessionData,
+          amount: amount,
+          currency: 'EUR',
+          env: configuration.env,
+          redirectURL: configuration.redirectURL,
+        ),
+        callbacks: WebCallbackConfiguration(
+          onPaymentFailed: () {},
+          onPaymentDone: (result) {
+            onPaymentResult(
+              PaymentSessionFinished(
+                resultCode:
+                    ResultCode.values.firstWhereOrNull(
+                      (e) => e.name == result["resultCode"],
+                    ) ??
+                    ResultCode.unknown,
+                sessionId: result["sessionId"],
+                sessionData: configuration.sessionData,
+                sessionResult: result['sessionResult'],
+              ),
+            );
+          },
+          onStarted: () {},
+          onPaymentMethod: () async {
+            debugPrint("paymentMethods: ${json.encode(paymentMethods)}");
+            return json.encode(paymentMethods);
+          },
+          cardBrands: () async {
+            final brands =
+                (paymentMethods["paymentMethods"] as List<Map<String, dynamic>>)
+                    .where((item) => item['type'] == 'scheme')
+                    .map((entry) => entry['brand'])
+                    .toList()
+                    .whereType<String>()
+                    .toList();
+            debugPrint(brands.toString());
+            return brands;
+          },
+          onPayment: (Map<String, dynamic> data) async {
+            return json.encode({"resultCode": "1"});
+          },
+          onPaymentDetail: (Map<String, dynamic> data) async {
+            return json.encode({"resultCode": "1"});
+          },
+        ),
+      ),
     );
   }
 }
@@ -80,6 +87,7 @@ class DropInWebWidget extends StatelessWidget {
   final Function(PaymentResult payment) onPaymentResult;
   final Widget? widgetChildCloseForWeb;
   final bool acceptOnlyCard;
+  final Size? sizeWeb;
   const DropInWebWidget({
     super.key,
     required this.client,
@@ -89,6 +97,7 @@ class DropInWebWidget extends StatelessWidget {
     required this.onPaymentResult,
     this.widgetChildCloseForWeb,
     this.acceptOnlyCard = false,
+    this.sizeWeb,
   });
 
   @override
@@ -99,67 +108,110 @@ class DropInWebWidget extends StatelessWidget {
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
-          child: AdyenWebView.advancedFlow(
-            clientKey: configuration.clientKey,
-            amount: amount,
-            currency: 'EUR',
-            env: configuration.env,
-            redirectURL: configuration.redirectURL,
-            onStarted: () {},
-            onPaymentDone: (result) {
-              onPaymentResult(
-                PaymentAdvancedFinished(
-                  resultCode:
-                      ResultCode.values.firstWhereOrNull(
-                        (e) => e.name == result['resultCode'],
-                      ) ??
-                      ResultCode.unknown,
+          height: sizeWeb?.height ?? 600,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: AdyenWebView(
+              configuration: WebConfiguration(
+                configurationType: WebConfigurationTypeAdvanced(
+                  clientKey: configuration.clientKey,
+                  amount: amount,
+                  currency: 'EUR',
+                  env: configuration.env,
+                  redirectURL: configuration.redirectURL,
                 ),
-              );
-            },
-            onPaymentFailed: () {
-              onPaymentResult(PaymentError(reason: 'Payment failed'));
-            },
-            onPayment: (paymentData) async {
-              final bodyPayment = <String, dynamic>{
-                'paymentMethod': paymentData['result']['paymentMethod'],
-                'amount': {'value': amount, 'currency': 'EUR'},
-                'reference': reference,
-                'channel': 'web',
-                'returnUrl': configuration.redirectURL,
-              };
-              final response = await client.makePayment(bodyPayment);
-              return json.encode(response.toJson());
-            },
-            onPaymentDetail: (paymentDetail) async {
-              final response = await client.makeDetailPayment(paymentDetail);
-              return json.encode(response.toJson());
-            },
-            onPaymentMethod: () async {
-              final response = await client.getPaymentMethods();
-              final payMethod =
-                  acceptOnlyCard ? response.onlyCards() : response.toJson();
-              return json.encode(payMethod);
-            },
-            cardBrands: () async {
-              final response = await client.getPaymentMethods();
-              return response.onlyCardBrands();
-            },
+                sizeWeb: sizeWeb,
+                callbacks: WebCallbackConfiguration(
+                  onStarted: () {},
+                  onPaymentDone: (result) {
+                    onPaymentResult(
+                      PaymentAdvancedFinished(
+                        resultCode:
+                            ResultCode.values.firstWhereOrNull(
+                              (e) => e.name == result['resultCode'],
+                            ) ??
+                            ResultCode.unknown,
+                      ),
+                    );
+                  },
+                  onPaymentFailed: () {
+                    onPaymentResult(PaymentError(reason: 'Payment failed'));
+                  },
+                  onPayment: (paymentData) async {
+                    try {
+                      final bodyPayment = <String, dynamic>{
+                        'paymentMethod': paymentData['result']['paymentMethod'],
+                        'amount': {'value': amount, 'currency': 'EUR'},
+                        'reference': reference,
+                        'channel': 'web',
+                        'returnUrl': configuration.redirectURL,
+                      };
+                      final response = await client.makePayment(bodyPayment);
+                      return json.encode(response.toJson());
+                    } catch (e) {
+                      debugPrint(e.toString());
+                      return json.encode({});
+                    }
+                  },
+                  onPaymentDetail: (paymentDetail) async {
+                    try {
+                      final response = await client.makeDetailPayment(
+                        paymentDetail,
+                      );
+                      return json.encode(response.toJson());
+                    } catch (e) {
+                      debugPrint(e.toString());
+                      return json.encode({});
+                    }
+                  },
+                  onPaymentMethod: () async {
+                    final response = await client.getPaymentMethods();
+                    final payMethod =
+                        acceptOnlyCard
+                            ? response.onlyCards()
+                            : response.toJson();
+                    return json.encode(payMethod);
+                  },
+                  cardBrands: () async {
+                    final response = await client.getPaymentMethods();
+                    return response.onlyCardBrands();
+                  },
+                ),
+              ),
+            ),
           ),
         ),
         Positioned(
-          bottom: 12,
           left: 0,
           right: 0,
+          bottom: 12,
           child: PointerInterceptor(
-            child: GestureDetector(
-              onTap: () {
-                AdyenWebView.of(context)?.unmount();
-                Navigator.pop(context);
-              },
-              behavior: HitTestBehavior.translucent,
-              child: widgetChildCloseForWeb ?? const Text('Close'),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  AdyenWebView.of(context)?.unmount();
+                  Navigator.pop(context);
+                },
+                behavior: HitTestBehavior.translucent,
+                child:
+                    widgetChildCloseForWeb ??
+                    SizedBox.square(
+                      dimension: 48,
+                      child: DecoratedBox(
+                        decoration: ShapeDecoration(
+                          shape: CircleBorder(
+                            side: BorderSide(
+                              color: Colors.grey.shade100,
+                              width: 0.5,
+                            ),
+                          ),
+                          color: Colors.transparent,
+                        ),
+                        child: const Icon(Icons.close, size: 24),
+                      ),
+                    ),
+              ),
             ),
           ),
         ),

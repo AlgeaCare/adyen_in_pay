@@ -7,12 +7,14 @@ class PayWidget extends StatelessWidget {
   final PayConfiguration configuration;
   final Map<String, dynamic> paymentMethods;
   final Function(PaymentResult payment) onPaymentResult;
+  final Size? sizeWeb;
   const PayWidget({
     super.key,
     required this.amount,
     required this.configuration,
     required this.paymentMethods,
     required this.onPaymentResult,
+    this.sizeWeb,
   });
 
   @override
