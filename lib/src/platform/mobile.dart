@@ -1,6 +1,5 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class PayWidget extends StatelessWidget {
@@ -19,9 +18,7 @@ class PayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paymentM = _extractPaymentMethod(
-      paymentMethods,
-    );
+    final paymentM = _extractPaymentMethod(paymentMethods);
     return AdyenCardComponent(
       checkout: SessionCheckout(
         id: configuration.sessionId,
@@ -30,10 +27,7 @@ class PayWidget extends StatelessWidget {
       ),
       configuration: CardComponentConfiguration(
         clientKey: configuration.clientKey,
-        amount: Amount(
-          value: amount,
-          currency: 'EUR',
-        ),
+        amount: Amount(value: amount, currency: 'EUR'),
         environment:
             configuration.env == 'test' ? Environment.test : Environment.europe,
         countryCode: 'DE',
@@ -50,22 +44,18 @@ class PayWidget extends StatelessWidget {
 }
 
 Map<String, dynamic> _extractPaymentMethod(
-    Map<String, dynamic> paymentMethods) {
+  Map<String, dynamic> paymentMethods,
+) {
   if (paymentMethods.isEmpty) {
     return <String, String>{};
   }
 
-  List paymentMethodList = paymentMethods["paymentMethods"] as List;
-  Map<String, dynamic> paymentMethod = paymentMethodList.firstWhereOrNull(
-          (paymentMethod) => paymentMethod["type"] == "scheme") ??
-      <String, String>{};
-
-  // List storedPaymentMethodList =
-  //     paymentMethods.containsKey("storedPaymentMethods")
-  //         ? paymentMethods["storedPaymentMethods"] as List
-  //         : [];
-  // Map<String, dynamic> storedPaymentMethod =
-  //     storedPaymentMethodList.firstOrNull ?? <String, String>{};
+  // List paymentMethodList = paymentMethods["paymentMethods"] as List;
+  Map<String, dynamic> paymentMethod = paymentMethods;
+  // paymentMethodList.firstWhereOrNull(
+  //         (paymentMethod) => paymentMethod["type"] == "scheme")
+  //      ??
+  // <String, String>{};
 
   return paymentMethod;
 }

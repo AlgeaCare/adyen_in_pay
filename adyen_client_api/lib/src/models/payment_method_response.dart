@@ -8,16 +8,15 @@ class PaymentMethodResponse {
   factory PaymentMethodResponse.fromJson(Map<String, dynamic> json) {
     return PaymentMethodResponse(
       paymentMethods: (json['paymentMethods'] as List)
-          .map((e) => PaymentMethodConfig.fromJson(e))
+          .map((e) => PaymentMethodConfig.fromJson(Map.castFrom(e)))
           .toList(),
     );
   }
   Map<String, dynamic> onlyCards() {
     return {
-      "paymentMethods": paymentMethods
-          .where((e) => e.type == 'scheme')
-          .map((e) => e.toAllMap())
-          .toList(),
+      "paymentMethods": [
+        paymentMethods.firstWhere((e) => e.name == 'Cards').toAllMap()
+      ],
     };
   }
 
@@ -81,9 +80,12 @@ class PaymentMethodResponse {
     };
   }
 
-  Map<String, String> toMap() => paymentMethods
-      .map((e) => e.toMap())
-      .reduce((value, element) => value..addAll(element));
+  Map<String, dynamic> toJson() => {
+        'paymentMethods': paymentMethods
+            .where((e) => e.type != 'multibanco')
+            .map((e) => e.toJson())
+            .toList(),
+      };
 }
 
 class PaymentMethodConfig {
@@ -101,7 +103,9 @@ class PaymentMethodConfig {
     return PaymentMethodConfig(
       type: json['type'],
       name: json['name'],
-      brand: json['brand'],
+      brand: json['brands'] is List
+          ? (json['brands'] as List).map((e) => e.toString()).toList()
+          : null,
     );
   }
 
@@ -109,6 +113,17 @@ class PaymentMethodConfig {
     final map = <String, String>{};
 
     map[type] = name;
+    return map;
+  }
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+
+    map["type"] = type;
+    map["name"] = name;
+    if (brand != null) {
+      map['brand'] = brand!;
+    }
     return map;
   }
 

@@ -55,12 +55,15 @@ class AdyenClient {
       );
 
       if (response.statusCode == 200) {
-        return PaymentMethodResponse.fromJson(json.decode(response.body));
+        final mapJson = json.decode(response.body);
+        return PaymentMethodResponse.fromJson(mapJson);
       } else {
         throw Exception(
             'Failed to get payment methods: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e,trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
       throw Exception('Error getting payment methods: $e');
     }
   }

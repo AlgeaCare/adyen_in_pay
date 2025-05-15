@@ -44,7 +44,9 @@ class _AdyenPayState extends State<AdyenPayWidget> {
   @override
   void didUpdateWidget(covariant AdyenPayWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.amount != oldWidget.amount) {
+    if (widget.amount != oldWidget.amount ||
+        widget.reference != oldWidget.reference ||
+        widget.configuration != oldWidget.configuration) {
       setState(() {
         futureSession = generateSession();
       });
@@ -67,7 +69,10 @@ class _AdyenPayState extends State<AdyenPayWidget> {
       final paymentMethods = await client.getPaymentMethods();
       return SessionCheckout(
         id: response.id,
-        paymentMethods: paymentMethods.toMap(),
+        paymentMethods:
+            widget.configuration.acceptOnlyCard
+                ? paymentMethods.onlyCards()
+                : paymentMethods.toAllMap(),
         sessionData: response.sessionData,
       );
     }
@@ -92,7 +97,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
       future: futureSession,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return widget.onErrorSessionPreparationWidget != null
               ? widget.onErrorSessionPreparationWidget!(snapshot.error!)
@@ -127,6 +132,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
             sessionData: snapshot.data!.sessionData,
             env: widget.configuration.env,
             redirectURL: widget.configuration.redirectURL,
+            acceptOnlyCard: widget.configuration.acceptOnlyCard,
           ),
           paymentMethods: snapshot.data!.paymentMethods,
           onPaymentResult: widget.onPaymentResult,
