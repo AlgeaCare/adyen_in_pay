@@ -37,6 +37,8 @@ class PayWidget extends StatelessWidget {
       onPaymentResult: (paymentResult) async {
         if (paymentResult is PaymentSessionFinished) {
           debugPrint(paymentResult.resultCode.name);
+        } else {
+          debugPrint(paymentResult.toString());
         }
         onPaymentResult(paymentResult);
       },
@@ -52,7 +54,8 @@ Map<String, dynamic> _extractPaymentMethod(
   }
 
   // List paymentMethodList = paymentMethods["paymentMethods"] as List;
-  Map<String, dynamic> paymentMethod = paymentMethods;
+  Map<String, dynamic> paymentMethod =
+      (paymentMethods['paymentMethods'] as List).first as Map<String, dynamic>;
   // paymentMethodList.firstWhereOrNull(
   //         (paymentMethod) => paymentMethod["type"] == "scheme")
   //      ??
