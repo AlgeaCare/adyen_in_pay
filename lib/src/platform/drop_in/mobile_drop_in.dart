@@ -93,11 +93,15 @@ Future<void> dropInAdvancedMobile({
                   ..putIfAbsent('returnUrl', () => configuration.redirectURL),
               );
               if (result.action?.type == 'threeDS2' ||
-                  result.action?.type == 'redirect') {
+                  result.action?.type == 'redirect' ||
+                  result.action?.type == 'qrCode' ||
+                  result.action?.type == 'await' ||
+                  result.action?.type == 'sdk') {
                 setPaymentData(result.action?.paymentData);
                 return Action(actionResponse: result.action!.toJson());
               }
-              if (result.resultCode == PaymentResultCode.authorised) {
+              if (result.resultCode == PaymentResultCode.authorised ||
+                  result.resultCode == PaymentResultCode.received) {
                 return Finished(resultCode: '201');
               }
               return Error(errorMessage: result.resultCode.toString());
@@ -115,6 +119,7 @@ Future<void> dropInAdvancedMobile({
         return Error(errorMessage: 'error');
       },
       onAdditionalDetails: (paymentResult) async {
+        await Future.delayed(const Duration(seconds: 2));
         final result = await client.makeDetailPayment(
           paymentResult..putIfAbsent('paymentData', () => paymentData),
         );
