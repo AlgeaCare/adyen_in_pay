@@ -1,19 +1,19 @@
-import 'dart:convert';
 import 'package:adyen_client_api/src/models/payment_response.dart';
 import 'package:adyen_client_api/src/models/session_response.dart';
 import 'package:adyen_client_api/src/models/payment_method_response.dart';
 import 'package:flutter/foundation.dart';
 // import 'package:adyen_client_api/src/models/payment_request.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class AdyenClient {
   final String baseUrl;
   // final String apiKey;
-
+  final Dio dio;
   AdyenClient({
     required this.baseUrl,
+    List<Interceptor> interceptors = const [],
     //  required this.apiKey,
-  });
+  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
   Future<SessionResponse> startSession({
     required int amount,
@@ -21,22 +21,17 @@ class AdyenClient {
     required String redirectURL,
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/startSession').replace(
-          queryParameters: {
-            'amount': amount.toString(),
-            'reference': reference,
-            'redirectURL': redirectURL,
-          },
-        ),
-        headers: {
-          // 'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
+      final response = await dio.get<Map<String, dynamic>>(
+        'startSession',
+        queryParameters: {
+          'amount': amount.toString(),
+          'reference': reference,
+          'redirectURL': redirectURL,
         },
       );
 
-      if (response.statusCode == 200) {
-        return SessionResponse.fromJson(json.decode(response.body));
+      if (response.statusCode == 200 && response.data != null) {
+        return SessionResponse.fromJson(response.data!);
       } else {
         throw Exception('Failed to start session: ${response.statusCode}');
       }
@@ -47,21 +42,33 @@ class AdyenClient {
 
   Future<PaymentMethodResponse> getPaymentMethods() async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/paymentMethod'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      final response = await dio.get<Map<String, dynamic>>(
+        'methods',
       );
 
-      if (response.statusCode == 200) {
-        final mapJson = json.decode(response.body);
-        return PaymentMethodResponse.fromJson(mapJson);
+      if (response.statusCode == 200 && response.data != null) {
+        return PaymentMethodResponse.fromJson(response.data!);
       } else {
-        throw Exception(
-            'Failed to get payment methods: ${response.statusCode}');
+        throw Exception('Failed to get payment methods: ${response.statusCode}');
       }
-    } catch (e,trace) {
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
+      throw Exception('Error getting payment methods: $e');
+    }
+  }
+  Future<PaymentMethodResponse> paymentInformation() async {
+    try {
+      final response = await dio.get<Map<String, dynamic>>(
+        'methods',
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return PaymentMethodResponse.fromJson(response.data!);
+      } else {
+        throw Exception('Failed to get payment methods: ${response.statusCode}');
+      }
+    } catch (e, trace) {
       debugPrint(trace.toString());
       debugPrint(e.toString());
       throw Exception('Error getting payment methods: $e');
@@ -70,19 +77,13 @@ class AdyenClient {
 
   Future<PaymentResponse> makePayment(
       Map<String, dynamic> data /* PaymentRequest request */) async {
-    debugPrint("in client => $data");
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/payments'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(data /* request.toJson() */),
+      final response = await dio.post<Map<String, dynamic>>(
+        'make-payment',
+        data: data /* request.toJson() */,
       );
-      debugPrint("in client statusCode => ${response.statusCode}");
-      debugPrint("in client response => ${response.body}");
-      if (response.statusCode == 200) {
-        return PaymentResponse.fromJson(json.decode(response.body));
+      if (response.statusCode == 200 && response.data != null) {
+        return PaymentResponse.fromJson(response.data!);
       } else {
         throw Exception('Failed to process payment: ${response.statusCode}');
       }
@@ -94,16 +95,13 @@ class AdyenClient {
   Future<DetailPaymentResponse> makeDetailPayment(
       Map<String, dynamic> data /* PaymentRequest request */) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/payments/detail'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(data /* request.toJson() */),
+      final response = await dio.post<Map<String, dynamic>>(
+        'handle-details',
+        data: data /* request.toJson() */,
       );
 
-      if (response.statusCode == 200) {
-        return DetailPaymentResponse.fromJson(json.decode(response.body));
+      if (response.statusCode == 200 && response.data != null) {
+        return DetailPaymentResponse.fromJson(response.data!);
       } else {
         throw Exception('Failed to process payment: ${response.statusCode}');
       }
