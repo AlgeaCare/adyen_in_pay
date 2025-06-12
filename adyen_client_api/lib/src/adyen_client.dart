@@ -1,11 +1,9 @@
 import 'package:adyen_client_api/src/models/payment_information.dart';
 import 'package:adyen_client_api/src/models/payment_response.dart';
-import 'package:adyen_client_api/src/models/session_response.dart';
 import 'package:adyen_client_api/src/models/payment_method_response.dart';
 import 'package:adyen_client_api/src/models/shopper_billing_address.dart'
     show ShopperBillingAddress;
 import 'package:flutter/foundation.dart';
-// import 'package:adyen_client_api/src/models/payment_request.dart';
 import 'package:dio/dio.dart';
 
 class AdyenClient {
@@ -18,35 +16,11 @@ class AdyenClient {
     //  required this.apiKey,
   }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
-  Future<SessionResponse> startSession({
-    required int amount,
-    required String reference,
-    required String redirectURL,
-  }) async {
+  Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
     try {
-      final response = await dio.get<Map<String, dynamic>>(
-        'startSession',
-        queryParameters: {
-          'amount': amount.toString(),
-          'reference': reference,
-          'redirectURL': redirectURL,
-        },
-      );
-
-      if (response.statusCode == 200 && response.data != null) {
-        return SessionResponse.fromJson(response.data!);
-      } else {
-        throw Exception('Failed to start session: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error starting session: $e');
-    }
-  }
-
-  Future<PaymentMethodResponse> getPaymentMethods() async {
-    try {
-      final response = await dio.get<Map<String, dynamic>>(
+      final response = await dio.post<Map<String, dynamic>>(
         '/methods',
+        data: data,
       );
 
       if (response.statusCode == 200 && response.data != null) {
@@ -97,7 +71,7 @@ class AdyenClient {
       ));
       data.addAll(paymentData);
       final response = await dio.post<Map<String, dynamic>>(
-        'make-payment',
+        '/make-payment',
         data: data,
       );
       if (response.statusCode == 200 && response.data != null) {
@@ -105,7 +79,9 @@ class AdyenClient {
       } else {
         throw Exception('Failed to process payment: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
       throw Exception('Error processing payment: $e');
     }
   }

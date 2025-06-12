@@ -8,12 +8,6 @@ class PaymentInformation {
   final String lastName;
   final String paymentStatus;
   final String productType;
-  final dynamic metaData;
-  final dynamic warnings;
-  final dynamic comment;
-  final dynamic reminderDate;
-  final dynamic nextReminder;
-  final dynamic ignoredItems;
   final List<Basket> baskets;
 
   PaymentInformation({
@@ -24,12 +18,6 @@ class PaymentInformation {
     required this.paymentStatus,
     required this.productType,
     required this.baskets,
-    this.metaData,
-    this.warnings,
-    this.comment,
-    this.reminderDate,
-    this.nextReminder,
-    this.ignoredItems,
   });
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
@@ -40,12 +28,6 @@ class PaymentInformation {
       lastName: json['last_name'],
       paymentStatus: json['payment_status'],
       productType: json['product_type'],
-      metaData: json['meta_data'],
-      warnings: json['warnings'],
-      comment: json['comment'],
-      reminderDate: json['reminder_date'],
-      nextReminder: json['next_reminder'],
-      ignoredItems: json['ignored_items'],
       baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
     );
   }
@@ -58,12 +40,6 @@ class PaymentInformation {
       'last_name': lastName,
       'payment_status': paymentStatus,
       'product_type': productType,
-      'meta_data': metaData,
-      'warnings': warnings,
-      'comment': comment,
-      'reminder_date': reminderDate,
-      'next_reminder': nextReminder,
-      'ignored_items': ignoredItems,
       'baskets': baskets.map((basket) => basket.toJson()).toList(),
     };
   }
@@ -86,11 +62,8 @@ class PaymentInformation {
       'shopperLocale': shopperLocale,
       'lineItems': baskets
           .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
-          .reduce((value, element) {
-        final list = List<Map<String, dynamic>>.from(value);
-        list.addAll(element);
-        return list;
-      }),
+          .expand((items) => items)
+          .toList(),
     };
   }
 
@@ -105,12 +78,6 @@ class PaymentInformation {
         other.lastName == lastName &&
         other.paymentStatus == paymentStatus &&
         other.productType == productType &&
-        other.metaData == metaData &&
-        other.warnings == warnings &&
-        other.comment == comment &&
-        other.reminderDate == reminderDate &&
-        other.nextReminder == nextReminder &&
-        other.ignoredItems == ignoredItems &&
         _listEquals(other.baskets, baskets);
   }
 
@@ -132,12 +99,6 @@ class PaymentInformation {
       lastName,
       paymentStatus,
       productType,
-      metaData,
-      warnings,
-      comment,
-      reminderDate,
-      nextReminder,
-      ignoredItems,
       Object.hashAll(baskets),
     );
   }

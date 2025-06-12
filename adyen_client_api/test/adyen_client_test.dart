@@ -1,79 +1,31 @@
-import 'dart:convert';
 import 'package:adyen_client_api/adyen_client_api.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-
-@GenerateMocks([http.Client])
-import 'adyen_client_test.mocks.dart' as mock;
+import 'package:http_mock_adapter/http_mock_adapter.dart';
 
 void main() {
-  late mock.MockClient mockHttpClient;
   late AdyenClient adyenClient;
+  late DioAdapter dioAdapter;
+
   const baseUrl = 'https://test.api.adyen.com';
 
   setUp(() {
-    mockHttpClient = mock.MockClient();
-    adyenClient = AdyenClient(baseUrl: baseUrl);
+    adyenClient = AdyenClient(
+      baseUrl: baseUrl,
+    );
+    dioAdapter = DioAdapter(dio: adyenClient.dio);
+
+    dioAdapter.onGet(
+      '$baseUrl/startSession',
+      (server) => server.reply(
+        200,
+        {'message': 'Success!'},
+        // Reply would wait for one-sec before returning data.
+        delay: const Duration(seconds: 1),
+      ),
+    );
   });
 
   group('AdyenClient', () {
-    group('startSession', () {
-      test('returns SessionResponse when successful', () async {
-        final mockResponse = {
-          'amount': {'value': 1000, 'currency': 'EUR'},
-          'countryCode': 'NL',
-          'expiresAt': '2024-01-01T00:00:00Z',
-          'id': 'test-session-id',
-          'merchantAccount': 'TestMerchant',
-          'mode': 'test',
-          'reference': 'test-reference',
-          'returnUrl': 'https://test.com/return',
-          'sessionData': 'test-session-data',
-          'shopperLocale': 'en-US'
-        };
-
-        when(mockHttpClient.get(
-          Uri.parse('$baseUrl/startSession').replace(
-            queryParameters: {
-              'amount': '1000',
-              'reference': 'test-reference',
-              'redirectURL': 'https://test.com/return',
-            },
-          ),
-          headers: {'Content-Type': 'application/json'},
-        )).thenAnswer(
-            (_) async => http.Response(json.encode(mockResponse), 200));
-
-        final response = await adyenClient.startSession(
-          amount: 1000,
-          reference: 'test-reference',
-          redirectURL: 'https://test.com/return',
-        );
-
-        expect(response, isA<SessionResponse>());
-        expect(response.id, equals('test-session-id'));
-        expect(response.amount.value, equals(1000));
-      });
-
-      test('throws exception when request fails', () {
-        when(mockHttpClient.get(
-          Uri.http(""),
-          headers: any,
-        )).thenAnswer((_) async => http.Response('Server Error', 500));
-
-        expect(
-          () => adyenClient.startSession(
-            amount: 1000,
-            reference: 'test-reference',
-            redirectURL: 'https://test.com/return',
-          ),
-          throwsException,
-        );
-      });
-    });
-
     group('getPaymentMethods', () {
       test('returns PaymentMethodResponse when successful', () async {
         final mockResponse = {
@@ -85,12 +37,15 @@ void main() {
             }
           ]
         };
-
-        when(mockHttpClient.get(
-          Uri.parse('$baseUrl/paymentMethod'),
-          headers: {'Content-Type': 'application/json'},
-        )).thenAnswer(
-            (_) async => http.Response(json.encode(mockResponse), 200));
+        dioAdapter.onPost(
+          '/methods',
+          (server) => server.reply(
+            200,
+            mockResponse,
+            // Reply would wait for one-sec before returning data.
+            delay: const Duration(seconds: 1),
+          ),
+        );
 
         final response = await adyenClient.getPaymentMethods();
 
@@ -100,11 +55,15 @@ void main() {
       });
 
       test('throws exception when request fails', () {
-        when(mockHttpClient.get(
-          Uri.http(""),
-          headers: any,
-        )).thenAnswer((_) async => http.Response('Server Error', 500));
-
+        dioAdapter.onPost(
+          '/methods',
+          (server) => server.reply(
+            500,
+            {'message': 'Server Error'},
+            // Reply would wait for one-sec before returning data.
+            delay: const Duration(seconds: 1),
+          ),
+        );
         expect(
           () => adyenClient.getPaymentMethods(),
           throwsException,
@@ -135,15 +94,28 @@ void main() {
             holderName: 'Test User',
           ),
         );
+        final paymentInformation = PaymentInformation(
+          invoiceId: 'test-invoice-id',
+          email: 'test-email',
+          firstName: 'Test',
+          lastName: 'User',
+          paymentStatus: 'Paid',
+          productType: 'Test Product',
+          baskets: [],
+        );
 
-        when(mockHttpClient.post(
-          Uri.parse('$baseUrl/payments'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(paymentRequest.toJson()),
-        )).thenAnswer(
-            (_) async => http.Response(json.encode(mockResponse), 200));
+        dioAdapter.onPost(
+          '/make-payment',
+          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
+          (server) => server.reply(
+            200,
+            mockResponse,
+            // Reply would wait for one-sec before returning data.
+            delay: const Duration(seconds: 1),
+          ),
+        );
 
-        final response = await adyenClient.makePayment(paymentRequest.toJson());
+        final response = await adyenClient.makePayment(paymentInformation, paymentRequest.toJson());
 
         expect(response, isA<PaymentResponse>());
         expect(response.resultCode, equals(PaymentResultCode.authorised));
@@ -165,18 +137,44 @@ void main() {
             holderName: 'Test User',
           ),
         );
-
-        when(mockHttpClient.post(
-          Uri.http(""),
-          headers: any,
-          body: any,
-        )).thenAnswer((_) async => http.Response('Server Error', 500));
+        final paymentInformation = PaymentInformation(
+          invoiceId: 'test-invoice-id',
+          email: 'test-email',
+          firstName: 'Test',
+          lastName: 'User',
+          paymentStatus: 'Paid',
+          productType: 'Test Product',
+          baskets: [],
+        );
+        dioAdapter.onPost(
+          '/make-payment',
+          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
+          (server) => server.reply(
+            500,
+            {'message': 'Server Error'},
+            // Reply would wait for one-sec before returning data.
+            delay: const Duration(seconds: 1),
+          ),
+        );
 
         expect(
-          () => adyenClient.makePayment(paymentRequest.toJson()),
+          () => adyenClient.makePayment(paymentInformation, paymentRequest.toJson()),
           throwsException,
         );
       });
     });
   });
 }
+
+final mockResponse = {
+  'amount': {'value': 1000, 'currency': 'EUR'},
+  'countryCode': 'NL',
+  'expiresAt': '2024-01-01T00:00:00Z',
+  'id': 'test-session-id',
+  'merchantAccount': 'TestMerchant',
+  'mode': 'test',
+  'reference': 'test-reference',
+  'returnUrl': 'https://test.com/return',
+  'sessionData': 'test-session-data',
+  'shopperLocale': 'en-US'
+};
