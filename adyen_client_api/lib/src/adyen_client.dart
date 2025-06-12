@@ -1,6 +1,9 @@
+import 'package:adyen_client_api/src/models/payment_information.dart';
 import 'package:adyen_client_api/src/models/payment_response.dart';
 import 'package:adyen_client_api/src/models/session_response.dart';
 import 'package:adyen_client_api/src/models/payment_method_response.dart';
+import 'package:adyen_client_api/src/models/shopper_billing_address.dart'
+    show ShopperBillingAddress;
 import 'package:flutter/foundation.dart';
 // import 'package:adyen_client_api/src/models/payment_request.dart';
 import 'package:dio/dio.dart';
@@ -43,7 +46,7 @@ class AdyenClient {
   Future<PaymentMethodResponse> getPaymentMethods() async {
     try {
       final response = await dio.get<Map<String, dynamic>>(
-        'methods',
+        '/methods',
       );
 
       if (response.statusCode == 200 && response.data != null) {
@@ -57,30 +60,45 @@ class AdyenClient {
       throw Exception('Error getting payment methods: $e');
     }
   }
-  Future<PaymentMethodResponse> paymentInformation() async {
+
+  Future<PaymentInformation> paymentInformation({
+    required String invoiceId,
+  }) async {
     try {
       final response = await dio.get<Map<String, dynamic>>(
-        'methods',
+        '/$invoiceId',
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        return PaymentMethodResponse.fromJson(response.data!);
+        return PaymentInformation.fromJson(response.data!);
       } else {
-        throw Exception('Failed to get payment methods: ${response.statusCode}');
+        throw Exception('Failed to get payment information: ${response.statusCode}');
       }
     } catch (e, trace) {
-      debugPrint(trace.toString());
-      debugPrint(e.toString());
-      throw Exception('Error getting payment methods: $e');
+      throw Exception('Error getting payment methods: $e,$trace');
     }
   }
 
   Future<PaymentResponse> makePayment(
-      Map<String, dynamic> data /* PaymentRequest request */) async {
+    PaymentInformation paymentInformation,
+    Map<String, dynamic> paymentData, {
+    String? countryCode,
+    String? shopperLocale,
+    String? telephoneNumber,
+    ShopperBillingAddress? billingAddress,
+  }) async {
     try {
+      final data = {};
+      data.addAll(paymentInformation.toPaymentDataJson(
+        countryCode: countryCode,
+        shopperLocale: shopperLocale,
+        telephoneNumber: telephoneNumber,
+        billingAddress: billingAddress,
+      ));
+      data.addAll(paymentData);
       final response = await dio.post<Map<String, dynamic>>(
         'make-payment',
-        data: data /* request.toJson() */,
+        data: data,
       );
       if (response.statusCode == 200 && response.data != null) {
         return PaymentResponse.fromJson(response.data!);

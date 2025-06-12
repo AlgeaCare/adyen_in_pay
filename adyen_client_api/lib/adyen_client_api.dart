@@ -5,3 +5,5 @@ export 'src/models/payment_method_response.dart';
 export 'src/models/payment_request.dart';
 export 'src/models/payment_response.dart';
 export 'src/models/session_response.dart';
+export 'src/models/shopper_billing_address.dart';
+export 'src/models/payment_information.dart';
