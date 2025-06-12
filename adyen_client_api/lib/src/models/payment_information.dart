@@ -1,3 +1,6 @@
+import 'package:adyen_client_api/src/models/shopper_billing_address.dart'
+    show ShopperBillingAddress;
+
 class PaymentInformation {
   final String invoiceId;
   final String email;
@@ -62,6 +65,32 @@ class PaymentInformation {
       'next_reminder': nextReminder,
       'ignored_items': ignoredItems,
       'baskets': baskets.map((basket) => basket.toJson()).toList(),
+    };
+  }
+
+  Map<String, dynamic> toPaymentDataJson({
+    String? countryCode,
+    String? shopperLocale,
+    String? telephoneNumber,
+    ShopperBillingAddress? billingAddress,
+  }) {
+    return {
+      'shopperEmail': email,
+      'shopperName': {
+        'firstName': firstName,
+        'lastName': lastName,
+      },
+      'billingAddress': billingAddress?.toJson(),
+      'telephoneNumber': telephoneNumber,
+      'countryCode': countryCode,
+      'shopperLocale': shopperLocale,
+      'lineItems': baskets
+          .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
+          .reduce((value, element) {
+        final list = List<Map<String, dynamic>>.from(value);
+        list.addAll(element);
+        return list;
+      }),
     };
   }
 
@@ -214,8 +243,6 @@ class Basket {
 
 class BasketItem {
   final int id;
-  final String createdAt;
-  final String updatedAt;
   final int basketId;
   final dynamic basketItemReferenceId;
   final int quantity;
@@ -230,8 +257,6 @@ class BasketItem {
 
   BasketItem({
     required this.id,
-    required this.createdAt,
-    required this.updatedAt,
     required this.basketId,
     this.basketItemReferenceId,
     required this.quantity,
@@ -248,8 +273,6 @@ class BasketItem {
   factory BasketItem.fromJson(Map<String, dynamic> json) {
     return BasketItem(
       id: json['id'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
       basketId: json['basket_id'],
       basketItemReferenceId: json['basket_item_reference_id'],
       quantity: json['quantity'],
@@ -267,8 +290,6 @@ class BasketItem {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'created_at': createdAt,
-      'updated_at': updatedAt,
       'basket_id': basketId,
       'basket_item_reference_id': basketItemReferenceId,
       'quantity': quantity,
@@ -283,14 +304,21 @@ class BasketItem {
     };
   }
 
+  Map<String, dynamic> toPaymentDataJson() {
+    return {
+      'id': id,
+      'amountIncludingTax': amountGross,
+      'description': title,
+      'quantity': quantity,
+    };
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
     return other is BasketItem &&
         other.id == id &&
-        other.createdAt == createdAt &&
-        other.updatedAt == updatedAt &&
         other.basketId == basketId &&
         other.basketItemReferenceId == basketItemReferenceId &&
         other.quantity == quantity &&
@@ -308,8 +336,6 @@ class BasketItem {
   int get hashCode {
     return Object.hash(
       id,
-      createdAt,
-      updatedAt,
       basketId,
       basketItemReferenceId,
       quantity,
