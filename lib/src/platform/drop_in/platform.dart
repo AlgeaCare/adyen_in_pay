@@ -1,5 +1,9 @@
-import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:flutter/material.dart' show BuildContext, Size, Widget;
+import 'package:adyen_checkout/adyen_checkout.dart' show PaymentResult;
+import 'package:adyen_client_api/adyen_client_api.dart' show AdyenClient;
+import 'package:adyen_in_pay/src/models/configuration_status.dart';
+import 'package:adyen_in_pay/src/models/pay_configuration.dart' show AdyenConfiguration;
+import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
+import 'package:flutter/material.dart' show BuildContext, Widget;
 import 'stub_drop_in.dart'
     if (dart.library.io) 'mobile_drop_in.dart'
     if (dart.library.js_interop) 'web_drop_in.dart';
@@ -10,10 +14,12 @@ void dropInPlatform({
   required int amount,
   required String reference,
   required AdyenConfiguration configuration,
+  required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
+  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
-  Size? sizeWeb,
+  String? webURL,
 }) => dropIn(
   context: context,
   client: client,
@@ -23,5 +29,7 @@ void dropInPlatform({
   onPaymentResult: onPaymentResult,
   widgetChildCloseForWeb: widgetChildCloseForWeb,
   acceptOnlyCard: acceptOnlyCard,
-  sizeWeb: sizeWeb,
+  webURL: webURL,
+  shopperPaymentInformation: shopperPaymentInformation,
+  onConfigurationStatus: onConfigurationStatus,
 );

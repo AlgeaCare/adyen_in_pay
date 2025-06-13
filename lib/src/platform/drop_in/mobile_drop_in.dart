@@ -1,11 +1,9 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/platform/drop_in.dart'
-    show paymentData, setPaymentData;
-import 'package:collection/collection.dart';
+import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
-import 'package:flutter/material.dart'
-    show BuildContext, Widget, TargetPlatform, Size;
+import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
+import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
 
 void dropIn({
   required BuildContext context,
@@ -14,15 +12,20 @@ void dropIn({
   required String reference,
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
+  required ShopperPaymentInformation shopperPaymentInformation,
+  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
-  Size? sizeWeb,
+  String? webURL,
 }) => dropInAdvancedMobile(
   client: client,
   amount: amount,
   reference: reference,
   configuration: configuration,
   onPaymentResult: onPaymentResult,
+  shopperPaymentInformation: shopperPaymentInformation,
+  onConfigurationStatus: onConfigurationStatus,
   acceptOnlyCard: acceptOnlyCard,
 );
 
@@ -32,99 +35,94 @@ Future<void> dropInAdvancedMobile({
   required String reference,
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
+  required ShopperPaymentInformation shopperPaymentInformation,
   bool acceptOnlyCard = false,
+  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
 }) async {
-  final paymentMethods = await client.getPaymentMethods();
-
+  onConfigurationStatus(ConfigurationStatus.started);
+  final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
+  final String userAgent = await user_agent.userAgent();
+  final paymentInformation = await client.paymentInformation(invoiceId: reference);
+  final paymentMethods = await client.getPaymentMethods(
+    data: {
+      'shopperEmail': paymentInformation.email,
+      'browserInfo': {
+        'acceptHeader':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'userAgentHeader': userAgent,
+      },
+      'channel': channel,
+    },
+  );
+  onConfigurationStatus(ConfigurationStatus.done);
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.clientKey,
     amount: Amount(value: amount, currency: 'EUR'),
     // paymentMethodNames: paymentMethods.toMap(),
     skipListWhenSinglePaymentMethod: true,
-    shopperLocale: 'de_DE',
+    shopperLocale: shopperPaymentInformation.locale,
     cardConfiguration: CardConfiguration(
       showStorePaymentField: true,
-      supportedCardTypes:
-          acceptOnlyCard
-              ? paymentMethods.onlyCardBrands()
-              : paymentMethods.paymentMethods
-                      .firstWhereOrNull((e) => e.type == 'scheme')
-                      ?.brand ??
-                  <String>[],
+      supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
-    cashAppPayConfiguration: CashAppPayConfiguration(
-      cashAppPayEnvironment:
-          configuration.env == 'test'
-              ? CashAppPayEnvironment.sandbox
-              : CashAppPayEnvironment.production,
-      returnUrl: configuration.redirectURL,
+    applePayConfiguration: ApplePayConfiguration(
+      merchantId: 'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantName: 'BloomwellECOM',
+      merchantCapability: ApplePayMerchantCapability.credit,
+      allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
+      merchantInfo: MerchantInfo(
+        merchantId:
+            shopperPaymentInformation
+                .merchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantName: shopperPaymentInformation.merchantName,
+      ),
       googlePayEnvironment:
-          configuration.env == 'test'
-              ? GooglePayEnvironment.test
-              : GooglePayEnvironment.production,
+          configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
     ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
-    environment:
-        configuration.env == 'test' ? Environment.test : Environment.europe,
-    countryCode: 'DE',
+    environment: configuration.env == 'test' ? Environment.test : Environment.europe,
+    countryCode: shopperPaymentInformation.countryCode,
   );
   final paymentResult = await AdyenCheckout.advanced.startDropIn(
     dropInConfiguration: dropInConfig,
-    paymentMethods: paymentMethods.onlyCards(),
+    paymentMethods: acceptOnlyCard ? paymentMethods.onlyCards() : paymentMethods.toJson(),
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
-        if (data.containsKey('paymentMethod')) {
-          switch (data['paymentMethod']['type'].toLowerCase()) {
-            case 'scheme':
-              final result = await client.makePayment(
-                data
-                  ..putIfAbsent(
-                    'channel',
-                    () =>
-                        defaultTargetPlatform == TargetPlatform.android
-                            ? 'android'
-                            : 'ios',
-                  )
-                  ..putIfAbsent('reference', () => reference)
-                  ..putIfAbsent('returnUrl', () => configuration.redirectURL),
-              );
-              if (result.action?.type == 'threeDS2' ||
-                  result.action?.type == 'redirect' ||
-                  result.action?.type == 'qrCode' ||
-                  result.action?.type == 'await' ||
-                  result.action?.type == 'sdk') {
-                setPaymentData(result.action?.paymentData);
-                return Action(actionResponse: result.action!.toJson());
-              }
-              if (result.resultCode == PaymentResultCode.authorised ||
-                  result.resultCode == PaymentResultCode.received) {
-                return Finished(resultCode: '201');
-              }
-              return Error(errorMessage: result.resultCode.toString());
-            case 'klarna':
-            case 'paybybank':
-            case 'klarna_paynow':
-              await Future.delayed(const Duration(seconds: 2));
-              break;
-            default:
-              return Error(errorMessage: 'error');
-          }
-
+        final result = await client.makePayment(
+          paymentInformation,
+          data
+            ..putIfAbsent('channel', () => channel)
+            ..putIfAbsent('reference', () => reference)
+            ..putIfAbsent('returnUrl', () => configuration.redirectURL),
+          billingAddress: shopperPaymentInformation.billingAddress,
+          countryCode: shopperPaymentInformation.countryCode,
+          shopperLocale: shopperPaymentInformation.locale,
+          telephoneNumber: shopperPaymentInformation.telephoneNumber,
+        );
+        if (result.action?.type == 'threeDS2' ||
+            result.action?.type == 'redirect' ||
+            result.action?.type == 'qrCode' ||
+            result.action?.type == 'await' ||
+            result.action?.type == 'sdk') {
+          setPaymentData(result.action?.paymentData);
+          return Action(actionResponse: result.action!.toJson());
+        }
+        if (result.resultCode == PaymentResultCode.authorised ||
+            result.resultCode == PaymentResultCode.received) {
           return Finished(resultCode: '201');
         }
-        return Error(errorMessage: 'error');
+        return Error(errorMessage: result.resultCode.toString());
       },
       onAdditionalDetails: (paymentResult) async {
         await Future.delayed(const Duration(seconds: 2));
         final result = await client.makeDetailPayment(
           paymentResult..putIfAbsent('paymentData', () => paymentData),
         );
-        if (result.resultCode.toLowerCase() ==
-            PaymentResultCode.authorised.name.toLowerCase()) {
+        if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase()) {
           return Finished(resultCode: '201');
         }
         return Error(errorMessage: result.resultCode.toString());
@@ -136,71 +134,5 @@ Future<void> dropInAdvancedMobile({
   }
   onPaymentResult(paymentResult);
 
-  return Future.delayed(const Duration(seconds: 2));
-}
-
-Future<void> dropInSessionFlow({
-  required AdyenClient client,
-  required int amount,
-  required String reference,
-  required AdyenConfiguration configuration,
-  required Function(PaymentResult payment) onPaymentResult,
-}) async {
-  final paymentMethods = await client.getPaymentMethods();
-
-  final dropInConfig = DropInConfiguration(
-    clientKey: configuration.clientKey,
-    amount: Amount(value: amount, currency: 'EUR'),
-    // paymentMethodNames: paymentMethods.toMap(),
-    skipListWhenSinglePaymentMethod: true,
-    shopperLocale: 'de_DE',
-    cardConfiguration: CardConfiguration(
-      showStorePaymentField: true,
-      supportedCardTypes:
-          paymentMethods.paymentMethods
-              .firstWhereOrNull((e) => e.type == 'scheme')
-              ?.brand ??
-          <String>[],
-    ),
-    cashAppPayConfiguration: CashAppPayConfiguration(
-      cashAppPayEnvironment:
-          configuration.env == 'test'
-              ? CashAppPayEnvironment.sandbox
-              : CashAppPayEnvironment.production,
-      returnUrl: configuration.redirectURL,
-    ),
-    googlePayConfiguration: GooglePayConfiguration(
-      googlePayEnvironment:
-          configuration.env == 'test'
-              ? GooglePayEnvironment.test
-              : GooglePayEnvironment.production,
-    ),
-    storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
-      showPreselectedStoredPaymentMethod: true,
-    ),
-    environment:
-        configuration.env == 'test' ? Environment.test : Environment.europe,
-    countryCode: 'DE',
-  );
-  final response = await client.startSession(
-    amount: amount,
-    reference: reference,
-    redirectURL: configuration.redirectURL,
-  );
-  final SessionCheckout sessionCheckout = await AdyenCheckout.session.create(
-    sessionId: response.id,
-    sessionData: response.sessionData,
-    configuration: dropInConfig,
-  );
-
-  final paymentResult = await AdyenCheckout.session.startDropIn(
-    checkout: sessionCheckout,
-    dropInConfiguration: dropInConfig,
-  );
-  if (paymentResult is PaymentCancelledByUser) {
-    await AdyenCheckout.advanced.stopDropIn();
-  }
-  onPaymentResult(paymentResult);
-
-  return Future.delayed(const Duration(seconds: 2));
+  return Future.delayed(const Duration(seconds: 1));
 }

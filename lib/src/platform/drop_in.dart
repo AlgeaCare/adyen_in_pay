@@ -1,6 +1,8 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay/src/models/configuration_status.dart';
+
 import 'package:adyen_in_pay/src/platform/drop_in/platform.dart';
-import 'package:flutter/material.dart' show BuildContext, Widget, Size;
+import 'package:flutter/material.dart' show BuildContext, Widget;
 
 class DropInPlatform {
   static String? _paymentData;
@@ -10,10 +12,12 @@ class DropInPlatform {
     required int amount,
     required String reference,
     required AdyenConfiguration configuration,
+    required ShopperPaymentInformation shopperPaymentInformation,
     required Function(PaymentResult payment) onPaymentResult,
+    required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
     Widget? widgetChildCloseForWeb,
     bool acceptOnlyCard = false,
-    Size? sizeWeb,
+    String? webURL,
   }) async => dropInPlatform(
     context: context,
     client: client,
@@ -21,9 +25,11 @@ class DropInPlatform {
     reference: reference,
     configuration: configuration,
     onPaymentResult: onPaymentResult,
+    onConfigurationStatus: onConfigurationStatus,
     acceptOnlyCard: acceptOnlyCard,
+    shopperPaymentInformation: shopperPaymentInformation,
     widgetChildCloseForWeb: widgetChildCloseForWeb,
-    sizeWeb: sizeWeb,
+    webURL: webURL,
   );
 }
 

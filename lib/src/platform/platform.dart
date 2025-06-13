@@ -32,9 +32,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
   late Future<SessionCheckout> futureSession;
   InstantComponentConfiguration? cardComponentConfig;
   DropInConfiguration? dropInConfig;
-  late final AdyenClient client = AdyenClient(
-    baseUrl: widget.configuration.adyenAPI,
-  );
+  late final AdyenClient client = AdyenClient(baseUrl: widget.configuration.adyenAPI);
   @override
   void initState() {
     super.initState();
@@ -58,17 +56,13 @@ class _AdyenPayState extends State<AdyenPayWidget> {
     super.dispose();
   }
 
-  Future<SessionResponse> startSession() async => client.startSession(
-    amount: widget.amount,
-    reference: widget.reference,
-    redirectURL: widget.configuration.redirectURL,
-  );
+  Future<SessionResponse?> startSession() async => null;
   Future<SessionCheckout> generateSession() => Future.microtask(() async {
     final response = await startSession();
     if (kIsWeb) {
       final paymentMethods = await client.getPaymentMethods();
       return SessionCheckout(
-        id: response.id,
+        id: response!.id,
         paymentMethods:
             widget.configuration.acceptOnlyCard
                 ? paymentMethods.onlyCards()
@@ -79,14 +73,11 @@ class _AdyenPayState extends State<AdyenPayWidget> {
     cardComponentConfig = InstantComponentConfiguration(
       clientKey: widget.configuration.clientKey,
       amount: Amount(value: widget.amount, currency: 'EUR'),
-      environment:
-          widget.configuration.env == 'test'
-              ? Environment.test
-              : Environment.europe,
+      environment: widget.configuration.env == 'test' ? Environment.test : Environment.europe,
       countryCode: 'DE',
     );
     return AdyenCheckout.session.create(
-      sessionId: response.id,
+      sessionId: response!.id,
       configuration: cardComponentConfig!,
       sessionData: response.sessionData,
     );
@@ -112,7 +103,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
                         futureSession = Future.microtask(() async {
                           final response = await startSession();
                           return AdyenCheckout.session.create(
-                            sessionId: response.id,
+                            sessionId: response!.id,
                             configuration: cardComponentConfig!,
                             sessionData: response.sessionData,
                           );
