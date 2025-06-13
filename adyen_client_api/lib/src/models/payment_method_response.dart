@@ -14,9 +14,7 @@ class PaymentMethodResponse {
   }
   Map<String, dynamic> onlyCards() {
     return {
-      "paymentMethods": [
-        paymentMethods.firstWhere((e) => e.name == 'Cards').toAllMap()
-      ],
+      "paymentMethods": [paymentMethods.firstWhere((e) => e.name == 'Cards').toAllMap()],
     };
   }
 
@@ -73,18 +71,14 @@ class PaymentMethodResponse {
 
   Map<String, dynamic> toAllMap() {
     return {
-      "paymentMethods": paymentMethods
-          .where((e) => e.type != 'multibanco')
-          .map((e) => e.toAllMap())
-          .toList(),
+      "paymentMethods":
+          paymentMethods.where((e) => e.type != 'multibanco').map((e) => e.toAllMap()).toList(),
     };
   }
 
   Map<String, dynamic> toJson() => {
-        'paymentMethods': paymentMethods
-            .where((e) => e.type != 'multibanco')
-            .map((e) => e.toJson())
-            .toList(),
+        'paymentMethods':
+            paymentMethods.where((e) => e.type != 'multibanco').map((e) => e.toJson()).toList(),
       };
 }
 
@@ -122,7 +116,7 @@ class PaymentMethodConfig {
     map["type"] = type;
     map["name"] = name;
     if (brand != null) {
-      map['brand'] = brand!;
+      map['brands'] = brand!;
     }
     return map;
   }
@@ -133,7 +127,7 @@ class PaymentMethodConfig {
     map["type"] = type;
     map["name"] = name;
     if (brand != null) {
-      map['brand'] = brand!.join(',');
+      map['brands'] = brand!.join(',');
     }
     return map;
   }

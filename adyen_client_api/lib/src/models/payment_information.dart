@@ -60,6 +60,7 @@ class PaymentInformation {
       'telephoneNumber': telephoneNumber,
       'countryCode': countryCode,
       'shopperLocale': shopperLocale,
+      'shopperReference': invoiceId,
       'lineItems': baskets
           .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
           .expand((items) => items)
@@ -110,9 +111,9 @@ class Basket {
   final int amountTotalGross;
   final String title;
   final String subTitle;
-  final String productType;
-  final String resourceId;
-  final String subMerchantResourceId;
+  final String? productType;
+  final String? resourceId;
+  final String? subMerchantResourceId;
   final bool active;
   final List<BasketItem> items;
 
@@ -122,9 +123,9 @@ class Basket {
     required this.amountTotalGross,
     required this.title,
     required this.subTitle,
-    required this.productType,
-    required this.resourceId,
-    required this.subMerchantResourceId,
+    this.productType,
+    this.resourceId,
+    this.subMerchantResourceId,
     required this.active,
     required this.items,
   });
@@ -267,7 +268,7 @@ class BasketItem {
 
   Map<String, dynamic> toPaymentDataJson() {
     return {
-      'id': id,
+      'id': id.toString(),
       'amountIncludingTax': amountGross,
       'description': title,
       'quantity': quantity,
