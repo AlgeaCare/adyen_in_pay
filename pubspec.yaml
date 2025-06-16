@@ -1,6 +1,6 @@
 name: adyen_in_pay
-description: "A new Flutter plugin project."
-version: 0.0.1
+description: "A Flutter plugin for Adyen."
+version: 0.1.0
 homepage:
 
 environment:
@@ -15,15 +15,23 @@ dependencies:
   adyen_checkout: ^1.4.0
   plugin_platform_interface: ^2.0.2
   pointer_interceptor: ^0.10.1+2
+  url_launcher: ^6.3.1
+  local_storage_web:
+    path: ./local_storage_web
   adyen_client_api:
     path: ./adyen_client_api
   adyen_web_flutter:
     path: ./adyen_web_flutter
+  ua_client_hints: ^1.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  http_mock_adapter: ^0.6.1
+
+override_dependencies:
+  url_launcher_web: ^2.4.1
 
 
 
