@@ -18,10 +18,8 @@ class AdyenClient {
 
   Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
     try {
-      final response = await dio.post<Map<String, dynamic>>(
-        '/methods',
-        data: data,
-      );
+      final response = await dio.post<Map<String, dynamic>>('/methods', data: data!
+          );
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentMethodResponse.fromJson(response.data!);
@@ -69,14 +67,23 @@ class AdyenClient {
         telephoneNumber: telephoneNumber,
         billingAddress: billingAddress,
       ));
+      final browserInfo = {'userAgent': paymentData['browserInfo']['userAgent']};
+      paymentData['browserInfo'] = browserInfo;
       data.addAll(paymentData);
       final response = await dio.post<Map<String, dynamic>>(
         '/make-payment',
-        data: data,
+        data: {
+          'provider': data,
+          'payment': {
+            'invoiceId': paymentInformation.invoiceId,
+          }
+        },
       );
       if (response.statusCode == 200 && response.data != null) {
         return PaymentResponse.fromJson(response.data!);
       } else {
+        debugPrint(response.data.toString());
+        debugPrint(response.statusMessage.toString());
         throw Exception('Failed to process payment: ${response.statusCode}');
       }
     } catch (e, trace) {
