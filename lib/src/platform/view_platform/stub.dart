@@ -1,5 +1,6 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
+import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
 import 'package:flutter/widgets.dart';
 
 class PayWidget extends StatelessWidget {
@@ -7,6 +8,7 @@ class PayWidget extends StatelessWidget {
   final PayConfiguration configuration;
   final Map<String, dynamic> paymentMethods;
   final Function(PaymentResult payment) onPaymentResult;
+  final ShopperPaymentInformation shopperPaymentInformation;
   final Size? sizeWeb;
   const PayWidget({
     super.key,
@@ -14,6 +16,7 @@ class PayWidget extends StatelessWidget {
     required this.configuration,
     required this.paymentMethods,
     required this.onPaymentResult,
+    required this.shopperPaymentInformation,
     this.sizeWeb,
   });
 

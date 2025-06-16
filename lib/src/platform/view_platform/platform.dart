@@ -1,10 +1,11 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_client_api/adyen_client_api.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
+import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:adyen_in_pay/src/platform/stub.dart'
+import 'package:adyen_in_pay/src/platform/view_platform/stub.dart'
     if (dart.library.io) 'package:adyen_in_pay/src/platform/mobile.dart'
     if (dart.library.js_interop) 'package:adyen_in_pay/src/platform/web_ui.dart';
 
@@ -14,13 +15,14 @@ class AdyenPayWidget extends StatefulWidget {
   final AdyenConfiguration configuration;
   final Function(PaymentResult payment) onPaymentResult;
   final Widget Function(Object error)? onErrorSessionPreparationWidget;
-
+  final ShopperPaymentInformation shopperPaymentInformation;
   const AdyenPayWidget({
     super.key,
     required this.amount,
     required this.reference,
     required this.configuration,
     required this.onPaymentResult,
+    required this.shopperPaymentInformation,
     this.onErrorSessionPreparationWidget,
   });
 
@@ -127,6 +129,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
           ),
           paymentMethods: snapshot.data!.paymentMethods,
           onPaymentResult: widget.onPaymentResult,
+          shopperPaymentInformation: widget.shopperPaymentInformation,
         );
       },
     );
