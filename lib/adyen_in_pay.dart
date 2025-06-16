@@ -14,3 +14,4 @@ export 'src/platform/drop_in.dart' hide paymentData, setPaymentData;
 export 'package:payment_client_api/payment_client_api.dart';
 export 'src/models/shopper.dart';
 export 'src/models/configuration_status.dart';
+export 'src/models/adyen_keys_configuration.dart';

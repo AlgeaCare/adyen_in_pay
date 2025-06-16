@@ -37,7 +37,9 @@ abstract class EnvInfo {
   static bool get isProduction => _environment == AppEnvironment.PROD;
   static bool get isStaging => _environment == AppEnvironment.STAGING;
 
-  static String get dopplerKey => const String.fromEnvironment('DOPPLER_KEY');
+  static String get adyenClientKey => const String.fromEnvironment('ADYEN_CLIENT_KEY');
 
-  static String get dopplerEnvironment => const String.fromEnvironment('DOPPLER_ENVIRONMENT');
+  static String get adyenAppleMerchantId => const String.fromEnvironment('APPLE_ADYEN_MERCHANT_ID');
+
+  static String get adyenMerchantName => const String.fromEnvironment('ADYEN_MERCHANT_NAME');
 }

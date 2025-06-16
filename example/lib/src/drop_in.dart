@@ -116,9 +116,10 @@ class _DropInWidgetState extends State<DropInWidget> {
                               reference: reference.value!,
                               acceptOnlyCard: false,
                               configuration: AdyenConfiguration(
-                                dopplerConfiguration: (
-                                  dopplerKey: EnvInfo.dopplerKey,
-                                  dopplerEnvironment: EnvInfo.dopplerEnvironment,
+                                adyenKeysConfiguration: AdyenKeysConfiguration(
+                                  clientKey: EnvInfo.adyenClientKey,
+                                  appleMerchantId: EnvInfo.adyenAppleMerchantId,
+                                  merchantName: EnvInfo.adyenMerchantName,
                                 ),
                                 env: 'test',
                                 redirectURL:

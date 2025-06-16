@@ -1,4 +1,5 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
+import 'package:adyen_in_pay/src/models/adyen_keys_configuration.dart' show AdyenKeysConfiguration;
 import 'package:payment_client_api/payment_client_api.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
 import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
@@ -61,10 +62,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
 
   Future<SessionResponse?> startSession() async => null;
   Future<SessionCheckout> generateSession() => Future.microtask(() async {
-    adyenKeysConfiguration.value = await widget.client.getClientKey(
-      dopplerKey: widget.configuration.dopplerConfiguration.dopplerKey,
-      dopplerEnvironment: widget.configuration.dopplerConfiguration.dopplerEnvironment,
-    );
+    adyenKeysConfiguration.value = widget.configuration.adyenKeysConfiguration;
     final response = await startSession();
     if (kIsWeb) {
       final paymentMethods = await widget.client.getPaymentMethods();

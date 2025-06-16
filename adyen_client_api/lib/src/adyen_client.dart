@@ -1,4 +1,3 @@
-import 'package:payment_client_api/src/models/adyen_keys_configuration.dart';
 import 'package:payment_client_api/src/models/payment_information.dart';
 import 'package:payment_client_api/src/models/payment_response.dart';
 import 'package:payment_client_api/src/models/payment_method_response.dart';
@@ -17,37 +16,7 @@ class AdyenClient {
     //  required this.apiKey,
   }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
-  Future<AdyenKeysConfiguration> getClientKey({
-    required String dopplerKey,
-    required String dopplerEnvironment,
-  }) async {
-    try {
-      final dioKey = dio.clone(options: BaseOptions());
-      dioKey.interceptors.clear();
-      final response = await dioKey.get<Map<String, dynamic>>(
-        'https://api.doppler.com/v3/configs/config/secrets/download',
-        queryParameters: {
-          'project': 'patient-platform',
-          'secrets': 'ADYEN_CLIENT_KEY,MERCHANT_NAME,APPLE_MERCHANT_ID',
-          'format': 'json',
-          'config': dopplerEnvironment,
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $dopplerKey'},
-        ),
-      );
 
-      if (response.statusCode == 200 && response.data != null) {
-        return AdyenKeysConfiguration.fromJson(response.data!);
-      } else {
-        throw Exception('Failed to get client key: ${response.statusCode}');
-      }
-    } catch (e, trace) {
-      debugPrint(trace.toString());
-      debugPrint(e.toString());
-      throw Exception('Error getting client key: $e');
-    }
-  }
 
   Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
     try {

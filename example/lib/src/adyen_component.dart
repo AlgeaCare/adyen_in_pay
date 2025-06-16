@@ -136,9 +136,10 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                     reference: generateRandomString(10),
                     configuration: AdyenConfiguration(
                       acceptOnlyCard: onlyCards,
-                      dopplerConfiguration: (
-                        dopplerKey: '',
-                        dopplerEnvironment: 'dev',
+                      adyenKeysConfiguration: AdyenKeysConfiguration(
+                        clientKey: '',
+                        appleMerchantId: '',
+                        merchantName: '',
                       ),
                       env: 'test',
                       redirectURL:
