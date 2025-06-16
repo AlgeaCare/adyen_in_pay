@@ -21,7 +21,8 @@ class _DropInWidgetState extends State<DropInWidget> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
-          child: Column(
+          child: OverflowBar(
+            overflowSpacing: 16,
             children: [
               ExpansionTile(
                 title: const Text('Configuration'),
@@ -81,6 +82,18 @@ class _DropInWidgetState extends State<DropInWidget> {
                         children: [
                           const Text('lastName'),
                           Text(paymentInformation.value!.lastName),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const Text('email'),
+                          Text(paymentInformation.value!.email),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const Text('status'),
+                          Text(paymentInformation.value!.paymentStatus.toString()),
                         ],
                       ),
                     ],
