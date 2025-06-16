@@ -54,10 +54,14 @@ Future<void> dropInAdvancedMobile({
       'channel': channel,
     },
   );
+  final adyenConfiguration = await client.getClientKey(
+    dopplerKey: configuration.dopplerConfiguration.dopplerKey,
+    dopplerEnvironment: configuration.dopplerConfiguration.dopplerEnvironment,
+  );
   await Future.delayed(const Duration(seconds: 2));
   onConfigurationStatus(ConfigurationStatus.done);
   final dropInConfig = DropInConfiguration(
-    clientKey: configuration.clientKey,
+    clientKey: adyenConfiguration.clientKey,
     amount: Amount(value: amount, currency: 'EUR'),
     // paymentMethodNames: paymentMethods.toMap(),
     skipListWhenSinglePaymentMethod: true,
@@ -68,8 +72,10 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId: 'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
-      merchantName: 'BloomwellECOM',
+      merchantId:
+          adyenConfiguration
+              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantName: adyenConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),

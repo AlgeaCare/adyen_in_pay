@@ -115,7 +115,10 @@ class _DropInWidgetState extends State<DropInWidget> {
                               reference: reference.value!,
                               acceptOnlyCard: false,
                               configuration: AdyenConfiguration(
-                                clientKey: "test_HOT75463WBA75KK37QCJOJJC6U6V3Y4C",
+                                dopplerConfiguration: (
+                                  dopplerKey: '',
+                                  dopplerEnvironment: 'dev',
+                                ),
                                 env: 'test',
                                 redirectURL:
                                     'https://app.staging.bloomwell.de/checkout?shopperOrder=$reference',

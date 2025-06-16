@@ -33,7 +33,7 @@ class PayWidget extends StatelessWidget {
     return AdyenWebView(
       configuration: WebConfiguration(
         configurationType: WebConfigurationTypeSession(
-          clientKey: configuration.clientKey,
+          clientKey: configuration.clientKey!,
           sessionId: configuration.sessionId,
           sessionData: configuration.sessionData,
           amount: amount,
@@ -132,7 +132,7 @@ class DropInWebWidget extends StatelessWidget {
             child: AdyenWebView(
               configuration: WebConfiguration(
                 configurationType: WebConfigurationTypeAdvanced(
-                  clientKey: configuration.clientKey,
+                  clientKey: configuration.clientKey!,
                   amount: amount,
                   currency: 'EUR',
                   env: configuration.env,

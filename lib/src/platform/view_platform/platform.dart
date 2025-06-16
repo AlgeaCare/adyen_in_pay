@@ -34,9 +34,11 @@ class _AdyenPayState extends State<AdyenPayWidget> {
   late Future<SessionCheckout> futureSession;
   InstantComponentConfiguration? cardComponentConfig;
   DropInConfiguration? dropInConfig;
+  late final ValueNotifier<AdyenKeysConfiguration?> adyenKeysConfiguration;
   @override
   void initState() {
     super.initState();
+    adyenKeysConfiguration = ValueNotifier(null);
     futureSession = generateSession();
   }
 
@@ -59,6 +61,10 @@ class _AdyenPayState extends State<AdyenPayWidget> {
 
   Future<SessionResponse?> startSession() async => null;
   Future<SessionCheckout> generateSession() => Future.microtask(() async {
+    adyenKeysConfiguration.value = await widget.client.getClientKey(
+      dopplerKey: widget.configuration.dopplerConfiguration.dopplerKey,
+      dopplerEnvironment: widget.configuration.dopplerConfiguration.dopplerEnvironment,
+    );
     final response = await startSession();
     if (kIsWeb) {
       final paymentMethods = await widget.client.getPaymentMethods();
@@ -72,7 +78,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
       );
     }
     cardComponentConfig = InstantComponentConfiguration(
-      clientKey: widget.configuration.clientKey,
+      clientKey: adyenKeysConfiguration.value!.clientKey,
       amount: Amount(value: widget.amount, currency: 'EUR'),
       environment: widget.configuration.env == 'test' ? Environment.test : Environment.europe,
       countryCode: 'DE',
@@ -120,7 +126,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
           client: widget.client,
           amount: widget.amount,
           configuration: PayConfiguration(
-            clientKey: widget.configuration.clientKey,
+            clientKey: adyenKeysConfiguration.value!.clientKey,
             sessionId: snapshot.data!.id,
             sessionData: snapshot.data!.sessionData,
             env: widget.configuration.env,

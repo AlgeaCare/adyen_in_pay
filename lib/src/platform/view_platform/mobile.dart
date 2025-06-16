@@ -33,10 +33,9 @@ class PayWidget extends StatelessWidget {
         paymentMethods: paymentM,
       ),
       configuration: CardComponentConfiguration(
-        clientKey: configuration.clientKey,
+        clientKey: configuration.clientKey!,
         amount: Amount(value: amount, currency: 'EUR'),
-        environment:
-            configuration.env == 'test' ? Environment.test : Environment.europe,
+        environment: configuration.env == 'test' ? Environment.test : Environment.europe,
         countryCode: 'DE',
       ),
       paymentMethod: paymentM,
@@ -52,9 +51,7 @@ class PayWidget extends StatelessWidget {
   }
 }
 
-Map<String, dynamic> _extractPaymentMethod(
-  Map<String, dynamic> paymentMethods,
-) {
+Map<String, dynamic> _extractPaymentMethod(Map<String, dynamic> paymentMethods) {
   if (paymentMethods.isEmpty) {
     return <String, String>{};
   }
