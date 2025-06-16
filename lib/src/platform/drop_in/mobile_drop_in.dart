@@ -98,6 +98,12 @@ Future<void> dropInAdvancedMobile({
           paymentInformation,
           data
             ..putIfAbsent('channel', () => channel)
+            ..putIfAbsent(
+              'authenticationData',
+              () => {
+                'threeDSRequestData': {'nativeThreeDS': 'preferred'},
+              },
+            )
             ..putIfAbsent('reference', () => reference)
             ..putIfAbsent('returnUrl', () => configuration.redirectURL),
           billingAddress: shopperPaymentInformation.billingAddress,
@@ -120,10 +126,11 @@ Future<void> dropInAdvancedMobile({
         return Error(errorMessage: result.resultCode.toString());
       },
       onAdditionalDetails: (paymentResult) async {
-        await Future.delayed(const Duration(seconds: 2));
-        final result = await client.makeDetailPayment(
-          paymentResult..putIfAbsent('paymentData', () => paymentData),
-        );
+        final data = <String, dynamic>{};
+        paymentResult.putIfAbsent('paymentData', () => paymentData);
+        data["provider"] = paymentResult;
+        data["payment"] = {'invoiceId': reference};
+        final result = await client.makeDetailPayment(data);
         if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase()) {
           return Finished(resultCode: '201');
         }
