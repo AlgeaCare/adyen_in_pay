@@ -12,6 +12,7 @@ class DropInWidget extends StatefulWidget {
 class _DropInWidgetState extends State<DropInWidget> {
   final ValueNotifier<int?> amount = ValueNotifier(null);
   ValueNotifier<String?> reference = ValueNotifier(null);
+  ValueNotifier<PaymentInformation?> paymentInformation = ValueNotifier(null);
   ValueNotifier<ConfigurationStatus?> configurationStatus = ValueNotifier(null);
   AdyenClient? client;
   late final listenable = Listenable.merge([amount, reference, configurationStatus]);
@@ -36,7 +37,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                         )
                       ]);
                       reference.value = invoiceID;
-                      final paymentInformation = await showDialog<PaymentInformation>(
+                      paymentInformation.value = await showDialog<PaymentInformation>(
                         context: context,
                         builder: (context) {
                           return LoadInformation(
@@ -48,8 +49,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                           );
                         },
                       );
-                      if (paymentInformation != null) {
-                        amount.value = paymentInformation.baskets
+                      if (paymentInformation.value != null) {
+                        amount.value = paymentInformation.value!.baskets
                             .map((basket) => basket.amountTotalGross)
                             .reduce((total, total2) => total + total2)
                             .toInt();
@@ -57,6 +58,34 @@ class _DropInWidgetState extends State<DropInWidget> {
                     },
                   ),
                 ],
+              ),
+              AnimatedBuilder(
+                animation: listenable,
+                builder: (context, child) {
+                  if (paymentInformation.value == null) {
+                    return const SizedBox.shrink();
+                  }
+                  return Table(
+                    columnWidths: const {
+                      0: FlexColumnWidth(1.0),
+                      1: FlexColumnWidth(1.0),
+                    },
+                    children: [
+                      TableRow(
+                        children: [
+                          const Text('firstName'),
+                          Text(paymentInformation.value!.firstName),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const Text('lastName'),
+                          Text(paymentInformation.value!.lastName),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
               AnimatedBuilder(
                 animation: listenable,
@@ -73,8 +102,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                               reference: reference.value!,
                               acceptOnlyCard: false,
                               configuration: AdyenConfiguration(
-                                clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
-                                adyenAPI: "http://localhost:3001",
+                                clientKey: "test_HOT75463WBA75KK37QCJOJJC6U6V3Y4C",
                                 env: 'test',
                                 redirectURL:
                                     'https://app.staging.bloomwell.de/checkout?shopperOrder=$reference',
@@ -233,7 +261,7 @@ class _ConfigurationInputState extends State<ConfigurationInputWidget> {
   final _formKey = GlobalKey<FormState>();
   final _baseUrlController =
       TextEditingController(text: 'https://api.payments.dev.bloomwell.de/v1');
-  final _invoiceIdController = TextEditingController(text: 'U20016259364746');
+  final _invoiceIdController = TextEditingController(text: 'A03416843424775');
   final _tokenController = TextEditingController();
 
   @override

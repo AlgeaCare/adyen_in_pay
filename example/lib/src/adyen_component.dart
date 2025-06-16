@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay_example/src/commons.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -17,9 +18,18 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
   var amount = Random().nextInt(300) * 100;
   bool isError = false;
   bool onlyCards = true;
+  late final AdyenClient client;
   @override
   void initState() {
     super.initState();
+    client = AdyenClient(baseUrl: 'https://api.payments.dev.bloomwell.de/v1', interceptors: [
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          options.headers['Authorization'] = 'Bearer ';
+          handler.next(options);
+        },
+      )
+    ]);
   }
 
   @override
@@ -108,12 +118,25 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
               if (!isError) ...[
                 Center(
                   child: AdyenPayWidget(
+                    client: client,
                     amount: amount,
+                    shopperPaymentInformation: ShopperPaymentInformation(
+                      invoiceId: '',
+                      billingAddress: ShopperBillingAddress(
+                        street: '',
+                        city: '',
+                        postalCode: '',
+                        country: '',
+                      ),
+                      locale: '',
+                      telephoneNumber: '',
+                      countryCode: '',
+                      merchantId: '',
+                    ),
                     reference: generateRandomString(10),
                     configuration: AdyenConfiguration(
                       acceptOnlyCard: onlyCards,
                       clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
-                      adyenAPI: "http://localhost:3001",
                       env: 'test',
                       redirectURL:
                           '${kIsWeb || kIsWasm ? 'https://app.staging.bloomwell.de/checkout?shopperOrder=2222' : 'adyenExample://com.example.adyenExample'}/checkout?shopperOrder=2222',
@@ -122,24 +145,20 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                       setState(() {
                         switch (payment) {
                           case PaymentAdvancedFinished():
-                            paymentStatus =
-                                "Your payment has been completed successfully!";
+                            paymentStatus = "Your payment has been completed successfully!";
                           case PaymentSessionFinished():
                             if (payment.resultCode == ResultCode.authorised ||
                                 payment.resultCode == ResultCode.received) {
-                              paymentStatus =
-                                  "Payment session completed successfully!";
+                              paymentStatus = "Payment session completed successfully!";
                             } else {
-                              paymentStatus =
-                                  "Payment session failed: ${payment.resultCode.name}";
+                              paymentStatus = "Payment session failed: ${payment.resultCode.name}";
                               isError = true;
                             }
                           case PaymentCancelledByUser():
                             paymentStatus = "Payment was cancelled";
                             isError = true;
                           case PaymentError():
-                            paymentStatus =
-                                "An error occurred during payment processing";
+                            paymentStatus = "An error occurred during payment processing";
                             isError = true;
                         }
                       });
