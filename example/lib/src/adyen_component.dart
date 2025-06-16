@@ -136,7 +136,10 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                     reference: generateRandomString(10),
                     configuration: AdyenConfiguration(
                       acceptOnlyCard: onlyCards,
-                      clientKey: "test_4ZDD22772FAUDI4BURXBGDXOCY5AO53R",
+                      dopplerConfiguration: (
+                        dopplerKey: '',
+                        dopplerEnvironment: 'dev',
+                      ),
                       env: 'test',
                       redirectURL:
                           '${kIsWeb || kIsWasm ? 'https://app.staging.bloomwell.de/checkout?shopperOrder=2222' : 'adyenExample://com.example.adyenExample'}/checkout?shopperOrder=2222',

@@ -22,7 +22,7 @@ class AdyenClient {
     required String dopplerEnvironment,
   }) async {
     try {
-      final response = await dio.get<Map<String, dynamic>>(
+      final response = await Dio().get<Map<String, dynamic>>(
         'https://api.doppler.com/v3/configs/config/secrets/download',
         queryParameters: {
           'project': 'patient-platform',

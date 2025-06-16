@@ -1,4 +1,5 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay_example/src/app_env.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -116,8 +117,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                               acceptOnlyCard: false,
                               configuration: AdyenConfiguration(
                                 dopplerConfiguration: (
-                                  dopplerKey: '',
-                                  dopplerEnvironment: 'dev',
+                                  dopplerKey: EnvInfo.dopplerKey,
+                                  dopplerEnvironment: EnvInfo.dopplerEnvironment,
                                 ),
                                 env: 'test',
                                 redirectURL:
