@@ -1,6 +1,4 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/models/configuration_status.dart';
-
 import 'package:adyen_in_pay/src/platform/drop_in/platform.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget;
 

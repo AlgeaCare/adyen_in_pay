@@ -1,14 +1,12 @@
 class AdyenConfiguration {
   final String clientKey;
   final String env;
-  final String adyenAPI;
   final String redirectURL;
   final bool acceptOnlyCard;
 
   AdyenConfiguration({
     required this.clientKey,
     required this.env,
-    required this.adyenAPI,
     required this.redirectURL,
     this.acceptOnlyCard = false,
   });

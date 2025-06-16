@@ -32,7 +32,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
   late Future<SessionCheckout> futureSession;
   InstantComponentConfiguration? cardComponentConfig;
   DropInConfiguration? dropInConfig;
-  late final AdyenClient client = AdyenClient(baseUrl: widget.configuration.adyenAPI);
+  late final AdyenClient client = AdyenClient(baseUrl: 'widget.configuration.adyenAPI');
   @override
   void initState() {
     super.initState();

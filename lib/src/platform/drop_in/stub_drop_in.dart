@@ -1,5 +1,4 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
 import 'package:flutter/material.dart' show BuildContext, Widget;
 
 void dropIn({

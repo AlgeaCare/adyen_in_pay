@@ -54,6 +54,7 @@ Future<void> dropInAdvancedMobile({
       'channel': channel,
     },
   );
+  await Future.delayed(const Duration(seconds: 2));
   onConfigurationStatus(ConfigurationStatus.done);
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.clientKey,
@@ -62,6 +63,7 @@ Future<void> dropInAdvancedMobile({
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
     cardConfiguration: CardConfiguration(
+      holderNameRequired: true,
       showStorePaymentField: true,
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
@@ -103,13 +105,13 @@ Future<void> dropInAdvancedMobile({
           shopperLocale: shopperPaymentInformation.locale,
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
         );
-        if (result.action?.type == 'threeDS2' ||
-            result.action?.type == 'redirect' ||
-            result.action?.type == 'qrCode' ||
-            result.action?.type == 'await' ||
-            result.action?.type == 'sdk') {
-          setPaymentData(result.action?.paymentData);
-          return Action(actionResponse: result.action!.toJson());
+        if (result.actionType == 'threeDS2' ||
+            result.actionType == 'redirect' ||
+            result.actionType == 'qrCode' ||
+            result.actionType == 'await' ||
+            result.actionType == 'sdk') {
+          setPaymentData(result.action?['paymentData']);
+          return Action(actionResponse: result.action!);
         }
         if (result.resultCode == PaymentResultCode.authorised ||
             result.resultCode == PaymentResultCode.received) {
