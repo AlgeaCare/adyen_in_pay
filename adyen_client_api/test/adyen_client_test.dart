@@ -1,4 +1,4 @@
-import 'package:adyen_client_api/adyen_client_api.dart';
+import 'package:payment_client_api/payment_client_api.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 

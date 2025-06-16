@@ -1,4 +1,4 @@
-library adyen_client_api;
+library payment_client_api;
 
 export 'src/adyen_client.dart';
 export 'src/models/payment_method_response.dart';

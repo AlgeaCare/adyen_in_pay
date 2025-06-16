@@ -1,4 +1,4 @@
-import 'package:adyen_client_api/src/models/shopper_billing_address.dart'
+import 'package:payment_client_api/src/models/shopper_billing_address.dart'
     show ShopperBillingAddress;
 
 class PaymentInformation {

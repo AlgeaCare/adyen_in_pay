@@ -1,5 +1,5 @@
 import 'package:adyen_checkout/adyen_checkout.dart' show PaymentResult;
-import 'package:adyen_client_api/adyen_client_api.dart' show AdyenClient;
+import 'package:payment_client_api/payment_client_api.dart' show AdyenClient;
 import 'package:adyen_in_pay/src/models/configuration_status.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart' show AdyenConfiguration;
 import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;

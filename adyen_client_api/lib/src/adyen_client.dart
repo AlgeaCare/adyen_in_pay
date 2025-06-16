@@ -1,7 +1,7 @@
-import 'package:adyen_client_api/src/models/payment_information.dart';
-import 'package:adyen_client_api/src/models/payment_response.dart';
-import 'package:adyen_client_api/src/models/payment_method_response.dart';
-import 'package:adyen_client_api/src/models/shopper_billing_address.dart'
+import 'package:payment_client_api/src/models/payment_information.dart';
+import 'package:payment_client_api/src/models/payment_response.dart';
+import 'package:payment_client_api/src/models/payment_method_response.dart';
+import 'package:payment_client_api/src/models/shopper_billing_address.dart'
     show ShopperBillingAddress;
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';

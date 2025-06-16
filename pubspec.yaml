@@ -18,7 +18,7 @@ dependencies:
   url_launcher: ^6.3.1
   local_storage_web:
     path: ./local_storage_web
-  adyen_client_api:
+  payment_client_api:
     path: ./adyen_client_api
   adyen_web_flutter:
     path: ./adyen_web_flutter

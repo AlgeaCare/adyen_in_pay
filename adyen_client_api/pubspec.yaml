@@ -1,4 +1,4 @@
-name: adyen_client_api
+name: payment_client_api
 description: "adyen client to communicate with backend api"
 version: 0.1.0
 homepage:

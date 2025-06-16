@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:adyen_checkout/adyen_checkout.dart';
-import 'package:adyen_client_api/adyen_client_api.dart' show AdyenClient;
+import 'package:payment_client_api/payment_client_api.dart' show AdyenClient;
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
 import 'package:adyen_in_pay/src/models/shopper.dart';
 import 'package:adyen_web_flutter/adyen_web_flutter.dart';

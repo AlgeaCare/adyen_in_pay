@@ -11,6 +11,6 @@ export 'package:adyen_checkout/src/common/model/result_code.dart';
 export 'package:adyen_checkout/src/common/model/order_response.dart';
 export 'src/models/pay_configuration.dart' hide PayConfiguration;
 export 'src/platform/drop_in.dart' hide paymentData, setPaymentData;
-export 'package:adyen_client_api/adyen_client_api.dart';
+export 'package:payment_client_api/payment_client_api.dart';
 export 'src/models/shopper.dart';
 export 'src/models/configuration_status.dart';

@@ -1,4 +1,4 @@
-import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:payment_client_api/payment_client_api.dart';
 
 class ShopperPaymentInformation {
   final String invoiceId;
