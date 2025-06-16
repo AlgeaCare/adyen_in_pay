@@ -5,9 +5,7 @@ import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInforma
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:adyen_in_pay/src/platform/view_platform/stub.dart'
-    if (dart.library.io) 'package:adyen_in_pay/src/platform/mobile.dart'
-    if (dart.library.js_interop) 'package:adyen_in_pay/src/platform/web_ui.dart';
+import 'stub.dart' if (dart.library.io) 'mobile.dart' if (dart.library.js_interop) 'web_ui.dart';
 
 class AdyenPayWidget extends StatefulWidget {
   final int amount;
@@ -16,6 +14,7 @@ class AdyenPayWidget extends StatefulWidget {
   final Function(PaymentResult payment) onPaymentResult;
   final Widget Function(Object error)? onErrorSessionPreparationWidget;
   final ShopperPaymentInformation shopperPaymentInformation;
+  final AdyenClient client;
   const AdyenPayWidget({
     super.key,
     required this.amount,
@@ -24,6 +23,7 @@ class AdyenPayWidget extends StatefulWidget {
     required this.onPaymentResult,
     required this.shopperPaymentInformation,
     this.onErrorSessionPreparationWidget,
+    required this.client,
   });
 
   @override
@@ -34,7 +34,6 @@ class _AdyenPayState extends State<AdyenPayWidget> {
   late Future<SessionCheckout> futureSession;
   InstantComponentConfiguration? cardComponentConfig;
   DropInConfiguration? dropInConfig;
-  late final AdyenClient client = AdyenClient(baseUrl: 'widget.configuration.adyenAPI');
   @override
   void initState() {
     super.initState();
@@ -62,7 +61,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
   Future<SessionCheckout> generateSession() => Future.microtask(() async {
     final response = await startSession();
     if (kIsWeb) {
-      final paymentMethods = await client.getPaymentMethods();
+      final paymentMethods = await widget.client.getPaymentMethods();
       return SessionCheckout(
         id: response!.id,
         paymentMethods:
@@ -118,6 +117,7 @@ class _AdyenPayState extends State<AdyenPayWidget> {
               );
         }
         return PayWidget(
+          client: widget.client,
           amount: widget.amount,
           configuration: PayConfiguration(
             clientKey: widget.configuration.clientKey,

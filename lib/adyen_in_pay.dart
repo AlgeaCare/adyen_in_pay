@@ -5,7 +5,7 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
-export 'src/platform/platform.dart';
+export 'src/platform/view_platform/platform.dart';
 export 'package:adyen_checkout/src/common/model/payment_result.dart';
 export 'package:adyen_checkout/src/common/model/result_code.dart';
 export 'package:adyen_checkout/src/common/model/order_response.dart';

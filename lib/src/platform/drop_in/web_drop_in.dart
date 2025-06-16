@@ -1,5 +1,4 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
 import 'package:flutter/widgets.dart';
 import 'package:local_storage_web/local_storage_web.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,6 +11,7 @@ void dropIn({
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
+  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
@@ -27,6 +27,7 @@ void dropIn({
     configuration: configuration,
     onPaymentResult: onPaymentResult,
     widgetChildCloseForWeb: widgetChildCloseForWeb,
+    shopperPaymentInformation: shopperPaymentInformation,
     acceptOnlyCard: acceptOnlyCard,
     webURL: webURL,
   );
@@ -39,6 +40,7 @@ Future<void> dropInAdvancedWeb({
   required String reference,
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
+  required ShopperPaymentInformation shopperPaymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   required String webURL,
