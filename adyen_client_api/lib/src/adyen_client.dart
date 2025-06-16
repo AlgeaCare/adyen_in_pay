@@ -97,7 +97,7 @@ class AdyenClient {
       Map<String, dynamic> data /* PaymentRequest request */) async {
     try {
       final response = await dio.post<Map<String, dynamic>>(
-        'handle-details',
+        '/handle-details',
         data: data /* request.toJson() */,
       );
 
