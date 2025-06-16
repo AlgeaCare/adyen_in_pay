@@ -16,10 +16,39 @@ class AdyenClient {
     //  required this.apiKey,
   }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
+  Future<String?> getClientKey({
+    required String dopplerKey,
+    required String dopplerEnvironment,
+  }) async {
+    try {
+      final response = await dio.get<Map<String, dynamic>>(
+        'https://api.doppler.com/v3/configs/config/secrets/download',
+        queryParameters: {
+          'project': 'patient-platform',
+          'secrets': 'ADYEN_CLIENT_KEY',
+          'format': 'json',
+          'config': dopplerEnvironment,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $dopplerKey'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return response.data!['ADYEN_CLIENT_KEY'];
+      } else {
+        throw Exception('Failed to get client key: ${response.statusCode}');
+      }
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
+      throw Exception('Error getting client key: $e');
+    }
+  }
+
   Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
     try {
-      final response = await dio.post<Map<String, dynamic>>('/methods', data: data!
-          );
+      final response = await dio.post<Map<String, dynamic>>('/methods', data: data!);
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentMethodResponse.fromJson(response.data!);
