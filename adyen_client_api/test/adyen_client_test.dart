@@ -95,14 +95,14 @@ void main() {
           ),
         );
         final paymentInformation = PaymentInformation(
-          invoiceId: 'test-invoice-id',
-          email: 'test-email',
-          firstName: 'Test',
-          lastName: 'User',
-          paymentStatus: 'Paid',
-          productType: 'Test Product',
-          baskets: [],
-        );
+            invoiceId: 'test-invoice-id',
+            email: 'test-email',
+            firstName: 'Test',
+            lastName: 'User',
+            paymentStatus: 'Paid',
+            productType: 'Test Product',
+            baskets: [],
+            amountDue: 2500);
 
         dioAdapter.onPost(
           '/make-payment',
@@ -145,6 +145,7 @@ void main() {
           paymentStatus: 'Paid',
           productType: 'Test Product',
           baskets: [],
+          amountDue: 1500,
         );
         dioAdapter.onPost(
           '/make-payment',

@@ -9,6 +9,7 @@ class PaymentInformation {
   final String paymentStatus;
   final String productType;
   final List<Basket> baskets;
+  final int amountDue;
 
   PaymentInformation({
     required this.invoiceId,
@@ -18,6 +19,7 @@ class PaymentInformation {
     required this.paymentStatus,
     required this.productType,
     required this.baskets,
+    required this.amountDue,
   });
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class PaymentInformation {
       lastName: json['last_name'],
       paymentStatus: json['payment_status'],
       productType: json['product_type'],
+      amountDue: json['amount_due'],
       baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
     );
   }
@@ -40,6 +43,7 @@ class PaymentInformation {
       'last_name': lastName,
       'payment_status': paymentStatus,
       'product_type': productType,
+      'amount_due': amountDue,
       'baskets': baskets.map((basket) => basket.toJson()).toList(),
     };
   }
@@ -79,6 +83,7 @@ class PaymentInformation {
         other.lastName == lastName &&
         other.paymentStatus == paymentStatus &&
         other.productType == productType &&
+        other.amountDue == amountDue &&
         _listEquals(other.baskets, baskets);
   }
 
@@ -100,6 +105,7 @@ class PaymentInformation {
       lastName,
       paymentStatus,
       productType,
+      amountDue,
       Object.hashAll(baskets),
     );
   }
