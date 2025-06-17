@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 void dropIn({
   required BuildContext context,
   required AdyenClient client,
-  required int amount,
   required String reference,
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,
@@ -22,7 +21,6 @@ void dropIn({
   dropInAdvancedWeb(
     context: context,
     client: client,
-    amount: amount,
     reference: reference,
     configuration: configuration,
     onPaymentResult: onPaymentResult,
@@ -36,7 +34,6 @@ void dropIn({
 Future<void> dropInAdvancedWeb({
   required BuildContext context,
   required AdyenClient client,
-  required int amount,
   required String reference,
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,

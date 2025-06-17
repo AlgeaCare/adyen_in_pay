@@ -7,7 +7,6 @@ class DropInPlatform {
   static Future<void> dropInAdvancedFlowPlatform({
     required BuildContext context,
     required AdyenClient client,
-    required int amount,
     required String reference,
     required AdyenConfiguration configuration,
     required ShopperPaymentInformation shopperPaymentInformation,
@@ -19,7 +18,6 @@ class DropInPlatform {
   }) async => dropInPlatform(
     context: context,
     client: client,
-    amount: amount,
     reference: reference,
     configuration: configuration,
     onPaymentResult: onPaymentResult,

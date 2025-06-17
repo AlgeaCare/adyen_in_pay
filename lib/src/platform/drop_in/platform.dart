@@ -11,7 +11,6 @@ import 'stub_drop_in.dart'
 void dropInPlatform({
   required BuildContext context,
   required AdyenClient client,
-  required int amount,
   required String reference,
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,
@@ -23,7 +22,6 @@ void dropInPlatform({
 }) => dropIn(
   context: context,
   client: client,
-  amount: amount,
   reference: reference,
   configuration: configuration,
   onPaymentResult: onPaymentResult,

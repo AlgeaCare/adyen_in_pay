@@ -8,7 +8,6 @@ import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAge
 void dropIn({
   required BuildContext context,
   required AdyenClient client,
-  required int amount,
   required String reference,
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
@@ -20,7 +19,6 @@ void dropIn({
   String? webURL,
 }) => dropInAdvancedMobile(
   client: client,
-  amount: amount,
   reference: reference,
   configuration: configuration,
   onPaymentResult: onPaymentResult,
@@ -31,7 +29,6 @@ void dropIn({
 
 Future<void> dropInAdvancedMobile({
   required AdyenClient client,
-  required int amount,
   required String reference,
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
@@ -41,25 +38,32 @@ Future<void> dropInAdvancedMobile({
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
   final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
-  final String userAgent = await user_agent.userAgent();
-  final paymentInformation = await client.paymentInformation(invoiceId: reference);
-  final paymentMethods = await client.getPaymentMethods(
-    data: {
-      'shopperEmail': paymentInformation.email,
-      'browserInfo': {
-        'acceptHeader':
-            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'userAgentHeader': userAgent,
+  PaymentInformation? paymentInformation;
+  PaymentMethodResponse? paymentMethods;
+  try {
+    final String userAgent = await user_agent.userAgent();
+    paymentInformation = await client.paymentInformation(invoiceId: reference);
+    paymentMethods = await client.getPaymentMethods(
+      data: {
+        'shopperEmail': configuration.userEmail ?? paymentInformation.email,
+        'browserInfo': {
+          'acceptHeader':
+              'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+          'userAgentHeader': userAgent,
+        },
+        'channel': channel,
       },
-      'channel': channel,
-    },
-  );
+    );
 
-  await Future.delayed(const Duration(seconds: 2));
-  onConfigurationStatus(ConfigurationStatus.done);
+    await Future.delayed(const Duration(seconds: 2));
+    onConfigurationStatus(ConfigurationStatus.done);
+  } catch (e) {
+    onConfigurationStatus(ConfigurationStatus.error);
+    return;
+  }
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
-    amount: Amount(value: amount, currency: 'EUR'),
+    amount: Amount(value: configuration.amount ?? paymentInformation.amountDue, currency: 'EUR'),
     // paymentMethodNames: paymentMethods.toMap(),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
@@ -99,7 +103,7 @@ Future<void> dropInAdvancedMobile({
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
         final result = await client.makePayment(
-          paymentInformation,
+          paymentInformation!,
           data
             ..putIfAbsent('channel', () => channel)
             ..putIfAbsent(

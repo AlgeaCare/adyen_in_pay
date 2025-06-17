@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' show BuildContext, Widget;
 void dropIn({
   required BuildContext context,
   required AdyenClient client,
-  required int amount,
   required String reference,
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,

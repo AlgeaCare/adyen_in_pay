@@ -8,12 +8,16 @@ class AdyenConfiguration {
   final String redirectURL;
   final bool acceptOnlyCard;
   final AdyenKeysConfiguration adyenKeysConfiguration;
+  final int? amount;
+  final String? userEmail;
   AdyenConfiguration({
     this.clientKey,
     required this.env,
     required this.redirectURL,
     this.acceptOnlyCard = false,
     required this.adyenKeysConfiguration,
+    this.amount,
+    this.userEmail,
   });
 }
 
