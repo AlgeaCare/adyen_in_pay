@@ -81,7 +81,7 @@ Future<void> dropInAdvancedMobile({
       merchantInfo: MerchantInfo(
         merchantId:
             shopperPaymentInformation
-                .merchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
       ),
       googlePayEnvironment:

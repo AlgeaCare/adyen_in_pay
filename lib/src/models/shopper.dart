@@ -6,7 +6,7 @@ class ShopperPaymentInformation {
   final String locale;
   final String telephoneNumber;
   final String countryCode;
-  final String merchantId;
+  final String appleMerchantId;
   final String merchantName;
   ShopperPaymentInformation({
     required this.invoiceId,
@@ -14,7 +14,7 @@ class ShopperPaymentInformation {
     required this.locale,
     required this.telephoneNumber,
     required this.countryCode,
-    required this.merchantId,
+    required this.appleMerchantId,
     this.merchantName = 'BloomwellECOM',
   });
 }
