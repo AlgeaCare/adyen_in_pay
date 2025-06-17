@@ -47,7 +47,7 @@ Future<void> dropInAdvancedWeb({
       PaymentAdvancedFinished(resultCode: ResultCode.fromString(input['resultCode'])),
     );
   });
-  await launchUrl(Uri.parse('https://payments.dev.bloomwell.de/pay/$reference'));
+  await launchUrl(Uri.parse(webURL));
   // return showDialog(
   //   context: context,
   //   builder: (context) {
