@@ -131,12 +131,12 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                       locale: '',
                       telephoneNumber: '',
                       countryCode: '',
-                      merchantId: '',
+                      appleMerchantId: '',
                     ),
                     reference: generateRandomString(10),
                     configuration: AdyenConfiguration(
                       acceptOnlyCard: onlyCards,
-                      adyenKeysConfiguration: AdyenKeysConfiguration(
+                      adyenKeysConfiguration: const AdyenKeysConfiguration(
                         clientKey: '',
                         appleMerchantId: '',
                         merchantName: '',

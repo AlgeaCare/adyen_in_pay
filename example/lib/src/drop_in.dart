@@ -112,10 +112,10 @@ class _DropInWidgetState extends State<DropInWidget> {
                               context: context,
                               webURL: 'https://api.payments.dev.bloomwell.de/pay/$reference',
                               client: client!,
-                              amount: amount.value!,
                               reference: reference.value!,
                               acceptOnlyCard: false,
                               configuration: AdyenConfiguration(
+                                amount: amount.value!,
                                 adyenKeysConfiguration: AdyenKeysConfiguration(
                                   clientKey: EnvInfo.adyenClientKey,
                                   appleMerchantId: EnvInfo.adyenAppleMerchantId,
@@ -138,7 +138,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                   countryCode: 'DE',
                                   invoiceId: reference.value!,
                                   locale: 'de_DE',
-                                  merchantId: '',
+                                  appleMerchantId: '',
                                   merchantName: 'BloomwellECOM',
                                   telephoneNumber: ''),
                               onPaymentResult: (payment) {
