@@ -1,3 +1,4 @@
+import 'package:payment_client_api/src/models/common.dart';
 import 'package:payment_client_api/src/models/payment_information.dart';
 import 'package:payment_client_api/src/models/payment_response.dart';
 import 'package:payment_client_api/src/models/payment_method_response.dart';
@@ -16,8 +17,6 @@ class AdyenClient {
     //  required this.apiKey,
   }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
-
-
   Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
     try {
       final response = await dio.post<Map<String, dynamic>>('/methods', data: data!);
@@ -31,6 +30,28 @@ class AdyenClient {
       debugPrint(trace.toString());
       debugPrint(e.toString());
       throw Exception('Error getting payment methods: $e');
+    }
+  }
+
+  Future<VoucherApplied> applyVoucher(
+      {required String invoiceId, required String voucherCode}) async {
+    try {
+      final response = await dio.post<Map<String, dynamic>>('/$invoiceId/apply-voucher',
+          data: {'voucher_code': voucherCode});
+
+      if (response.statusCode == 200 && response.data != null) {
+        return (
+          amountDue: response.data!['amount_due'] as int,
+          applied: response.data!['applied'] as bool,
+          discount: response.data!['discount'] as int,
+        );
+      } else {
+        throw Exception('Failed to apply voucher: ${response.statusCode}');
+      }
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
+      throw Exception('Error applying voucher: $e');
     }
   }
 
