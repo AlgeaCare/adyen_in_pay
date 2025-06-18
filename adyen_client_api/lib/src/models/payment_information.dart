@@ -8,8 +8,8 @@ class PaymentInformation {
   final String lastName;
   final String paymentStatus;
   final String productType;
-  final String paymentId;
-  final String voucherCode;
+  final String? paymentId;
+  final String? voucherCode;
   final String invoiceUrl;
   final String zid;
   final String hsId;
@@ -24,8 +24,8 @@ class PaymentInformation {
     required this.lastName,
     required this.paymentStatus,
     required this.productType,
-    required this.paymentId,
-    required this.voucherCode,
+    this.paymentId,
+    this.voucherCode,
     required this.invoiceUrl,
     required this.zid,
     required this.hsId,
