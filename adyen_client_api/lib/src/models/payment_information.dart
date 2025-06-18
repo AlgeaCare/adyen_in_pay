@@ -8,6 +8,11 @@ class PaymentInformation {
   final String lastName;
   final String paymentStatus;
   final String productType;
+  final String paymentId;
+  final String voucherCode;
+  final String invoiceUrl;
+  final String zid;
+  final String hsId;
   final List<Basket> baskets;
   final int amountDue;
   final String provider;
@@ -19,6 +24,11 @@ class PaymentInformation {
     required this.lastName,
     required this.paymentStatus,
     required this.productType,
+    required this.paymentId,
+    required this.voucherCode,
+    required this.invoiceUrl,
+    required this.zid,
+    required this.hsId,
     required this.baskets,
     required this.amountDue,
     required this.provider,
@@ -32,6 +42,11 @@ class PaymentInformation {
       lastName: json['last_name'],
       paymentStatus: json['payment_status'],
       productType: json['product_type'],
+      paymentId: json['payment_id'],
+      voucherCode: json['voucher_code'],
+      invoiceUrl: json['invoice_url'],
+      zid: json['zid'],
+      hsId: json['hs_id'],
       amountDue: json['amount_due'],
       provider: json['provider'],
       baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
@@ -46,7 +61,13 @@ class PaymentInformation {
       'last_name': lastName,
       'payment_status': paymentStatus,
       'product_type': productType,
+      'payment_id': paymentId,
+      'voucher_code': voucherCode,
+      'invoice_url': invoiceUrl,
+      'zid': zid,
+      'hs_id': hsId,
       'amount_due': amountDue,
+      'provider': provider,
       'baskets': baskets.map((basket) => basket.toJson()).toList(),
     };
   }
@@ -86,7 +107,13 @@ class PaymentInformation {
         other.lastName == lastName &&
         other.paymentStatus == paymentStatus &&
         other.productType == productType &&
+        other.paymentId == paymentId &&
+        other.voucherCode == voucherCode &&
+        other.invoiceUrl == invoiceUrl &&
+        other.zid == zid &&
+        other.hsId == hsId &&
         other.amountDue == amountDue &&
+        other.provider == provider &&
         _listEquals(other.baskets, baskets);
   }
 
@@ -108,7 +135,13 @@ class PaymentInformation {
       lastName,
       paymentStatus,
       productType,
+      paymentId,
+      voucherCode,
+      invoiceUrl,
+      zid,
+      hsId,
       amountDue,
+      provider,
       Object.hashAll(baskets),
     );
   }

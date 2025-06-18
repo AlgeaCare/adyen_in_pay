@@ -101,6 +101,12 @@ void main() {
             lastName: 'User',
             paymentStatus: 'Paid',
             productType: 'Test Product',
+            paymentId: 'test-payment-id',
+            voucherCode: 'test-voucher-code',
+            invoiceUrl: 'https://test.com/invoice',
+            provider: 'unzer',
+            zid: 'test-zid',
+            hsId: 'test-hs-id',
             baskets: [],
             amountDue: 2500);
 
@@ -144,6 +150,12 @@ void main() {
           lastName: 'User',
           paymentStatus: 'Paid',
           productType: 'Test Product',
+          paymentId: 'test-payment-id',
+          voucherCode: 'test-voucher-code',
+          invoiceUrl: 'https://test.com/invoice',
+          provider: 'unzer',
+          zid: 'test-zid',
+          hsId: 'test-hs-id',
           baskets: [],
           amountDue: 1500,
         );
