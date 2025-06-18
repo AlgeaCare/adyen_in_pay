@@ -10,6 +10,7 @@ class PaymentInformation {
   final String productType;
   final List<Basket> baskets;
   final int amountDue;
+  final String provider;
 
   PaymentInformation({
     required this.invoiceId,
@@ -20,6 +21,7 @@ class PaymentInformation {
     required this.productType,
     required this.baskets,
     required this.amountDue,
+    required this.provider,
   });
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class PaymentInformation {
       paymentStatus: json['payment_status'],
       productType: json['product_type'],
       amountDue: json['amount_due'],
+      provider: json['provider'],
       baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
     );
   }
