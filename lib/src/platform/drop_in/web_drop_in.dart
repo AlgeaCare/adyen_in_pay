@@ -43,9 +43,7 @@ Future<void> dropInAdvancedWeb({
   required String webURL,
 }) async {
   platformListenToState('pay-$reference-result', (Map input) {
-    onPaymentResult(
-      PaymentAdvancedFinished(resultCode: ResultCode.fromString(input['resultCode'])),
-    );
+    onPaymentResult(PaymentAdvancedFinished(resultCode: fromString(input['resultCode'])));
   });
   await launchUrl(Uri.parse(webURL));
   // return showDialog(
@@ -67,4 +65,10 @@ Future<void> dropInAdvancedWeb({
   //     );
   //   },
   // );
+}
+
+ResultCode fromString(String name) {
+  return ResultCode.values.firstWhere(
+    (element) => element.name.toLowerCase() == name.toLowerCase(),
+  );
 }
