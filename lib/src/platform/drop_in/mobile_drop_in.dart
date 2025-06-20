@@ -13,7 +13,6 @@ void dropIn({
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
-
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
@@ -139,7 +138,9 @@ Future<void> dropInAdvancedMobile({
         data["provider"] = paymentResult;
         data["payment"] = {'invoiceId': reference};
         final result = await client.makeDetailPayment(data);
-        if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase()) {
+        if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
+            result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
+            result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase()) {
           return Finished(resultCode: '201');
         }
         return Error(errorMessage: result.resultCode.toString());
