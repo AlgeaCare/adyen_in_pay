@@ -10,9 +10,9 @@ class PaymentInformation {
   final String productType;
   final String? paymentId;
   final String? voucherCode;
-  final String invoiceUrl;
+  final String? invoiceUrl;
   final String zid;
-  final String hsId;
+  final String? hsId;
   final List<Basket> baskets;
   final int amountDue;
   final String provider;
@@ -27,9 +27,9 @@ class PaymentInformation {
     required this.productType,
     this.paymentId,
     this.voucherCode,
-    required this.invoiceUrl,
+    this.invoiceUrl,
     required this.zid,
-    required this.hsId,
+    this.hsId,
     required this.baskets,
     required this.amountDue,
     required this.provider,
@@ -84,19 +84,17 @@ class PaymentInformation {
   }) {
     return {
       'shopperEmail': email,
-      'shopperName': {
-        'firstName': firstName,
-        'lastName': lastName,
-      },
+      'shopperName': {'firstName': firstName, 'lastName': lastName},
       'billingAddress': billingAddress?.toJson(),
       'telephoneNumber': telephoneNumber,
       'countryCode': countryCode,
       'shopperLocale': shopperLocale,
       'shopperReference': invoiceId,
-      'lineItems': baskets
-          .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
-          .expand((items) => items)
-          .toList(),
+      'lineItems':
+          baskets
+              .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
+              .expand((items) => items)
+              .toList(),
     };
   }
 
