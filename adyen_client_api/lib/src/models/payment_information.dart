@@ -59,6 +59,8 @@ class PaymentInformation {
 
   bool get isAdyen => provider == PaymentProvider.adyen;
 
+  Basket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
+
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
     return PaymentInformation(
       invoiceId: json['invoice_id'],
