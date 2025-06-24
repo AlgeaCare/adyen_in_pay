@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:payment_client_api/src/models/session_response.dart';
 
 enum PaymentResultCode {
@@ -14,6 +15,7 @@ enum PaymentResultCode {
   paid;
 
   factory PaymentResultCode.fromString(String value) {
+    debugPrint('__adyen_client_api PaymentResultCode.fromString: $value');
     return PaymentResultCode.values.firstWhere(
       (e) => e.toString().split('.').last.toLowerCase() == value.toLowerCase(),
       orElse: () => PaymentResultCode.error,
