@@ -17,6 +17,16 @@ class PaymentInformation {
   final int amountDue;
   final String provider;
   final String createdAt;
+  final String metaData;
+  final dynamic warnings;
+  final String? comment;
+  final String? reminderDate;
+  final String? nextReminder;
+  final dynamic ignoredItems;
+  final String updatedAt;
+  final bool isFiveGram;
+  final bool reverseTransfers;
+  final List<String> productTypes;
 
   PaymentInformation({
     required this.invoiceId,
@@ -34,6 +44,16 @@ class PaymentInformation {
     required this.amountDue,
     required this.provider,
     required this.createdAt,
+    required this.metaData,
+    this.warnings,
+    this.comment,
+    this.reminderDate,
+    this.nextReminder,
+    this.ignoredItems,
+    required this.updatedAt,
+    required this.isFiveGram,
+    required this.reverseTransfers,
+    required this.productTypes,
   });
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
@@ -53,6 +73,16 @@ class PaymentInformation {
       provider: json['provider'],
       createdAt: json['created_at'],
       baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
+      metaData: json['meta_data'],
+      warnings: json['warnings'],
+      comment: json['comment'],
+      reminderDate: json['reminder_date'],
+      nextReminder: json['next_reminder'],
+      ignoredItems: json['ignored_items'],
+      updatedAt: json['updated_at'],
+      isFiveGram: json['is_five_gram'],
+      reverseTransfers: json['reverse_transfers'],
+      productTypes: (json['product_types'] as List).map((e) => e.toString()).toList(),
     );
   }
 
@@ -73,6 +103,16 @@ class PaymentInformation {
       'provider': provider,
       'created_at': createdAt,
       'baskets': baskets.map((basket) => basket.toJson()).toList(),
+      'meta_data': metaData,
+      'warnings': warnings,
+      'comment': comment,
+      'reminder_date': reminderDate,
+      'next_reminder': nextReminder,
+      'ignored_items': ignoredItems,
+      'updated_at': updatedAt,
+      'is_five_gram': isFiveGram,
+      'reverse_transfers': reverseTransfers,
+      'product_types': productTypes,
     };
   }
 
@@ -149,6 +189,12 @@ class PaymentInformation {
 }
 
 class Basket {
+  final int id;
+  final dynamic orderId;
+  final bool replacesBasket;
+  final int amountDue;
+  final String createdAt;
+  final String updatedAt;
   final String invoiceId;
   final int amountTotalDiscount;
   final int amountTotalGross;
@@ -161,6 +207,12 @@ class Basket {
   final List<BasketItem> items;
 
   Basket({
+    required this.id,
+    this.orderId,
+    required this.replacesBasket,
+    required this.amountDue,
+    required this.createdAt,
+    required this.updatedAt,
     required this.invoiceId,
     required this.amountTotalDiscount,
     required this.amountTotalGross,
@@ -175,6 +227,12 @@ class Basket {
 
   factory Basket.fromJson(Map<String, dynamic> json) {
     return Basket(
+      id: json['id'],
+      orderId: json['order_id'],
+      replacesBasket: json['replaces_basket'],
+      amountDue: json['amount_due'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
       invoiceId: json['invoice_id'],
       amountTotalDiscount: json['amount_total_discount'],
       amountTotalGross: json['amount_total_gross'],
@@ -190,6 +248,12 @@ class Basket {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'order_id': orderId,
+      'replaces_basket': replacesBasket,
+      'amount_due': amountDue,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
       'invoice_id': invoiceId,
       'amount_total_discount': amountTotalDiscount,
       'amount_total_gross': amountTotalGross,
@@ -259,6 +323,8 @@ class BasketItem {
   final String subTitle;
   final String type;
   final dynamic imageUrl;
+  final String createdAt;
+  final String updatedAt;
 
   BasketItem({
     required this.id,
@@ -273,6 +339,8 @@ class BasketItem {
     required this.subTitle,
     required this.type,
     this.imageUrl,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory BasketItem.fromJson(Map<String, dynamic> json) {
@@ -289,6 +357,8 @@ class BasketItem {
       subTitle: json['sub_title'],
       type: json['type'],
       imageUrl: json['image_url'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
     );
   }
 
@@ -306,6 +376,8 @@ class BasketItem {
       'sub_title': subTitle,
       'type': type,
       'image_url': imageUrl,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 

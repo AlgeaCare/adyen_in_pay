@@ -110,6 +110,11 @@ void main() {
           baskets: [],
           amountDue: 2500,
           createdAt: '2024-01-01T00:00:00Z',
+          metaData: 'test-meta-data',
+          updatedAt: '2024-01-01T00:00:00Z',
+          isFiveGram: false,
+          reverseTransfers: false,
+          productTypes: ['test-product-type'],
         );
 
         dioAdapter.onPost(
@@ -161,6 +166,11 @@ void main() {
           baskets: [],
           amountDue: 1500,
           createdAt: '2024-01-01T00:00:00Z',
+          metaData: 'test-meta-data',
+          updatedAt: '2024-01-01T00:00:00Z',
+          isFiveGram: false,
+          reverseTransfers: false,
+          productTypes: ['test-product-type'],
         );
         dioAdapter.onPost(
           '/make-payment',
