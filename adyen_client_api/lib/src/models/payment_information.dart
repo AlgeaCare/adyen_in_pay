@@ -12,7 +12,7 @@ class PaymentInformation {
   final String? invoiceUrl;
   final String zid;
   final String? hsId;
-  final List<Basket> baskets;
+  final List<AdyenBasket> baskets;
   final int amountDue;
   final PaymentProvider provider;
   final String createdAt;
@@ -59,7 +59,7 @@ class PaymentInformation {
 
   bool get isAdyen => provider == PaymentProvider.adyen;
 
-  Basket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
+  AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
     return PaymentInformation(
@@ -83,7 +83,8 @@ class PaymentInformation {
         orElse: () => PaymentProvider.adyen,
       ),
       createdAt: json['created_at'],
-      baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
+      baskets:
+          (json['baskets'] as List).map((basketJson) => AdyenBasket.fromJson(basketJson)).toList(),
       metaData: json['meta_data'],
       warnings: json['warnings'],
       comment: json['comment'],
@@ -199,7 +200,7 @@ class PaymentInformation {
   }
 }
 
-class Basket {
+class AdyenBasket {
   final int id;
   final dynamic orderId;
   final bool replacesBasket;
@@ -215,9 +216,9 @@ class Basket {
   final String? resourceId;
   final String? subMerchantResourceId;
   final bool active;
-  final List<BasketItem> items;
+  final List<AdyenBasketItem> items;
 
-  Basket({
+  AdyenBasket({
     required this.id,
     this.orderId,
     required this.replacesBasket,
@@ -236,8 +237,8 @@ class Basket {
     required this.items,
   });
 
-  factory Basket.fromJson(Map<String, dynamic> json) {
-    return Basket(
+  factory AdyenBasket.fromJson(Map<String, dynamic> json) {
+    return AdyenBasket(
       id: json['id'],
       orderId: json['order_id'],
       replacesBasket: json['replaces_basket'],
@@ -253,7 +254,7 @@ class Basket {
       resourceId: json['resource_id'],
       subMerchantResourceId: json['sub_merchant_resource_id'],
       active: json['active'],
-      items: (json['items'] as List).map((itemJson) => BasketItem.fromJson(itemJson)).toList(),
+      items: (json['items'] as List).map((itemJson) => AdyenBasketItem.fromJson(itemJson)).toList(),
     );
   }
 
@@ -282,7 +283,7 @@ class Basket {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Basket &&
+    return other is AdyenBasket &&
         other.invoiceId == invoiceId &&
         other.amountTotalDiscount == amountTotalDiscount &&
         other.amountTotalGross == amountTotalGross &&
@@ -321,7 +322,7 @@ class Basket {
   }
 }
 
-class BasketItem {
+class AdyenBasketItem {
   final int id;
   final int basketId;
   final dynamic basketItemReferenceId;
@@ -337,7 +338,7 @@ class BasketItem {
   final String createdAt;
   final String updatedAt;
 
-  BasketItem({
+  AdyenBasketItem({
     required this.id,
     required this.basketId,
     this.basketItemReferenceId,
@@ -354,8 +355,8 @@ class BasketItem {
     required this.updatedAt,
   });
 
-  factory BasketItem.fromJson(Map<String, dynamic> json) {
-    return BasketItem(
+  factory AdyenBasketItem.fromJson(Map<String, dynamic> json) {
+    return AdyenBasketItem(
       id: json['id'],
       basketId: json['basket_id'],
       basketItemReferenceId: json['basket_item_reference_id'],
@@ -405,7 +406,7 @@ class BasketItem {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is BasketItem &&
+    return other is AdyenBasketItem &&
         other.id == id &&
         other.basketId == basketId &&
         other.basketItemReferenceId == basketItemReferenceId &&
