@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonEnum(valueField: 'label')
-enum PaymentStatus {
+enum AdyenPaymentStatus {
   pending('pending'),
   paid('paid'),
   completed('completed'),
@@ -15,7 +15,7 @@ enum PaymentStatus {
   refundPending('refund_pending'),
   refundFailed('refund_failed');
 
-  const PaymentStatus(this.label);
+  const AdyenPaymentStatus(this.label);
 
   final String label;
 

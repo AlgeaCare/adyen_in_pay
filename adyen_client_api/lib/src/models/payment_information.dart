@@ -5,7 +5,7 @@ class PaymentInformation {
   final String email;
   final String firstName;
   final String lastName;
-  final PaymentStatus paymentStatus;
+  final AdyenPaymentStatus paymentStatus;
   final String productType;
   final String? paymentId;
   final String? voucherCode;
@@ -67,9 +67,9 @@ class PaymentInformation {
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus: PaymentStatus.values.firstWhere(
+      paymentStatus: AdyenPaymentStatus.values.firstWhere(
         (e) => e.label == json['payment_status'],
-        orElse: () => PaymentStatus.pending,
+        orElse: () => AdyenPaymentStatus.pending,
       ),
       productType: json['product_type'],
       paymentId: json['payment_id'],
