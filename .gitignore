@@ -29,3 +29,10 @@ migrate_working_dir/
 build/
 .vscode
 .flutter-plugin*
+
+# FVM Version Cache
+.fvm/
+
+# Generated Files
+*.freezed.dart
+*.g.dart

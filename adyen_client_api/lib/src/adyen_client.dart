@@ -1,4 +1,5 @@
 import 'package:payment_client_api/src/models/common.dart';
+import 'package:payment_client_api/src/models/payments_page_response.dart';
 import 'package:payment_client_api/src/models/payment_information.dart';
 import 'package:payment_client_api/src/models/payment_response.dart';
 import 'package:payment_client_api/src/models/payment_method_response.dart';
@@ -15,20 +16,16 @@ class AdyenClient {
     required this.baseUrl,
     List<Interceptor> interceptors = const [],
     //  required this.apiKey,
-  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))
-          ..interceptors.addAll(interceptors);
+  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
-  Future<PaymentMethodResponse> getPaymentMethods(
-      {Map<String, dynamic>? data}) async {
+  Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
     try {
-      final response =
-          await dio.post<Map<String, dynamic>>('/methods', data: data!);
+      final response = await dio.post<Map<String, dynamic>>('/methods', data: data!);
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentMethodResponse.fromJson(response.data!);
       } else {
-        throw Exception(
-            'Failed to get payment methods: ${response.statusCode}');
+        throw Exception('Failed to get payment methods: ${response.statusCode}');
       }
     } catch (e, trace) {
       debugPrint(trace.toString());
@@ -40,8 +37,7 @@ class AdyenClient {
   Future<VoucherApplied> applyVoucher(
       {required String invoiceId, required String voucherCode}) async {
     try {
-      final response = await dio.post<Map<String, dynamic>>(
-          '/$invoiceId/apply-voucher',
+      final response = await dio.post<Map<String, dynamic>>('/$invoiceId/apply-voucher',
           data: {'voucher_code': voucherCode});
 
       if (response.statusCode == 200 && response.data != null) {
@@ -60,6 +56,18 @@ class AdyenClient {
     }
   }
 
+  Future<PaymentsPageResponse> getPayments(int page) async {
+    try {
+      final response =
+          await dio.get<PaymentsPageResponse>('/', queryParameters: {'page': page, 'pageSize': 10});
+
+      debugPrint('__adyen_client__: ${response.data?.toJson()}');
+      return response.data!;
+    } catch (e, trace) {
+      throw Exception('Error getting payments: $e,$trace');
+    }
+  }
+
   Future<PaymentInformation> paymentInformation({
     required String invoiceId,
   }) async {
@@ -71,8 +79,7 @@ class AdyenClient {
       if (response.statusCode == 200 && response.data != null) {
         return PaymentInformation.fromJson(response.data!);
       } else {
-        throw Exception(
-            'Failed to get payment information: ${response.statusCode}');
+        throw Exception('Failed to get payment information: ${response.statusCode}');
       }
     } catch (e, trace) {
       throw Exception('Error getting payment methods: $e,$trace');
@@ -95,9 +102,7 @@ class AdyenClient {
         telephoneNumber: telephoneNumber,
         billingAddress: billingAddress,
       ));
-      final browserInfo = {
-        'userAgent': paymentData['browserInfo']['userAgent']
-      };
+      final browserInfo = {'userAgent': paymentData['browserInfo']['userAgent']};
       paymentData['browserInfo'] = browserInfo;
       data.addAll(paymentData);
       final response = await dio.post<Map<String, dynamic>>(
