@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:payment_client_api/src/models/session_response.dart';
 
 enum PaymentResultCode {

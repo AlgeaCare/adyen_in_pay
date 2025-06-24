@@ -1,12 +1,13 @@
 import 'package:payment_client_api/src/models/shopper_billing_address.dart'
     show ShopperBillingAddress;
+import 'payment_status.dart';
 
 class PaymentInformation {
   final String invoiceId;
   final String email;
   final String firstName;
   final String lastName;
-  final String paymentStatus;
+  final PaymentStatus paymentStatus;
   final String productType;
   final String? paymentId;
   final String? voucherCode;
@@ -62,7 +63,10 @@ class PaymentInformation {
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus: json['payment_status'],
+      paymentStatus: PaymentStatus.values.firstWhere(
+        (e) => e.label == json['payment_status'],
+        orElse: () => PaymentStatus.pending,
+      ),
       productType: json['product_type'],
       paymentId: json['payment_id'],
       voucherCode: json['voucher_code'],
@@ -92,7 +96,7 @@ class PaymentInformation {
       'email': email,
       'first_name': firstName,
       'last_name': lastName,
-      'payment_status': paymentStatus,
+      'payment_status': paymentStatus.label,
       'product_type': productType,
       'payment_id': paymentId,
       'voucher_code': voucherCode,
