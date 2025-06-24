@@ -95,20 +95,22 @@ void main() {
           ),
         );
         final paymentInformation = PaymentInformation(
-            invoiceId: 'test-invoice-id',
-            email: 'test-email',
-            firstName: 'Test',
-            lastName: 'User',
-            paymentStatus: 'Paid',
-            productType: 'Test Product',
-            paymentId: 'test-payment-id',
-            voucherCode: 'test-voucher-code',
-            invoiceUrl: 'https://test.com/invoice',
-            provider: 'unzer',
-            zid: 'test-zid',
-            hsId: 'test-hs-id',
-            baskets: [],
-            amountDue: 2500);
+          invoiceId: 'test-invoice-id',
+          email: 'test-email',
+          firstName: 'Test',
+          lastName: 'User',
+          paymentStatus: 'Paid',
+          productType: 'Test Product',
+          paymentId: 'test-payment-id',
+          voucherCode: 'test-voucher-code',
+          invoiceUrl: 'https://test.com/invoice',
+          provider: 'unzer',
+          zid: 'test-zid',
+          hsId: 'test-hs-id',
+          baskets: [],
+          amountDue: 2500,
+          createdAt: '2024-01-01T00:00:00Z',
+        );
 
         dioAdapter.onPost(
           '/make-payment',
@@ -158,6 +160,7 @@ void main() {
           hsId: 'test-hs-id',
           baskets: [],
           amountDue: 1500,
+          createdAt: '2024-01-01T00:00:00Z',
         );
         dioAdapter.onPost(
           '/make-payment',

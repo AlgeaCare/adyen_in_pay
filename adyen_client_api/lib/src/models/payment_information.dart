@@ -16,7 +16,7 @@ class PaymentInformation {
   final List<Basket> baskets;
   final int amountDue;
   final String provider;
-  final String? createdAt;
+  final String createdAt;
 
   PaymentInformation({
     required this.invoiceId,
@@ -33,7 +33,7 @@ class PaymentInformation {
     required this.baskets,
     required this.amountDue,
     required this.provider,
-    this.createdAt,
+    required this.createdAt,
   });
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
@@ -90,11 +90,10 @@ class PaymentInformation {
       'countryCode': countryCode,
       'shopperLocale': shopperLocale,
       'shopperReference': invoiceId,
-      'lineItems':
-          baskets
-              .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
-              .expand((items) => items)
-              .toList(),
+      'lineItems': baskets
+          .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
+          .expand((items) => items)
+          .toList(),
     };
   }
 
