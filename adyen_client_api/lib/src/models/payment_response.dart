@@ -10,7 +10,8 @@ enum PaymentResultCode {
   received,
   presentToShopper,
   cancelled,
-  error;
+  error,
+  paid;
 
   factory PaymentResultCode.fromString(String value) {
     return PaymentResultCode.values.firstWhere(
