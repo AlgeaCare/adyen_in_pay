@@ -16,15 +16,16 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) => dropInAdvancedMobile(
-  client: client,
-  reference: reference,
-  configuration: configuration,
-  onPaymentResult: onPaymentResult,
-  shopperPaymentInformation: shopperPaymentInformation,
-  onConfigurationStatus: onConfigurationStatus,
-  acceptOnlyCard: acceptOnlyCard,
-);
+}) =>
+    dropInAdvancedMobile(
+      client: client,
+      reference: reference,
+      configuration: configuration,
+      onPaymentResult: onPaymentResult,
+      shopperPaymentInformation: shopperPaymentInformation,
+      onConfigurationStatus: onConfigurationStatus,
+      acceptOnlyCard: acceptOnlyCard,
+    );
 
 Future<void> dropInAdvancedMobile({
   required AdyenClient client,
@@ -72,19 +73,16 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId:
-          configuration
-              .adyenKeysConfiguration
-              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantId: configuration.adyenKeysConfiguration
+          .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
       merchantInfo: MerchantInfo(
-        merchantId:
-            shopperPaymentInformation
-                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantId: shopperPaymentInformation
+            .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
       ),
       googlePayEnvironment:
@@ -127,7 +125,8 @@ Future<void> dropInAdvancedMobile({
           return Action(actionResponse: result.action!);
         }
         if (result.resultCode == PaymentResultCode.authorised ||
-            result.resultCode == PaymentResultCode.received) {
+            result.resultCode == PaymentResultCode.received ||
+            result.resultCode == PaymentResultCode.paid) {
           return Finished(resultCode: '201');
         }
         return Error(errorMessage: result.resultCode.toString());
@@ -140,7 +139,8 @@ Future<void> dropInAdvancedMobile({
         final result = await client.makeDetailPayment(data);
         if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
             result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase()) {
+            result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
+            result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
           return Finished(resultCode: '201');
         }
         return Error(errorMessage: result.resultCode.toString());
