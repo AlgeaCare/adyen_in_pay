@@ -1,6 +1,4 @@
-import 'package:payment_client_api/src/models/shopper_billing_address.dart'
-    show ShopperBillingAddress;
-import 'payment_status.dart';
+import 'package:payment_client_api/payment_client_api.dart';
 
 class PaymentInformation {
   final String invoiceId;
@@ -16,7 +14,7 @@ class PaymentInformation {
   final String? hsId;
   final List<Basket> baskets;
   final int amountDue;
-  final String provider;
+  final PaymentProvider provider;
   final String createdAt;
   final String metaData;
   final dynamic warnings;
@@ -57,6 +55,10 @@ class PaymentInformation {
     required this.productTypes,
   });
 
+  bool get isUnzer => provider == PaymentProvider.unzer;
+
+  bool get isAdyen => provider == PaymentProvider.adyen;
+
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
     return PaymentInformation(
       invoiceId: json['invoice_id'],
@@ -74,7 +76,10 @@ class PaymentInformation {
       zid: json['zid'],
       hsId: json['hs_id'],
       amountDue: json['amount_due'],
-      provider: json['provider'],
+      provider: PaymentProvider.values.firstWhere(
+        (e) => e.label == json['provider'],
+        orElse: () => PaymentProvider.adyen,
+      ),
       createdAt: json['created_at'],
       baskets: (json['baskets'] as List).map((basketJson) => Basket.fromJson(basketJson)).toList(),
       metaData: json['meta_data'],
