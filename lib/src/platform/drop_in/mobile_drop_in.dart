@@ -99,11 +99,10 @@ Future<void> dropInAdvancedMobile({
     paymentMethods: acceptOnlyCard ? paymentMethods.onlyCards() : paymentMethods.toJson(),
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
-        debugPrint('__methods ${data['browserInfo']}');
-        debugPrint('__methods ${data['browserInfo']['paymentMethod']}');
-        debugPrint('__methods ${data['browserInfo']['paymentMethod']['type']}');
+        debugPrint('__methods ${data['paymentMethod']}');
+        debugPrint('__methods ${data['paymentMethod']['type']}');
         // {browserInfo: {userAgent: Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148}, storePaymentMethod: null, paymentMethod: {checkoutAttemptId: ea902d51-3d0b-4ce1-9138-0862ad9373af175085376210469B74ED1D2450CF38C987F5A738D33EBDEC25DA2B61497B34468489E041C25E3, type: klarna_paynow}, checkoutAttemptId: ea902d51-3d0b-4ce1-9138-0862ad9373af175085376210469B74ED1D2450CF38C987F5A738D33EBDEC25DA2B61497B34468489E041C25E3, amount: {currency: EUR, value: 12537}, channel: ios, authenticationData: {threeDSRequestData: {nativeThreeDS: preferred}}, reference: A30685965265116, returnUrl: https://app.staging.bloomwell.de/profile/invoices/payment_status?paymentId=A30685965265116}
-        final selectedPaymentMethod = data['browserInfo']['paymentMethod']['type'];
+        final selectedPaymentMethod = data['paymentMethod']['type'];
 
         final modifiedData = data
           ..putIfAbsent('channel', () => channel)
