@@ -99,33 +99,48 @@ Future<void> dropInAdvancedMobile({
     paymentMethods: acceptOnlyCard ? paymentMethods.onlyCards() : paymentMethods.toJson(),
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
-        final selectedPaymentMethod = data['paymentMethod']['type'];
+        //final selectedPaymentMethod = data['paymentMethod']['type'];
 
-        final modifiedData = data
-          ..putIfAbsent('channel', () => channel)
-          ..putIfAbsent('reference', () => reference)
-          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+        // final modifiedData = data
+        //   ..putIfAbsent('channel', () => channel)
+        //   ..putIfAbsent(
+        //     'authenticationData',
+        //     () => {
+        //       'threeDSRequestData': {'nativeThreeDS': 'preferred'},
+        //     },
+        //   )
+        //   ..putIfAbsent('reference', () => reference)
+        //   ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final meths = paymentMethods?.onlyCards().values.map((e) => e['type']);
-        debugPrint('__methods ${paymentMethods?.onlyCards().values.map((e) => e).toList()}');
+        // debugPrint('__methods new pring');
+        // final types = ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+        //     .map((method) => method['type'])
+        //     .cast<String>()
+        //     .toList();
+        // debugPrint('__methods ${types}');
+        // debugPrint('__methods ${selectedPaymentMethod}');
 
-        if (paymentMethods
-                ?.onlyCards()
-                .values
-                .map((e) => e['type'])
-                .contains(selectedPaymentMethod) ??
-            false) {
-          modifiedData.putIfAbsent(
-            'authenticationData',
-            () => {
-              'threeDSRequestData': {'nativeThreeDS': 'preferred'},
-            },
-          );
-        }
+        // if (types.contains(selectedPaymentMethod)) {
+        //   modifiedData.putIfAbsent(
+        //     'authenticationData',
+        //     () => {
+        //       'threeDSRequestData': {'nativeThreeDS': 'preferred'},
+        //     },
+        //   );
+        // }
 
         final result = await client.makePayment(
           paymentInformation!,
-          modifiedData,
+          data
+            ..putIfAbsent('channel', () => channel)
+            ..putIfAbsent(
+              'authenticationData',
+              () => {
+                'threeDSRequestData': {'nativeThreeDS': 'preferred'},
+              },
+            )
+            ..putIfAbsent('reference', () => reference)
+            ..putIfAbsent('returnUrl', () => configuration.redirectURL),
           billingAddress: shopperPaymentInformation.billingAddress,
           countryCode: shopperPaymentInformation.countryCode,
           shopperLocale: shopperPaymentInformation.locale,
