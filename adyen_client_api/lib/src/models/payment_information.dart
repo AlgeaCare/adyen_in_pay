@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:payment_client_api/payment_client_api.dart';
 
 class PaymentInformation {
@@ -238,6 +239,9 @@ class AdyenBasket {
   });
 
   bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
+
+  String? get voucherCode =>
+      items.firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)?.title;
 
   factory AdyenBasket.fromJson(Map<String, dynamic> json) {
     return AdyenBasket(
