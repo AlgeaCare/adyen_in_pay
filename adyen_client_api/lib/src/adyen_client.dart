@@ -59,7 +59,7 @@ class AdyenClient {
   Future<PaymentsPageResponse> getPayments(int page) async {
     try {
       final response =
-          await dio.get<Map<String, dynamic>>('/', queryParameters: {'page': page, 'pageSize': 3});
+          await dio.get<Map<String, dynamic>>('/', queryParameters: {'page': page, 'pageSize': 10});
 
       debugPrint('__updatedList: ${response.headers}');
       debugPrint('__updatedList: ${response.requestOptions.path}');
