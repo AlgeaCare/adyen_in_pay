@@ -114,7 +114,7 @@ class AdyenClient {
         },
       );
       if (response.statusCode == 200 && response.data != null) {
-        return PaymentResponse.fromJson(response.data!['result']);
+        return PaymentResponse.fromJson(response.data!);
       } else {
         debugPrint(response.data.toString());
         debugPrint(response.statusMessage.toString());
