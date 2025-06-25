@@ -107,7 +107,7 @@ Future<void> dropInAdvancedMobile({
           ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
         final meths = paymentMethods?.onlyCards().values.map((e) => e['type']);
-        debugPrint('__methods ${paymentMethods?.onlyCards().values}');
+        debugPrint('__methods ${paymentMethods?.onlyCards().values.map((e) => e).toList()}');
 
         if (paymentMethods
                 ?.onlyCards()
