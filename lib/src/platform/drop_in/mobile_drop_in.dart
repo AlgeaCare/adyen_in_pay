@@ -110,6 +110,9 @@ Future<void> dropInAdvancedMobile({
           ..putIfAbsent('reference', () => reference)
           ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
+        debugPrint('__methods $data');
+        debugPrint('__methods $extra');
+
         debugPrint('__methods ${paymentMethods}');
         debugPrint('__methods all ${paymentMethods?.toAllMap()}');
         debugPrint('__methods onlyKlarna ${paymentMethods?.onlyKlarna()}');
