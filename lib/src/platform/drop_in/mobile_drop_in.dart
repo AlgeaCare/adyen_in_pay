@@ -1,7 +1,7 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'package:flutter/foundation.dart' show debugPrint, defaultTargetPlatform;
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
 import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
 
@@ -99,18 +99,25 @@ Future<void> dropInAdvancedMobile({
     paymentMethods: acceptOnlyCard ? paymentMethods.onlyCards() : paymentMethods.toJson(),
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
+        final modifiedData = data
+          ..putIfAbsent('channel', () => channel)
+          ..putIfAbsent(
+            'authenticationData',
+            () => {
+              'threeDSRequestData': {'nativeThreeDS': 'preferred'},
+            },
+          )
+          ..putIfAbsent('reference', () => reference)
+          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+
+        debugPrint('__methods ${paymentMethods}');
+        debugPrint('__methods all ${paymentMethods?.toAllMap()}');
+        debugPrint('__methods onlyKlarna ${paymentMethods?.onlyKlarna()}');
+        debugPrint('__methods onlyKlarnaPaynow ${paymentMethods?.onlyKlarnaPaynow()}');
+
         final result = await client.makePayment(
           paymentInformation!,
-          data
-            ..putIfAbsent('channel', () => channel)
-            ..putIfAbsent(
-              'authenticationData',
-              () => {
-                'threeDSRequestData': {'nativeThreeDS': 'preferred'},
-              },
-            )
-            ..putIfAbsent('reference', () => reference)
-            ..putIfAbsent('returnUrl', () => configuration.redirectURL),
+          modifiedData,
           billingAddress: shopperPaymentInformation.billingAddress,
           countryCode: shopperPaymentInformation.countryCode,
           shopperLocale: shopperPaymentInformation.locale,
