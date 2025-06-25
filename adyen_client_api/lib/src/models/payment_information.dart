@@ -237,6 +237,8 @@ class AdyenBasket {
     required this.items,
   });
 
+  bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
+
   factory AdyenBasket.fromJson(Map<String, dynamic> json) {
     return AdyenBasket(
       id: json['id'],

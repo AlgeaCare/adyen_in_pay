@@ -10,4 +10,5 @@ export 'src/models/payment_information.dart';
 export 'src/models/payments_page_response.dart';
 export 'src/models/payment_status.dart';
 export 'src/models/payment_provider.dart';
+export 'src/models/voucher_basket_item_type.dart';
 export 'src/models/common.dart';
