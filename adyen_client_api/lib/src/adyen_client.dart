@@ -61,6 +61,9 @@ class AdyenClient {
       final response =
           await dio.get<Map<String, dynamic>>('/', queryParameters: {'page': page, 'pageSize': 3});
 
+      debugPrint('__updatedList: ${response.headers}');
+      debugPrint('__updatedList: ${response.requestOptions.path}');
+
       return PaymentsPageResponse.fromJson(response.data!);
     } catch (e, trace) {
       throw Exception('Error getting payments: $e,$trace');
