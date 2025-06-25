@@ -56,10 +56,13 @@ class AdyenClient {
     }
   }
 
-  Future<PaymentsPageResponse> getPayments(int page) async {
+  Future<PaymentsPageResponse> getPayments(int page, {String? service}) async {
     try {
-      final response =
-          await dio.get<Map<String, dynamic>>('/', queryParameters: {'page': page, 'pageSize': 10});
+      final response = await dio.get<Map<String, dynamic>>('/', queryParameters: {
+        'page': page,
+        'pageSize': 10,
+        'service': service,
+      });
 
       return PaymentsPageResponse.fromJson(response.data!);
     } catch (e, trace) {
