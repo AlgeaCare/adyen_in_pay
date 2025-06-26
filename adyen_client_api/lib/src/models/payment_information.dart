@@ -143,10 +143,11 @@ class PaymentInformation {
       'countryCode': countryCode,
       'shopperLocale': shopperLocale,
       'shopperReference': invoiceId,
-      'lineItems': baskets
-          .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
-          .expand((items) => items)
-          .toList(),
+      'lineItems':
+          baskets
+              .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
+              .expand((items) => items)
+              .toList(),
     };
   }
 
@@ -241,7 +242,18 @@ class AdyenBasket {
   bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
   String? get voucherCode =>
-      items.firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)?.title;
+      items
+          .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+          ?.basketItemReferenceId;
+
+  // sorted by voucher last, for display in payment screen
+  List<AdyenBasketItem> get sortedItems {
+    // Replace `isVoucher` with the actual property/method that identifies vouchers
+    return List<AdyenBasketItem>.from(items)..sort((a, b) {
+      if (a.type == b.type) return 0;
+      return a.type == VoucherBasketItemType.voucher.label ? 1 : -1; // Vouchers go to the bottom
+    });
+  }
 
   factory AdyenBasket.fromJson(Map<String, dynamic> json) {
     return AdyenBasket(
