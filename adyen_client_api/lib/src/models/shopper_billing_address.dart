@@ -1,11 +1,13 @@
 class ShopperBillingAddress {
   final String street;
+  final String houseNumberOrName;
   final String city;
   final String postalCode;
   final String country;
 
   ShopperBillingAddress({
     required this.street,
+    required this.houseNumberOrName,
     required this.city,
     required this.postalCode,
     required this.country,
@@ -14,6 +16,7 @@ class ShopperBillingAddress {
   factory ShopperBillingAddress.fromJson(Map<String, dynamic> json) {
     return ShopperBillingAddress(
       street: json['street'] ?? '',
+      houseNumberOrName: json['houseNumberOrName'] ?? '',
       city: json['city'] ?? '',
       postalCode: json['postalCode'] ?? '',
       country: json['country'] ?? '',
@@ -23,6 +26,7 @@ class ShopperBillingAddress {
   Map<String, dynamic> toJson() {
     return {
       'street': street,
+      'houseNumberOrName': houseNumberOrName,
       'city': city,
       'postalCode': postalCode,
       'country': country,
@@ -35,6 +39,7 @@ class ShopperBillingAddress {
 
     return other is ShopperBillingAddress &&
         other.street == street &&
+        other.houseNumberOrName == houseNumberOrName &&
         other.city == city &&
         other.postalCode == postalCode &&
         other.country == country;
@@ -44,6 +49,7 @@ class ShopperBillingAddress {
   int get hashCode {
     return Object.hash(
       street,
+      houseNumberOrName,
       city,
       postalCode,
       country,

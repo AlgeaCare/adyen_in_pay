@@ -124,6 +124,7 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                       invoiceId: '',
                       billingAddress: ShopperBillingAddress(
                         street: '',
+                        houseNumberOrName: '',
                         city: '',
                         postalCode: '',
                         country: '',

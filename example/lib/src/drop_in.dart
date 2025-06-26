@@ -132,6 +132,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                   billingAddress: ShopperBillingAddress(
                                     city: 'Frankfurt',
                                     street: 'berliner strasse',
+                                    houseNumberOrName: '1',
                                     country: 'DE',
                                     postalCode: '60351',
                                   ),
