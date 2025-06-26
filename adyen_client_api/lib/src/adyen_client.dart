@@ -34,11 +34,15 @@ class AdyenClient {
     }
   }
 
-  Future<VoucherApplied> applyVoucher(
-      {required String invoiceId, required String voucherCode}) async {
+  Future<VoucherApplied> applyVoucher({
+    required String invoiceId,
+    required String voucherCode,
+  }) async {
     try {
-      final response = await dio.post<Map<String, dynamic>>('/$invoiceId/apply-voucher',
-          data: {'voucher_code': voucherCode});
+      final response = await dio.patch<Map<String, dynamic>>(
+        '/$invoiceId/apply-voucher',
+        data: {'voucher_code': voucherCode},
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         return (
@@ -58,11 +62,10 @@ class AdyenClient {
 
   Future<PaymentsPageResponse> getPayments(int page, {String? service}) async {
     try {
-      final response = await dio.get<Map<String, dynamic>>('/', queryParameters: {
-        'page': page,
-        'pageSize': 10,
-        'service': service,
-      });
+      final response = await dio.get<Map<String, dynamic>>(
+        '/',
+        queryParameters: {'page': page, 'pageSize': 10, 'service': service},
+      );
 
       return PaymentsPageResponse.fromJson(response.data!);
     } catch (e, trace) {
@@ -70,13 +73,9 @@ class AdyenClient {
     }
   }
 
-  Future<PaymentInformation> paymentInformation({
-    required String invoiceId,
-  }) async {
+  Future<PaymentInformation> paymentInformation({required String invoiceId}) async {
     try {
-      final response = await dio.get<Map<String, dynamic>>(
-        '/$invoiceId',
-      );
+      final response = await dio.get<Map<String, dynamic>>('/$invoiceId');
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentInformation.fromJson(response.data!);
@@ -98,12 +97,14 @@ class AdyenClient {
   }) async {
     try {
       final data = {};
-      data.addAll(paymentInformation.toPaymentDataJson(
-        countryCode: countryCode,
-        shopperLocale: shopperLocale,
-        telephoneNumber: telephoneNumber,
-        billingAddress: billingAddress,
-      ));
+      data.addAll(
+        paymentInformation.toPaymentDataJson(
+          countryCode: countryCode,
+          shopperLocale: shopperLocale,
+          telephoneNumber: telephoneNumber,
+          billingAddress: billingAddress,
+        ),
+      );
       final browserInfo = {'userAgent': paymentData['browserInfo']['userAgent']};
       paymentData['browserInfo'] = browserInfo;
       data.addAll(paymentData);
@@ -111,9 +112,7 @@ class AdyenClient {
         '/make-payment',
         data: {
           'provider': data,
-          'payment': {
-            'invoiceId': paymentInformation.invoiceId,
-          }
+          'payment': {'invoiceId': paymentInformation.invoiceId},
         },
       );
       if (response.statusCode == 200 && response.data != null) {
@@ -131,7 +130,8 @@ class AdyenClient {
   }
 
   Future<DetailPaymentResponse> makeDetailPayment(
-      Map<String, dynamic> data /* PaymentRequest request */) async {
+    Map<String, dynamic> data /* PaymentRequest request */,
+  ) async {
     try {
       final response = await dio.post<Map<String, dynamic>>(
         '/handle-details',
