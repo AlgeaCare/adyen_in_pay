@@ -9,7 +9,9 @@ void dropIn({
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) => UnimplementedError();
+}) =>
+    UnimplementedError();

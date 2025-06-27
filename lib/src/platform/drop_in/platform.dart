@@ -1,5 +1,5 @@
 import 'package:adyen_checkout/adyen_checkout.dart' show PaymentResult;
-import 'package:payment_client_api/payment_client_api.dart' show AdyenClient;
+import 'package:payment_client_api/payment_client_api.dart' show AdyenClient, PaymentInformation;
 import 'package:adyen_in_pay/src/models/configuration_status.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart' show AdyenConfiguration;
 import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
@@ -16,18 +16,21 @@ void dropInPlatform({
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) => dropIn(
-  context: context,
-  client: client,
-  reference: reference,
-  configuration: configuration,
-  onPaymentResult: onPaymentResult,
-  widgetChildCloseForWeb: widgetChildCloseForWeb,
-  acceptOnlyCard: acceptOnlyCard,
-  webURL: webURL,
-  shopperPaymentInformation: shopperPaymentInformation,
-  onConfigurationStatus: onConfigurationStatus,
-);
+}) =>
+    dropIn(
+      context: context,
+      client: client,
+      reference: reference,
+      configuration: configuration,
+      onPaymentResult: onPaymentResult,
+      widgetChildCloseForWeb: widgetChildCloseForWeb,
+      acceptOnlyCard: acceptOnlyCard,
+      webURL: webURL,
+      shopperPaymentInformation: shopperPaymentInformation,
+      onConfigurationStatus: onConfigurationStatus,
+      paymentInformation: paymentInformation,
+    );

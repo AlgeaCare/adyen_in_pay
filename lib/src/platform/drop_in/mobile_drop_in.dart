@@ -13,6 +13,7 @@ void dropIn({
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
@@ -25,6 +26,7 @@ void dropIn({
       shopperPaymentInformation: shopperPaymentInformation,
       onConfigurationStatus: onConfigurationStatus,
       acceptOnlyCard: acceptOnlyCard,
+      paymentInformation: paymentInformation,
     );
 
 Future<void> dropInAdvancedMobile({
@@ -35,17 +37,19 @@ Future<void> dropInAdvancedMobile({
   required ShopperPaymentInformation shopperPaymentInformation,
   bool acceptOnlyCard = false,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentInformation? paymentInformation,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
   final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
-  PaymentInformation? paymentInformation;
+  var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
   try {
     final String userAgent = await user_agent.userAgent();
-    paymentInformation = await client.paymentInformation(invoiceId: reference);
+
+    paymentInfo ??= await client.paymentInformation(invoiceId: reference);
     paymentMethods = await client.getPaymentMethods(
       data: {
-        'shopperEmail': configuration.userEmail ?? paymentInformation.email,
+        'shopperEmail': configuration.userEmail ?? paymentInfo.email,
         'browserInfo': {
           'acceptHeader':
               'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -63,7 +67,7 @@ Future<void> dropInAdvancedMobile({
   }
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
-    amount: Amount(value: configuration.amount ?? paymentInformation.amountDue, currency: 'EUR'),
+    amount: Amount(value: configuration.amount ?? paymentInfo.amountDue, currency: 'EUR'),
     // paymentMethodNames: paymentMethods.toMap(),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
