@@ -246,13 +246,10 @@ class AdyenBasket {
           .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
           ?.basketItemReferenceId;
 
-  // sorted by voucher last, for display in payment screen
-  List<AdyenBasketItem> get sortedItems {
-    // Replace `isVoucher` with the actual property/method that identifies vouchers
-    return List<AdyenBasketItem>.from(items)..sort((a, b) {
-      if (a.type == b.type) return 0;
-      return a.type == VoucherBasketItemType.voucher.label ? 1 : -1; // Vouchers go to the bottom
-    });
+  // we want to not show vouchers in the list
+  List<AdyenBasketItem> get itemsWithoutVouchers {
+    return List<AdyenBasketItem>.from(items)
+      ..removeWhere((item) => item.type == VoucherBasketItemType.voucher.label);
   }
 
   factory AdyenBasket.fromJson(Map<String, dynamic> json) {
