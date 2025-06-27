@@ -11,6 +11,7 @@ void dropIn({
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
@@ -28,6 +29,7 @@ void dropIn({
     shopperPaymentInformation: shopperPaymentInformation,
     acceptOnlyCard: acceptOnlyCard,
     webURL: webURL,
+    paymentInformation: paymentInformation,
   );
 }
 
@@ -38,6 +40,7 @@ Future<void> dropInAdvancedWeb({
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
+  PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   required String webURL,
