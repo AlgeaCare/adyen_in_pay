@@ -1,7 +1,7 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
 import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
 
@@ -49,7 +49,7 @@ Future<void> dropInAdvancedMobile({
     paymentInfo ??= await client.paymentInformation(invoiceId: reference);
     paymentMethods = await client.getPaymentMethods(
       data: {
-        'shopperEmail': configuration.userEmail ?? paymentInfo.email,
+        'invoiceId': reference,
         'browserInfo': {
           'acceptHeader':
               'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -65,6 +65,7 @@ Future<void> dropInAdvancedMobile({
     onConfigurationStatus(ConfigurationStatus.error);
     return;
   }
+
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
     amount: Amount(value: configuration.amount ?? paymentInfo.amountDue, currency: 'EUR'),

@@ -136,18 +136,10 @@ class PaymentInformation {
     ShopperBillingAddress? billingAddress,
   }) {
     return {
-      'shopperEmail': email,
-      'shopperName': {'firstName': firstName, 'lastName': lastName},
       'billingAddress': billingAddress?.toJson(),
       'telephoneNumber': telephoneNumber,
       'countryCode': countryCode,
       'shopperLocale': shopperLocale,
-      'shopperReference': invoiceId,
-      'lineItems':
-          baskets
-              .map((basket) => basket.items.map((item) => item.toPaymentDataJson()))
-              .expand((items) => items)
-              .toList(),
     };
   }
 
@@ -241,10 +233,9 @@ class AdyenBasket {
 
   bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
-  String? get voucherCode =>
-      items
-          .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
-          ?.basketItemReferenceId;
+  String? get voucherCode => items
+      .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+      ?.basketItemReferenceId;
 
   // we want to not show vouchers in the list
   List<AdyenBasketItem> get itemsWithoutVouchers {
