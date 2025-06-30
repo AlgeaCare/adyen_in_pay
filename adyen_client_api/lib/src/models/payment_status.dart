@@ -6,7 +6,7 @@ enum AdyenPaymentStatus {
   paid('paid'),
   completed('completed'),
   review('review'),
-  canceled('canceled'),
+  cancelled('cancelled'),
   refunded('refunded'),
   debt('debt'),
   authorized('authorized'),
