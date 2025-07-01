@@ -17,17 +17,16 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) =>
-    dropInAdvancedMobile(
-      client: client,
-      reference: reference,
-      configuration: configuration,
-      onPaymentResult: onPaymentResult,
-      shopperPaymentInformation: shopperPaymentInformation,
-      onConfigurationStatus: onConfigurationStatus,
-      acceptOnlyCard: acceptOnlyCard,
-      paymentInformation: paymentInformation,
-    );
+}) => dropInAdvancedMobile(
+  client: client,
+  reference: reference,
+  configuration: configuration,
+  onPaymentResult: onPaymentResult,
+  shopperPaymentInformation: shopperPaymentInformation,
+  onConfigurationStatus: onConfigurationStatus,
+  acceptOnlyCard: acceptOnlyCard,
+  paymentInformation: paymentInformation,
+);
 
 Future<void> dropInAdvancedMobile({
   required AdyenClient client,
@@ -78,16 +77,19 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId: configuration.adyenKeysConfiguration
-          .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantId:
+          configuration
+              .adyenKeysConfiguration
+              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
       merchantInfo: MerchantInfo(
-        merchantId: shopperPaymentInformation
-            .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantId:
+            shopperPaymentInformation
+                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
       ),
       googlePayEnvironment:
@@ -106,15 +108,17 @@ Future<void> dropInAdvancedMobile({
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
 
-        final modifiedData = data
-          ..putIfAbsent('channel', () => channel)
-          ..putIfAbsent('reference', () => reference)
-          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+        final modifiedData =
+            data
+              ..putIfAbsent('channel', () => channel)
+              ..putIfAbsent('reference', () => reference)
+              ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final onlyCardsTypes = ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
-            .map((method) => method['type'])
-            .cast<String>()
-            .toList();
+        final onlyCardsTypes =
+            ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+                .map((method) => method['type'])
+                .cast<String>()
+                .toList();
 
         if (onlyCardsTypes.contains(selectedPaymentMethod)) {
           modifiedData.putIfAbsent(
@@ -133,6 +137,11 @@ Future<void> dropInAdvancedMobile({
           shopperLocale: shopperPaymentInformation.locale,
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
         );
+        if (result.action?['paymentMethodType']?.contains('klarna') == true &&
+            result.actionType == 'redirect') {
+          setPaymentData(result.action?['paymentData']);
+          return Action(actionResponse: result.action!);
+        }
         if (result.actionType == 'threeDS2' ||
             result.actionType == 'redirect' ||
             result.actionType == 'qrCode' ||
