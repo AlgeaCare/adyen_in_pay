@@ -1,6 +1,7 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
+import 'package:adyen_in_pay/src/utils/redirect_url_bottom_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
 import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
@@ -18,6 +19,7 @@ void dropIn({
   bool acceptOnlyCard = false,
   String? webURL,
 }) => dropInAdvancedMobile(
+  context: context,
   client: client,
   reference: reference,
   configuration: configuration,
@@ -29,6 +31,7 @@ void dropIn({
 );
 
 Future<void> dropInAdvancedMobile({
+  required BuildContext context,
   required AdyenClient client,
   required String reference,
   required AdyenConfiguration configuration,
@@ -140,10 +143,25 @@ Future<void> dropInAdvancedMobile({
         if (result.action?['paymentMethodType']?.contains('klarna') == true &&
             result.actionType == 'redirect') {
           setPaymentData(result.action?['paymentData']);
-          return Action(actionResponse: result.action!);
+          if (!context.mounted) {
+            return Error(errorMessage: "");
+          }
+          return showRedirectUrlBottomSheet(
+            context: context,
+            redirectUrl: result.action?['redirectUrl'],
+            onPaymentDetail: (String resultCode) async {
+              final data = <String, dynamic>{};
+              data.putIfAbsent('paymentData', () => paymentData);
+              data["provider"] = {
+                "details": {"redirectResult": resultCode},
+              };
+              data["payment"] = {'invoiceId': reference};
+              return await client.makeDetailPayment(data);
+            },
+          );
         }
         if (result.actionType == 'threeDS2' ||
-            result.actionType == 'redirect' ||
+            // result.actionType == 'redirect' ||
             result.actionType == 'qrCode' ||
             result.actionType == 'await' ||
             result.actionType == 'sdk') {
