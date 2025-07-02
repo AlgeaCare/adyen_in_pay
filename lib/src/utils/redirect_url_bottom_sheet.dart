@@ -9,43 +9,75 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
   required BuildContext context,
   required String redirectUrl,
+  required String url,
   required Future<DetailPaymentResponse> Function(String resultCode) onPaymentDetail,
 }) async {
-  final Completer<adyen.PaymentEvent> completer = Completer();
-  final controller = Scaffold.of(context).showBottomSheet((context) {
-    return RedirectUrlBottomSheet(
-      redirectUrl: redirectUrl,
-      url: redirectUrl,
-      onRedirect: (controller, url) {
-        if (url != null) {}
-      },
-      onCloseWindow: (controller) {
-        completer.complete(adyen.Error(errorMessage: ""));
-        Navigator.of(context).pop();
-      },
-      onPaymentEvent: (String event) async {
-        final result = await onPaymentDetail(event);
-        if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
-          completer.complete(adyen.Finished(resultCode: event));
-        } else {
-          completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
-        }
-        if (!context.mounted) {
-          return;
-        }
-        Navigator.of(context).pop();
-      },
-    );
-  });
-  controller.closed.then((value) {
-    if(!completer.isCompleted){
-      completer.completeError(Exception('Complete without Any information'));
-    }
-  });
-  return completer.future;
+  // final Completer<adyen.PaymentEvent> completer = Completer();
+  // final controller
+  final result = await showModalBottomSheet<adyen.PaymentEvent>(
+    context: context,
+    isDismissible: false,
+    isScrollControlled: true,
+    scrollControlDisabledMaxHeightRatio: 0.8,
+    builder: (context) {
+      return RedirectUrlBottomSheet(
+        redirectUrl: redirectUrl,
+        url: url,
+        onRedirect: (controller, url) {
+          if (url?.path.contains(redirectUrl) ?? false) {
+            controller.stopLoading();
+            if (!context.mounted) {
+              return;
+            }
+            // completer.complete(adyen.Error(errorMessage: ""));
+            Navigator.of(context).pop(adyen.Error(errorMessage: ""));
+          }
+        },
+        onCloseWindow: (controller) async {
+          final url = await controller.getUrl();
+          if (url?.path.contains(redirectUrl) ?? false) {
+            controller.stopLoading();
+          }
+          if (!context.mounted) {
+            return;
+          }
+          Navigator.of(context).pop(adyen.Error(errorMessage: ""));
+        },
+
+        onPaymentEvent: (String event) async {
+          final result = await onPaymentDetail(event);
+          if (!context.mounted) {
+            return;
+          }
+          if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
+              result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
+              result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
+              result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
+            // completer.complete(adyen.Finished(resultCode: event));
+            Navigator.of(context).pop(adyen.Finished(resultCode: event));
+          } else {
+            Navigator.of(context).pop(adyen.Error(errorMessage: result.resultCode.toString()));
+            // completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
+          }
+        },
+      );
+    },
+    constraints: BoxConstraints(
+      maxWidth: MediaQuery.sizeOf(context).width,
+      maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+    ),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+    ),
+    elevation: 10,
+  );
+  return result ?? adyen.Error(errorMessage: "");
+  // controller.closed.then((value) {
+  //   if (!completer.isCompleted) {
+  //     completer.completeError(Exception('Complete without Any information'));
+  //   }
+  // });
+  // return completer.future;
 }
 
 class RedirectUrlBottomSheet extends StatelessWidget {
@@ -66,7 +98,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
-      height: MediaQuery.sizeOf(context).height,
+      height: MediaQuery.sizeOf(context).height * 0.7,
       child: InAppWebView(
         initialSettings: InAppWebViewSettings(
           isInspectable: kReleaseMode,
@@ -74,7 +106,9 @@ class RedirectUrlBottomSheet extends StatelessWidget {
           allowsInlineMediaPlayback: true,
           iframeAllow: "camera",
           iframeAllowFullscreen: true,
+          useOnRenderProcessGone: true,
         ),
+
         onPermissionRequest: (controller, request) async {
           return PermissionResponse(
             resources: request.resources,
@@ -85,13 +119,25 @@ class RedirectUrlBottomSheet extends StatelessWidget {
         onCloseWindow: (controller) {
           onCloseWindow?.call(controller);
         },
-        // onUpdateVisitedHistory: (controller, url, isReload) {
-        //   onRedirect(controller, url);
-        // },
-        onLoadStart: (controller, webURI) {
-          if (webURI != null && webURI.queryParameters.containsKey('resultCode')) {
+        onNavigationResponse: (controller, request) async {
+          // onRedirect(controller, request.response?.url);
+          final uri = request.response?.url;
+          if (uri != null && uri.path.contains(redirectUrl)) {
             controller.stopLoading();
-            onPaymentEvent(webURI.queryParameters['resultCode']!);
+            return NavigationResponseAction.CANCEL;
+          }
+          return NavigationResponseAction.ALLOW;
+        },
+        onUpdateVisitedHistory: (controller, url, isReload) {
+          if (url != null && url.queryParameters.containsKey('redirectResult')) {
+            controller.stopLoading();
+            onPaymentEvent(url.queryParameters['redirectResult']!);
+          }
+        },
+        onLoadStart: (controller, webURI) {
+          if (webURI != null && webURI.queryParameters.containsKey('redirectResult')) {
+            controller.stopLoading();
+            onPaymentEvent(webURI.queryParameters['redirectResult']!);
           }
         },
       ),

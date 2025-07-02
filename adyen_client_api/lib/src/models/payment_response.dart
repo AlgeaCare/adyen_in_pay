@@ -24,10 +24,7 @@ enum PaymentResultCode {
 class DetailPaymentResponse {
   final String resultCode;
   final String? pspReference;
-  DetailPaymentResponse({
-    required this.resultCode,
-    this.pspReference,
-  });
+  DetailPaymentResponse({required this.resultCode, this.pspReference});
 
   factory DetailPaymentResponse.fromJson(Map<String, dynamic> json) {
     return DetailPaymentResponse(
@@ -37,10 +34,7 @@ class DetailPaymentResponse {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'resultCode': resultCode,
-      if (pspReference != null) 'pspReference': pspReference,
-    };
+    return {'resultCode': resultCode, if (pspReference != null) 'pspReference': pspReference};
   }
 }
 
@@ -66,12 +60,16 @@ class PaymentResponse {
   factory PaymentResponse.fromJson(Map<String, dynamic> json) {
     return PaymentResponse(
       pspReference: json['pspReference'] as String?,
-      resultCode: PaymentResultCode.fromString(json['resultCode'] as String),
+      resultCode:
+          json['resultCode'] != null
+              ? PaymentResultCode.fromString(json['resultCode'] as String)
+              : throw Exception('Invalid result code'),
       additionalData: json['additionalData'] as Map<String, dynamic>?,
       action: json['action'] as Map<String, dynamic>?,
-      amount: json['amount'] != null
-          ? SessionAmount.fromJson(json['amount'] as Map<String, dynamic>)
-          : null,
+      amount:
+          json['amount'] != null
+              ? SessionAmount.fromJson(json['amount'] as Map<String, dynamic>)
+              : null,
       donationToken: json['donationToken'] as String?,
       merchantReference: json['merchantReference'] as String?,
     );

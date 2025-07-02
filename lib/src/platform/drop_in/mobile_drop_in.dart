@@ -142,16 +142,18 @@ Future<void> dropInAdvancedMobile({
         );
         if (result.action?['paymentMethodType']?.contains('klarna') == true &&
             result.actionType == 'redirect') {
-          setPaymentData(result.action?['paymentData']);
+          // setPaymentData(result.action?['paymentData']);
+          await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
             return Error(errorMessage: "");
           }
           return showRedirectUrlBottomSheet(
             context: context,
-            redirectUrl: result.action?['redirectUrl'],
+            redirectUrl: configuration.redirectURL,
+            url: result.action!['url'],
             onPaymentDetail: (String resultCode) async {
               final data = <String, dynamic>{};
-              data.putIfAbsent('paymentData', () => paymentData);
+              // data.putIfAbsent('paymentData', () => paymentData);
               data["provider"] = {
                 "details": {"redirectResult": resultCode},
               };
