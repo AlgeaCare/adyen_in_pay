@@ -11,6 +11,7 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
   required String redirectUrl,
   required String url,
   required Future<DetailPaymentResponse> Function(String resultCode) onPaymentDetail,
+  required Function() onRetry,
 }) async {
   // final Completer<adyen.PaymentEvent> completer = Completer();
   // final controller
@@ -23,6 +24,7 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
       return RedirectUrlBottomSheet(
         redirectUrl: redirectUrl,
         url: url,
+        onRetry: onRetry,
         onRedirect: (controller, url) {
           if (url?.path.contains(redirectUrl) ?? false) {
             controller.stopLoading();
@@ -42,6 +44,7 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
             return;
           }
           Navigator.of(context).pop(adyen.Error(errorMessage: ""));
+          onRetry();
         },
 
         onPaymentEvent: (String event) async {
@@ -88,9 +91,11 @@ class RedirectUrlBottomSheet extends StatelessWidget {
     required this.onPaymentEvent,
     this.onCloseWindow,
     required this.onRedirect,
+    required this.onRetry,
   });
   final String redirectUrl;
   final String url;
+  final Function() onRetry;
   final Function(String) onPaymentEvent;
   final Function(InAppWebViewController)? onCloseWindow;
   final Function(InAppWebViewController, WebUri?) onRedirect;
@@ -98,48 +103,89 @@ class RedirectUrlBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
-      height: MediaQuery.sizeOf(context).height * 0.7,
-      child: InAppWebView(
-        initialSettings: InAppWebViewSettings(
-          isInspectable: kReleaseMode,
-          mediaPlaybackRequiresUserGesture: false,
-          allowsInlineMediaPlayback: true,
-          iframeAllow: "camera",
-          iframeAllowFullscreen: true,
-          useOnRenderProcessGone: true,
-        ),
+      height: MediaQuery.sizeOf(context).height * 0.8,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 10,
+            child: InAppWebView(
+              initialSettings: InAppWebViewSettings(
+                isInspectable: kReleaseMode,
+                mediaPlaybackRequiresUserGesture: false,
+                allowsInlineMediaPlayback: true,
+                iframeAllow: "camera",
+                iframeAllowFullscreen: true,
+                useOnRenderProcessGone: true,
+              ),
 
-        onPermissionRequest: (controller, request) async {
-          return PermissionResponse(
-            resources: request.resources,
-            action: PermissionResponseAction.GRANT,
-          );
-        },
-        initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
-        onCloseWindow: (controller) {
-          onCloseWindow?.call(controller);
-        },
-        onNavigationResponse: (controller, request) async {
-          // onRedirect(controller, request.response?.url);
-          final uri = request.response?.url;
-          if (uri != null && uri.path.contains(redirectUrl)) {
-            controller.stopLoading();
-            return NavigationResponseAction.CANCEL;
-          }
-          return NavigationResponseAction.ALLOW;
-        },
-        onUpdateVisitedHistory: (controller, url, isReload) {
-          if (url != null && url.queryParameters.containsKey('redirectResult')) {
-            controller.stopLoading();
-            onPaymentEvent(url.queryParameters['redirectResult']!);
-          }
-        },
-        onLoadStart: (controller, webURI) {
-          if (webURI != null && webURI.queryParameters.containsKey('redirectResult')) {
-            controller.stopLoading();
-            onPaymentEvent(webURI.queryParameters['redirectResult']!);
-          }
-        },
+              onPermissionRequest: (controller, request) async {
+                return PermissionResponse(
+                  resources: request.resources,
+                  action: PermissionResponseAction.GRANT,
+                );
+              },
+              initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
+              onCloseWindow: (controller) {
+                onCloseWindow?.call(controller);
+              },
+              onNavigationResponse: (controller, request) async {
+                // onRedirect(controller, request.response?.url);
+                final uri = request.response?.url;
+                if (uri != null &&
+                    (uri.path.contains(redirectUrl) || uri.path.contains('redirectResult'))) {
+                  controller.stopLoading();
+                  return NavigationResponseAction.CANCEL;
+                }
+                return NavigationResponseAction.ALLOW;
+              },
+              onUpdateVisitedHistory: (controller, url, isReload) {
+                if (url != null && url.queryParameters.containsKey('redirectResult')) {
+                  controller.stopLoading();
+                  onPaymentEvent(url.queryParameters['redirectResult']!);
+                }
+              },
+              onLoadStart: (controller, webURI) {
+                if (webURI != null && webURI.queryParameters.containsKey('redirectResult')) {
+                  controller.stopLoading();
+                  onPaymentEvent(webURI.queryParameters['redirectResult']!);
+                }
+              },
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 62,
+            height: 56,
+            child: SizedBox(
+              height: 56,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  TextButton(
+                    child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onRetry();
+                    },
+                  ),
+                  Expanded(
+                    child: Text(
+                      url,
+                      textAlign: TextAlign.left,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

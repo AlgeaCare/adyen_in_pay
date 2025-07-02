@@ -42,6 +42,7 @@ Future<void> dropInAdvancedMobile({
   PaymentInformation? paymentInformation,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
+  final ValueNotifier<bool> isKlarnaNotifier = ValueNotifier(false);
   final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
   var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
@@ -143,6 +144,7 @@ Future<void> dropInAdvancedMobile({
         if (result.action?['paymentMethodType']?.contains('klarna') == true &&
             result.actionType == 'redirect') {
           // setPaymentData(result.action?['paymentData']);
+          isKlarnaNotifier.value = true;
           await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
             return Error(errorMessage: "");
@@ -151,6 +153,19 @@ Future<void> dropInAdvancedMobile({
             context: context,
             redirectUrl: configuration.redirectURL,
             url: result.action!['url'],
+            onRetry: () {
+              dropInAdvancedMobile(
+                context: context,
+                client: client,
+                reference: reference,
+                configuration: configuration,
+                onPaymentResult: onPaymentResult,
+                shopperPaymentInformation: shopperPaymentInformation,
+                onConfigurationStatus: onConfigurationStatus,
+                acceptOnlyCard: false,
+                paymentInformation: paymentInformation,
+              );
+            },
             onPaymentDetail: (String resultCode) async {
               final data = <String, dynamic>{};
               // data.putIfAbsent('paymentData', () => paymentData);
@@ -196,7 +211,9 @@ Future<void> dropInAdvancedMobile({
   if (paymentResult is PaymentCancelledByUser) {
     await AdyenCheckout.advanced.stopDropIn();
   }
-  onPaymentResult(paymentResult);
+  if (!isKlarnaNotifier.value) {
+    onPaymentResult(paymentResult);
+  }
 
   return Future.delayed(const Duration(seconds: 1));
 }

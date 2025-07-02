@@ -125,7 +125,7 @@ class AdyenClient {
     } catch (e, trace) {
       debugPrint(trace.toString());
       debugPrint(e.toString());
-      throw Exception('Error processing payment: $e');
+      throw Exception('Error processing payment: $e,$trace');
     }
   }
 
