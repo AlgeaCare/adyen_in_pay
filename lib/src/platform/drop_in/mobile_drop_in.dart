@@ -1,6 +1,7 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
+import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
 import 'package:adyen_in_pay/src/utils/redirect_url_bottom_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
@@ -18,18 +19,17 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) =>
-    dropInAdvancedMobile(
-      context: context,
-      client: client,
-      reference: reference,
-      configuration: configuration,
-      onPaymentResult: onPaymentResult,
-      shopperPaymentInformation: shopperPaymentInformation,
-      onConfigurationStatus: onConfigurationStatus,
-      acceptOnlyCard: acceptOnlyCard,
-      paymentInformation: paymentInformation,
-    );
+}) => dropInAdvancedMobile(
+  context: context,
+  client: client,
+  reference: reference,
+  configuration: configuration,
+  onPaymentResult: onPaymentResult,
+  shopperPaymentInformation: shopperPaymentInformation,
+  onConfigurationStatus: onConfigurationStatus,
+  acceptOnlyCard: acceptOnlyCard,
+  paymentInformation: paymentInformation,
+);
 
 Future<void> dropInAdvancedMobile({
   required BuildContext context,
@@ -82,16 +82,19 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId: configuration.adyenKeysConfiguration
-          .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantId:
+          configuration
+              .adyenKeysConfiguration
+              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
       merchantInfo: MerchantInfo(
-        merchantId: shopperPaymentInformation
-            .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantId:
+            shopperPaymentInformation
+                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
       ),
       googlePayEnvironment:
@@ -110,15 +113,17 @@ Future<void> dropInAdvancedMobile({
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
 
-        final modifiedData = data
-          ..putIfAbsent('channel', () => channel)
-          ..putIfAbsent('reference', () => reference)
-          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+        final modifiedData =
+            data
+              ..putIfAbsent('channel', () => channel)
+              ..putIfAbsent('reference', () => reference)
+              ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final onlyCardsTypes = ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
-            .map((method) => method['type'])
-            .cast<String>()
-            .toList();
+        final onlyCardsTypes =
+            ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+                .map((method) => method['type'])
+                .cast<String>()
+                .toList();
 
         if (onlyCardsTypes.contains(selectedPaymentMethod)) {
           modifiedData.putIfAbsent(
@@ -145,7 +150,7 @@ Future<void> dropInAdvancedMobile({
           if (!context.mounted) {
             return Error(errorMessage: "");
           }
-          return showRedirectUrlBottomSheet(
+          final resultRedirectURL = await showRedirectUrlBottomSheet(
             context: context,
             redirectUrl: configuration.redirectURL,
             url: result.action!['url'],
@@ -172,6 +177,20 @@ Future<void> dropInAdvancedMobile({
               return await client.makeDetailPayment(data);
             },
           );
+          switch (resultRedirectURL) {
+            case Finished():
+              onPaymentResult(
+                PaymentAdvancedFinished(
+                  resultCode: resultCodeFromString(resultRedirectURL.resultCode),
+                ),
+              );
+              break;
+            case Action():
+            case Update():
+              onPaymentResult(PaymentError(reason: 'Action should not happen'));
+            case Error():
+              onPaymentResult(PaymentError(reason: resultRedirectURL.errorMessage));
+          }
         }
         if (result.actionType == 'threeDS2' ||
             // result.actionType == 'redirect' ||

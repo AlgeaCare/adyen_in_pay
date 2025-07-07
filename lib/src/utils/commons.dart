@@ -4,3 +4,9 @@ import 'package:payment_client_api/payment_client_api.dart';
 extension ExtSessionAmoubt on SessionAmount {
   Amount toAmount() => Amount.fromJson(toJson());
 }
+
+ResultCode resultCodeFromString(String name) {
+  return ResultCode.values.firstWhere(
+    (element) => element.name.toLowerCase() == name.toLowerCase(),
+  );
+}
