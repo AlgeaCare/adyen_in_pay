@@ -27,6 +27,7 @@ class PaymentInformation {
   final bool isFiveGram;
   final bool reverseTransfers;
   final List<String> productTypes;
+  final List<Transaction> transactions;
 
   PaymentInformation({
     required this.invoiceId,
@@ -54,7 +55,29 @@ class PaymentInformation {
     required this.isFiveGram,
     required this.reverseTransfers,
     required this.productTypes,
-  });
+    List<Transaction>? transactions,
+  }) : transactions = transactions ?? const [];
+
+  PaymentInformation.empty()
+      : this(
+          invoiceId: '',
+          email: '',
+          firstName: '',
+          lastName: '',
+          paymentStatus: AdyenPaymentStatus.pending,
+          productType: '',
+          zid: '',
+          baskets: [],
+          amountDue: 0,
+          provider: PaymentProvider.adyen,
+          createdAt: '',
+          metaData: '',
+          updatedAt: '',
+          isFiveGram: false,
+          reverseTransfers: false,
+          productTypes: [],
+          transactions: null,
+        );
 
   bool get isUnzer => provider == PaymentProvider.unzer;
 
@@ -96,6 +119,9 @@ class PaymentInformation {
       isFiveGram: json['is_five_gram'],
       reverseTransfers: json['reverse_transfers'],
       productTypes: (json['product_types'] as List).map((e) => e.toString()).toList(),
+      transactions: json['transactions'] != null
+          ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
+          : null,
     );
   }
 
@@ -126,6 +152,7 @@ class PaymentInformation {
       'is_five_gram': isFiveGram,
       'reverse_transfers': reverseTransfers,
       'product_types': productTypes,
+      'transactions': transactions.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -161,7 +188,8 @@ class PaymentInformation {
         other.hsId == hsId &&
         other.amountDue == amountDue &&
         other.provider == provider &&
-        _listEquals(other.baskets, baskets);
+        _listEquals(other.baskets, baskets) &&
+        _listEquals(other.transactions, transactions);
   }
 
   bool _listEquals<T>(List<T>? a, List<T>? b) {
@@ -190,6 +218,7 @@ class PaymentInformation {
       amountDue,
       provider,
       Object.hashAll(baskets),
+      Object.hashAll(transactions),
     );
   }
 }
