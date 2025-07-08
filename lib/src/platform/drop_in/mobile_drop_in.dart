@@ -1,6 +1,8 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
+import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
+import 'package:adyen_in_pay/src/utils/redirect_url_bottom_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
 import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
@@ -17,19 +19,20 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) =>
-    dropInAdvancedMobile(
-      client: client,
-      reference: reference,
-      configuration: configuration,
-      onPaymentResult: onPaymentResult,
-      shopperPaymentInformation: shopperPaymentInformation,
-      onConfigurationStatus: onConfigurationStatus,
-      acceptOnlyCard: acceptOnlyCard,
-      paymentInformation: paymentInformation,
-    );
+}) => dropInAdvancedMobile(
+  context: context,
+  client: client,
+  reference: reference,
+  configuration: configuration,
+  onPaymentResult: onPaymentResult,
+  shopperPaymentInformation: shopperPaymentInformation,
+  onConfigurationStatus: onConfigurationStatus,
+  acceptOnlyCard: acceptOnlyCard,
+  paymentInformation: paymentInformation,
+);
 
 Future<void> dropInAdvancedMobile({
+  required BuildContext context,
   required AdyenClient client,
   required String reference,
   required AdyenConfiguration configuration,
@@ -40,6 +43,7 @@ Future<void> dropInAdvancedMobile({
   PaymentInformation? paymentInformation,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
+  final ValueNotifier<bool> isKlarnaNotifier = ValueNotifier(false);
   final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
   var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
@@ -78,16 +82,19 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId: configuration.adyenKeysConfiguration
-          .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantId:
+          configuration
+              .adyenKeysConfiguration
+              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
       merchantInfo: MerchantInfo(
-        merchantId: shopperPaymentInformation
-            .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantId:
+            shopperPaymentInformation
+                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
       ),
       googlePayEnvironment:
@@ -106,15 +113,17 @@ Future<void> dropInAdvancedMobile({
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
 
-        final modifiedData = data
-          ..putIfAbsent('channel', () => channel)
-          ..putIfAbsent('reference', () => reference)
-          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+        final modifiedData =
+            data
+              ..putIfAbsent('channel', () => channel)
+              ..putIfAbsent('reference', () => reference)
+              ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final onlyCardsTypes = ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
-            .map((method) => method['type'])
-            .cast<String>()
-            .toList();
+        final onlyCardsTypes =
+            ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+                .map((method) => method['type'])
+                .cast<String>()
+                .toList();
 
         if (onlyCardsTypes.contains(selectedPaymentMethod)) {
           modifiedData.putIfAbsent(
@@ -126,15 +135,65 @@ Future<void> dropInAdvancedMobile({
         }
 
         final result = await client.makePayment(
-          paymentInformation!,
+          paymentInfo!,
           modifiedData,
           billingAddress: shopperPaymentInformation.billingAddress,
           countryCode: shopperPaymentInformation.countryCode,
           shopperLocale: shopperPaymentInformation.locale,
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
         );
+        if (result.action?['paymentMethodType']?.contains('klarna') == true &&
+            result.actionType == 'redirect') {
+          // setPaymentData(result.action?['paymentData']);
+          isKlarnaNotifier.value = true;
+          await AdyenCheckout.advanced.stopDropIn();
+          if (!context.mounted) {
+            return Error(errorMessage: "");
+          }
+          final resultRedirectURL = await showRedirectUrlBottomSheet(
+            context: context,
+            redirectUrl: configuration.redirectURL,
+            url: result.action!['url'],
+            onRetry: () {
+              dropInAdvancedMobile(
+                context: context,
+                client: client,
+                reference: reference,
+                configuration: configuration,
+                onPaymentResult: onPaymentResult,
+                shopperPaymentInformation: shopperPaymentInformation,
+                onConfigurationStatus: onConfigurationStatus,
+                acceptOnlyCard: false,
+                paymentInformation: paymentInfo,
+              );
+            },
+            onPaymentDetail: (String resultCode) async {
+              final data = <String, dynamic>{};
+              // data.putIfAbsent('paymentData', () => paymentData);
+              data["provider"] = {
+                "details": {"redirectResult": resultCode},
+              };
+              data["payment"] = {'invoiceId': reference};
+              return await client.makeDetailPayment(data);
+            },
+          );
+          switch (resultRedirectURL) {
+            case Finished():
+              onPaymentResult(
+                PaymentAdvancedFinished(
+                  resultCode: resultCodeFromString(resultRedirectURL.resultCode),
+                ),
+              );
+              break;
+            case Action():
+            case Update():
+              onPaymentResult(PaymentError(reason: 'Action should not happen'));
+            case Error():
+              onPaymentResult(PaymentError(reason: resultRedirectURL.errorMessage));
+          }
+        }
         if (result.actionType == 'threeDS2' ||
-            result.actionType == 'redirect' ||
+            // result.actionType == 'redirect' ||
             result.actionType == 'qrCode' ||
             result.actionType == 'await' ||
             result.actionType == 'sdk') {
@@ -167,7 +226,9 @@ Future<void> dropInAdvancedMobile({
   if (paymentResult is PaymentCancelledByUser) {
     await AdyenCheckout.advanced.stopDropIn();
   }
-  onPaymentResult(paymentResult);
+  if (!isKlarnaNotifier.value) {
+    onPaymentResult(paymentResult);
+  }
 
   return Future.delayed(const Duration(seconds: 1));
 }

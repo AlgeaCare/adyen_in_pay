@@ -115,6 +115,7 @@ void main() {
           isFiveGram: false,
           reverseTransfers: false,
           productTypes: ['test-product-type'],
+          transactions: [],
         );
 
         dioAdapter.onPost(
@@ -171,6 +172,7 @@ void main() {
           isFiveGram: false,
           reverseTransfers: false,
           productTypes: ['test-product-type'],
+          transactions: [],
         );
         dioAdapter.onPost(
           '/make-payment',

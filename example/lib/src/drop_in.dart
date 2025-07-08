@@ -13,10 +13,12 @@ class DropInWidget extends StatefulWidget {
 class _DropInWidgetState extends State<DropInWidget> {
   final ValueNotifier<int?> amount = ValueNotifier(null);
   ValueNotifier<String?> reference = ValueNotifier(null);
+  ValueNotifier<String?> baseURLNotifier = ValueNotifier(null);
   ValueNotifier<PaymentInformation?> paymentInformation = ValueNotifier(null);
   ValueNotifier<ConfigurationStatus?> configurationStatus = ValueNotifier(null);
   AdyenClient? client;
-  late final listenable = Listenable.merge([amount, reference, configurationStatus]);
+  late final listenable =
+      Listenable.merge([amount, reference, configurationStatus, paymentInformation]);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +32,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                 children: [
                   ConfigurationInputWidget(
                     onConfigurationSaved: (baseURL, token, invoiceID) async {
+                      baseURLNotifier.value = baseURL;
                       client = AdyenClient(baseUrl: baseURL, interceptors: [
                         InterceptorsWrapper(
                           onRequest: (options, handler) {
@@ -105,13 +108,21 @@ class _DropInWidgetState extends State<DropInWidget> {
                 animation: listenable,
                 builder: (context, child) {
                   return TextButton(
-                    onPressed: amount.value != null && reference.value != null ||
+                    onPressed: !isDone(paymentInformation.value?.paymentStatus) &&
+                            amount.value != null && reference.value != null &&
                             configurationStatus.value != ConfigurationStatus.started
-                        ? () {
+                        ? () async {
+                            final information =
+                                await client!.paymentInformation(invoiceId: reference.value!);
+                            if (!context.mounted) {
+                              return;
+                            }
                             DropInPlatform.dropInAdvancedFlowPlatform(
                               context: context,
-                              webURL: 'https://api.payments.dev.bloomwell.de/pay/$reference',
+                              webURL:
+                                  'https://api.payments.${baseURLNotifier.value!.contains('dev') ? 'dev' : 'staging'}.bloomwell.de/pay/$reference',
                               client: client!,
+                              paymentInformation: information,
                               reference: reference.value!,
                               acceptOnlyCard: false,
                               configuration: AdyenConfiguration(
@@ -123,7 +134,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                 ),
                                 env: 'test',
                                 redirectURL:
-                                    'https://app.staging.bloomwell.de/checkout?shopperOrder=$reference',
+                                    'https://app.staging.bloomwell.de/checkout?shopperOrder=${reference.value}',
                               ),
                               onConfigurationStatus: (status) {
                                 configurationStatus.value = status;
@@ -266,6 +277,15 @@ class _DropInWidgetState extends State<DropInWidget> {
       ),
     );
   }
+
+  bool isDone(AdyenPaymentStatus? status) {
+    return status == AdyenPaymentStatus.completed ||
+        status == AdyenPaymentStatus.authorized ||
+        status == AdyenPaymentStatus.paid ||
+        status == AdyenPaymentStatus.refunded ||
+        status == AdyenPaymentStatus.refundFailed ||
+        status == AdyenPaymentStatus.failed;
+  }
 }
 
 class ConfigurationInputWidget extends StatefulWidget {
@@ -279,8 +299,8 @@ class ConfigurationInputWidget extends StatefulWidget {
 class _ConfigurationInputState extends State<ConfigurationInputWidget> {
   final _formKey = GlobalKey<FormState>();
   final _baseUrlController =
-      TextEditingController(text: 'https://api.payments.dev.bloomwell.de/v1');
-  final _invoiceIdController = TextEditingController(text: 'A03416843424775');
+      TextEditingController(text: 'https://api.payments.staging.bloomwell.de/v1');
+  final _invoiceIdController = TextEditingController(text: 'A73748318300575');
   final _tokenController = TextEditingController();
 
   @override
