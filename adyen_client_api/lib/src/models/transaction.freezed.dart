@@ -345,7 +345,7 @@ class __$$TransactionImplCopyWithImpl<$Res>
 /// @nodoc
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class _$TransactionImpl implements _Transaction {
+class _$TransactionImpl extends _Transaction {
   _$TransactionImpl({
     required this.id,
     this.pspStatus,
@@ -363,7 +363,7 @@ class _$TransactionImpl implements _Transaction {
     required this.basketId,
     this.transferId,
     this.transactionId,
-  });
+  }) : super._();
 
   factory _$TransactionImpl.fromJson(Map<String, dynamic> json) =>
       _$$TransactionImplFromJson(json);
@@ -476,7 +476,7 @@ class _$TransactionImpl implements _Transaction {
   }
 }
 
-abstract class _Transaction implements Transaction {
+abstract class _Transaction extends Transaction {
   factory _Transaction({
     required final int id,
     final String? pspStatus,
@@ -495,6 +495,7 @@ abstract class _Transaction implements Transaction {
     final int? transferId,
     final int? transactionId,
   }) = _$TransactionImpl;
+  _Transaction._() : super._();
 
   factory _Transaction.fromJson(Map<String, dynamic> json) =
       _$TransactionImpl.fromJson;

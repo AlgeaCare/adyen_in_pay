@@ -5,6 +5,8 @@ part 'transaction.g.dart';
 
 @freezed
 class Transaction with _$Transaction {
+  const Transaction._();
+
   // ignore: invalid_annotation_target
   @JsonSerializable(fieldRename: FieldRename.snake)
   factory Transaction({
@@ -25,6 +27,12 @@ class Transaction with _$Transaction {
     int? transferId,
     int? transactionId,
   }) = _Transaction;
+
+  bool get hasPspNumber =>
+      pspNumber != null &&
+      pspNumber!.isNotEmpty &&
+      pspNumber!.toLowerCase() != 'na' &&
+      pspNumber!.toLowerCase() != 'unknown';
 
   factory Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
 }
