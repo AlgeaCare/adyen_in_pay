@@ -57,7 +57,7 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
               result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
               result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
             // completer.complete(adyen.Finished(resultCode: event));
-            Navigator.of(context).pop(adyen.Finished(resultCode: event));
+            Navigator.of(context).pop(adyen.Finished(resultCode: result.resultCode.toString()));
           } else {
             Navigator.of(context).pop(adyen.Error(errorMessage: result.resultCode.toString()));
             // completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
