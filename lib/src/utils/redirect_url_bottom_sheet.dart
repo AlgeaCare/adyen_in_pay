@@ -43,10 +43,9 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
           if (!context.mounted) {
             return;
           }
-          Navigator.of(context).pop(adyen.Error(errorMessage: ""));
+          Navigator.of(context).pop(adyen.Finished(resultCode: "cancelled"));
           onRetry();
         },
-
         onPaymentEvent: (String event) async {
           final result = await onPaymentDetail(event);
           if (!context.mounted) {
@@ -74,7 +73,8 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
     ),
     elevation: 10,
   );
-  return result ?? adyen.Error(errorMessage: "");
+
+  return result ?? adyen.Finished(resultCode: "cancelled");
   // controller.closed.then((value) {
   //   if (!completer.isCompleted) {
   //     completer.completeError(Exception('Complete without Any information'));
@@ -121,7 +121,6 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                 iframeAllowFullscreen: true,
                 useOnRenderProcessGone: true,
               ),
-
               onPermissionRequest: (controller, request) async {
                 return PermissionResponse(
                   resources: request.resources,
@@ -170,7 +169,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                     child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      onRetry();
+                      //onRetry();
                     },
                   ),
                   Expanded(

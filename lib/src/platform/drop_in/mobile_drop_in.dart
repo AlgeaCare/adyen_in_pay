@@ -19,17 +19,18 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) => dropInAdvancedMobile(
-  context: context,
-  client: client,
-  reference: reference,
-  configuration: configuration,
-  onPaymentResult: onPaymentResult,
-  shopperPaymentInformation: shopperPaymentInformation,
-  onConfigurationStatus: onConfigurationStatus,
-  acceptOnlyCard: acceptOnlyCard,
-  paymentInformation: paymentInformation,
-);
+}) =>
+    dropInAdvancedMobile(
+      context: context,
+      client: client,
+      reference: reference,
+      configuration: configuration,
+      onPaymentResult: onPaymentResult,
+      shopperPaymentInformation: shopperPaymentInformation,
+      onConfigurationStatus: onConfigurationStatus,
+      acceptOnlyCard: acceptOnlyCard,
+      paymentInformation: paymentInformation,
+    );
 
 Future<void> dropInAdvancedMobile({
   required BuildContext context,
@@ -60,6 +61,7 @@ Future<void> dropInAdvancedMobile({
           'userAgentHeader': userAgent,
         },
         'channel': channel,
+        'shopperLocale': shopperPaymentInformation.locale,
       },
     );
 
@@ -82,19 +84,16 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId:
-          configuration
-              .adyenKeysConfiguration
-              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantId: configuration.adyenKeysConfiguration
+          .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
       merchantInfo: MerchantInfo(
-        merchantId:
-            shopperPaymentInformation
-                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantId: shopperPaymentInformation
+            .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
       ),
       googlePayEnvironment:
@@ -113,17 +112,15 @@ Future<void> dropInAdvancedMobile({
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
 
-        final modifiedData =
-            data
-              ..putIfAbsent('channel', () => channel)
-              ..putIfAbsent('reference', () => reference)
-              ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+        final modifiedData = data
+          ..putIfAbsent('channel', () => channel)
+          ..putIfAbsent('reference', () => reference)
+          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final onlyCardsTypes =
-            ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
-                .map((method) => method['type'])
-                .cast<String>()
-                .toList();
+        final onlyCardsTypes = ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+            .map((method) => method['type'])
+            .cast<String>()
+            .toList();
 
         if (onlyCardsTypes.contains(selectedPaymentMethod)) {
           modifiedData.putIfAbsent(
@@ -155,6 +152,7 @@ Future<void> dropInAdvancedMobile({
             redirectUrl: configuration.redirectURL,
             url: result.action!['url'],
             onRetry: () {
+              debugPrint("onRetry called");
               dropInAdvancedMobile(
                 context: context,
                 client: client,
@@ -179,6 +177,11 @@ Future<void> dropInAdvancedMobile({
           );
           switch (resultRedirectURL) {
             case Finished():
+              if (resultRedirectURL.resultCode == "cancelled") {
+                onPaymentResult(PaymentCancelledByUser());
+                break;
+              }
+
               onPaymentResult(
                 PaymentAdvancedFinished(
                   resultCode: resultCodeFromString(resultRedirectURL.resultCode),

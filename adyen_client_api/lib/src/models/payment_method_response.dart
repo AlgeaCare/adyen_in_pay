@@ -14,7 +14,7 @@ class PaymentMethodResponse {
   }
   Map<String, dynamic> onlyCards() {
     return {
-      "paymentMethods": [paymentMethods.firstWhere((e) => e.name == 'Cards').toAllMap()],
+      "paymentMethods": [paymentMethods.firstWhere((e) => e.type == 'scheme').toAllMap()],
     };
   }
 
