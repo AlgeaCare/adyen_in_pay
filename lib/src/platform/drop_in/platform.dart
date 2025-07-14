@@ -20,6 +20,7 @@ void dropInPlatform({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
+  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) =>
     dropIn(
       context: context,
@@ -33,4 +34,5 @@ void dropInPlatform({
       shopperPaymentInformation: shopperPaymentInformation,
       onConfigurationStatus: onConfigurationStatus,
       paymentInformation: paymentInformation,
+      topTitleBottomSheetWidget: topTitleBottomSheetWidget,
     );

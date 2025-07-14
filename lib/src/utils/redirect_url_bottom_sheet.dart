@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:adyen_checkout/adyen_checkout.dart' as adyen show PaymentEvent, Finished, Error;
 import 'package:adyen_in_pay/adyen_in_pay.dart' show DetailPaymentResponse, PaymentResultCode;
 import 'package:flutter/foundation.dart' show kReleaseMode;
@@ -12,6 +11,7 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
   required String url,
   required Future<DetailPaymentResponse> Function(String resultCode) onPaymentDetail,
   required Function() onRetry,
+  Widget Function(String url, Function()? onRetry)? topTitleWidget,
 }) async {
   // final Completer<adyen.PaymentEvent> completer = Completer();
   // final controller
@@ -19,12 +19,13 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
     context: context,
     isDismissible: false,
     isScrollControlled: true,
-    scrollControlDisabledMaxHeightRatio: 0.8,
+    scrollControlDisabledMaxHeightRatio: 0.9,
     builder: (context) {
       return RedirectUrlBottomSheet(
         redirectUrl: redirectUrl,
         url: url,
         onRetry: onRetry,
+        topTitleWidget: topTitleWidget,
         onRedirect: (controller, url) {
           if (url?.path.contains(redirectUrl) ?? false) {
             controller.stopLoading();
@@ -66,7 +67,7 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
     },
     constraints: BoxConstraints(
       maxWidth: MediaQuery.sizeOf(context).width,
-      maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+      maxHeight: MediaQuery.sizeOf(context).height * 0.9,
     ),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -92,6 +93,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
     this.onCloseWindow,
     required this.onRedirect,
     required this.onRetry,
+    this.topTitleWidget,
   });
   final String redirectUrl;
   final String url;
@@ -99,11 +101,12 @@ class RedirectUrlBottomSheet extends StatelessWidget {
   final Function(String) onPaymentEvent;
   final Function(InAppWebViewController)? onCloseWindow;
   final Function(InAppWebViewController, WebUri?) onRedirect;
+  final Widget Function(String url, Function()? onRetry)? topTitleWidget;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
-      height: MediaQuery.sizeOf(context).height * 0.8,
+      height: MediaQuery.sizeOf(context).height * 0.9,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -112,76 +115,92 @@ class RedirectUrlBottomSheet extends StatelessWidget {
             left: 0,
             right: 0,
             bottom: 10,
-            child: InAppWebView(
-              initialSettings: InAppWebViewSettings(
-                isInspectable: kReleaseMode,
-                mediaPlaybackRequiresUserGesture: false,
-                allowsInlineMediaPlayback: true,
-                iframeAllow: "camera",
-                iframeAllowFullscreen: true,
-                useOnRenderProcessGone: true,
+            child: SizedBox(
+              child: SingleChildScrollView(
+                child: SizedBox(
+                  height: MediaQuery.sizeOf(context).height * 0.85,
+                  child: InAppWebView(
+                    initialSettings: InAppWebViewSettings(
+                      isInspectable: kReleaseMode,
+                      mediaPlaybackRequiresUserGesture: false,
+                      allowsInlineMediaPlayback: true,
+                      iframeAllow: "camera",
+                      iframeAllowFullscreen: true,
+                      useOnRenderProcessGone: true,
+                      disableVerticalScroll: false,
+                      verticalScrollBarEnabled: true,
+                      isFindInteractionEnabled: true,
+                      supportZoom: true,
+                      preferredContentMode: UserPreferredContentMode.MOBILE,
+                    ),
+                    onPermissionRequest: (controller, request) async {
+                      return PermissionResponse(
+                        resources: request.resources,
+                        action: PermissionResponseAction.GRANT,
+                      );
+                    },
+                    initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
+                    onCloseWindow: (controller) {
+                      onCloseWindow?.call(controller);
+                    },
+                    onNavigationResponse: (controller, request) async {
+                      // onRedirect(controller, request.response?.url);
+                      final uri = request.response?.url;
+                      if (uri != null &&
+                          (uri.path.contains(redirectUrl) || uri.path.contains('redirectResult'))) {
+                        controller.stopLoading();
+                        return NavigationResponseAction.CANCEL;
+                      }
+                      return NavigationResponseAction.ALLOW;
+                    },
+                    onUpdateVisitedHistory: (controller, url, isReload) {
+                      if (url != null && url.queryParameters.containsKey('redirectResult')) {
+                        controller.stopLoading();
+                        onPaymentEvent(url.queryParameters['redirectResult']!);
+                      }
+                    },
+                    onLoadStart: (controller, webURI) {
+                      if (webURI != null && webURI.queryParameters.containsKey('redirectResult')) {
+                        controller.stopLoading();
+                        onPaymentEvent(webURI.queryParameters['redirectResult']!);
+                      }
+                    },
+                  ),
+                ),
               ),
-              onPermissionRequest: (controller, request) async {
-                return PermissionResponse(
-                  resources: request.resources,
-                  action: PermissionResponseAction.GRANT,
-                );
-              },
-              initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
-              onCloseWindow: (controller) {
-                onCloseWindow?.call(controller);
-              },
-              onNavigationResponse: (controller, request) async {
-                // onRedirect(controller, request.response?.url);
-                final uri = request.response?.url;
-                if (uri != null &&
-                    (uri.path.contains(redirectUrl) || uri.path.contains('redirectResult'))) {
-                  controller.stopLoading();
-                  return NavigationResponseAction.CANCEL;
-                }
-                return NavigationResponseAction.ALLOW;
-              },
-              onUpdateVisitedHistory: (controller, url, isReload) {
-                if (url != null && url.queryParameters.containsKey('redirectResult')) {
-                  controller.stopLoading();
-                  onPaymentEvent(url.queryParameters['redirectResult']!);
-                }
-              },
-              onLoadStart: (controller, webURI) {
-                if (webURI != null && webURI.queryParameters.containsKey('redirectResult')) {
-                  controller.stopLoading();
-                  onPaymentEvent(webURI.queryParameters['redirectResult']!);
-                }
-              },
             ),
           ),
           Positioned(
-            top: 0,
+            top: 6,
             left: 0,
-            right: 62,
-            height: 56,
-            child: SizedBox(
-              height: 56,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  TextButton(
-                    child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      //onRetry();
-                    },
-                  ),
-                  Expanded(
-                    child: Text(
-                      url,
-                      textAlign: TextAlign.left,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+            right: 48,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(),
+              child:
+                  topTitleWidget?.call(url, onRetry) ??
+                  SizedBox(
+                    height: 48,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        TextButton(
+                          child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        Expanded(
+                          child: Text(
+                            url,
+                            textAlign: TextAlign.left,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(fontFamily: 'Inter', fontSize: 15),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
             ),
           ),
         ],

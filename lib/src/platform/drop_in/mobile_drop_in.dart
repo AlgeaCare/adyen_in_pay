@@ -19,18 +19,19 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-}) =>
-    dropInAdvancedMobile(
-      context: context,
-      client: client,
-      reference: reference,
-      configuration: configuration,
-      onPaymentResult: onPaymentResult,
-      shopperPaymentInformation: shopperPaymentInformation,
-      onConfigurationStatus: onConfigurationStatus,
-      acceptOnlyCard: acceptOnlyCard,
-      paymentInformation: paymentInformation,
-    );
+   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
+}) => dropInAdvancedMobile(
+  context: context,
+  client: client,
+  reference: reference,
+  configuration: configuration,
+  onPaymentResult: onPaymentResult,
+  shopperPaymentInformation: shopperPaymentInformation,
+  onConfigurationStatus: onConfigurationStatus,
+  acceptOnlyCard: acceptOnlyCard,
+  paymentInformation: paymentInformation,
+  topTitleBottomSheetWidget: topTitleBottomSheetWidget,
+);
 
 Future<void> dropInAdvancedMobile({
   required BuildContext context,
@@ -42,6 +43,7 @@ Future<void> dropInAdvancedMobile({
   bool acceptOnlyCard = false,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentInformation? paymentInformation,
+  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
   final ValueNotifier<bool> isKlarnaNotifier = ValueNotifier(false);
@@ -151,6 +153,7 @@ Future<void> dropInAdvancedMobile({
             context: context,
             redirectUrl: configuration.redirectURL,
             url: result.action!['url'],
+            topTitleWidget: topTitleBottomSheetWidget,
             onRetry: () {
               debugPrint("onRetry called");
               dropInAdvancedMobile(

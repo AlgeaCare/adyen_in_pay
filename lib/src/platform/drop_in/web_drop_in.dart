@@ -16,6 +16,7 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
+  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) {
   if (webURL == null || webURL.isEmpty) {
     throw Exception('webURL should not be empty or null');
@@ -47,9 +48,7 @@ Future<void> dropInAdvancedWeb({
   required String webURL,
 }) async {
   platformListenToState('pay-$reference-result', (Map input) {
-    onPaymentResult(
-      PaymentAdvancedFinished(resultCode: resultCodeFromString(input['resultCode'])),
-    );
+    onPaymentResult(PaymentAdvancedFinished(resultCode: resultCodeFromString(input['resultCode'])));
   });
   await launchUrl(Uri.parse(webURL));
   // return showDialog(

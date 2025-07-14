@@ -13,5 +13,6 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
+  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) =>
     UnimplementedError();
