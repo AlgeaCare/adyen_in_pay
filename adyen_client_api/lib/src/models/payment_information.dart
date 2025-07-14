@@ -91,10 +91,12 @@ class PaymentInformation {
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus: AdyenPaymentStatus.values.firstWhere(
-        (e) => json['payment_status'].contains(e.label),
-        orElse: () => AdyenPaymentStatus.pending,
-      ),
+      paymentStatus:
+          json['payment_status'].toString().toLowerCase().contains('debt')
+              ? AdyenPaymentStatus.debt
+              : AdyenPaymentStatus.values.firstWhere((e) {
+                return json['payment_status'] == e.label;
+              }, orElse: () => AdyenPaymentStatus.pending),
       productType: json['product_type'],
       paymentId: json['payment_id'],
       voucherCode: json['voucher_code'],
