@@ -159,7 +159,8 @@ Future<void> dropInAdvancedMobile({
             },
           );
         }
-
+        final userAgent =
+            defaultTargetPlatform == TargetPlatform.android ? await user_agent.userAgent() : null;
         final result = await client.makePayment(
           paymentInfo!,
           modifiedData,
@@ -167,6 +168,7 @@ Future<void> dropInAdvancedMobile({
           countryCode: shopperPaymentInformation.countryCode,
           shopperLocale: shopperPaymentInformation.locale,
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
+          userAgent: userAgent,
         );
         if (result.action?['paymentMethodType']?.contains('klarna') == true &&
             result.actionType == 'redirect') {

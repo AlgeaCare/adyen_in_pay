@@ -94,6 +94,7 @@ class AdyenClient {
     String? shopperLocale,
     String? telephoneNumber,
     ShopperBillingAddress? billingAddress,
+    String? userAgent,
   }) async {
     try {
       final data = {};
@@ -105,7 +106,7 @@ class AdyenClient {
           billingAddress: billingAddress,
         ),
       );
-      final browserInfo = {'userAgent': paymentData['browserInfo']['userAgent']};
+      final browserInfo = {'userAgent': userAgent ?? paymentData['browserInfo']['userAgent']};
       paymentData['browserInfo'] = browserInfo;
       data.addAll(paymentData);
       final response = await dio.post<Map<String, dynamic>>(
