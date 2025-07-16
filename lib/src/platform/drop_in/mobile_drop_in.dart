@@ -85,7 +85,7 @@ Future<void> dropInAdvancedMobile({
       showStorePaymentField: true,
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
-    applePayConfiguration: defaultTargetPlatform == TargetPlatform.iOS ? ApplePayConfiguration(
+    applePayConfiguration: ApplePayConfiguration(
       merchantId:
           configuration
               .adyenKeysConfiguration
@@ -93,8 +93,8 @@ Future<void> dropInAdvancedMobile({
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
-    ) : null,
-    googlePayConfiguration: defaultTargetPlatform == TargetPlatform.android ? GooglePayConfiguration(
+    ),
+    googlePayConfiguration: GooglePayConfiguration(
       merchantInfo: MerchantInfo(
         merchantId:
             shopperPaymentInformation
@@ -103,7 +103,7 @@ Future<void> dropInAdvancedMobile({
       ),
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
-    ) : null,
+    ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
