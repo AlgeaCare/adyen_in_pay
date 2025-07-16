@@ -19,7 +19,7 @@ void dropIn({
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   String? webURL,
-   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
+  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) => dropInAdvancedMobile(
   context: context,
   client: client,
@@ -86,21 +86,24 @@ Future<void> dropInAdvancedMobile({
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
     applePayConfiguration: ApplePayConfiguration(
-      merchantId: configuration.adyenKeysConfiguration
-          .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+      merchantId:
+          configuration
+              .adyenKeysConfiguration
+              .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
     ),
-    googlePayConfiguration: GooglePayConfiguration(
-      merchantInfo: MerchantInfo(
-        merchantId: shopperPaymentInformation
-            .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
-        merchantName: shopperPaymentInformation.merchantName,
-      ),
-      googlePayEnvironment:
-          configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
-    ),
+    // googlePayConfiguration: GooglePayConfiguration(
+    //   merchantInfo: MerchantInfo(
+    //     merchantId:
+    //         shopperPaymentInformation
+    //             .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+    //     merchantName: shopperPaymentInformation.merchantName,
+    //   ),
+    //   googlePayEnvironment:
+    //       configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
+    // ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
@@ -114,15 +117,17 @@ Future<void> dropInAdvancedMobile({
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
 
-        final modifiedData = data
-          ..putIfAbsent('channel', () => channel)
-          ..putIfAbsent('reference', () => reference)
-          ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+        final modifiedData =
+            data
+              ..putIfAbsent('channel', () => channel)
+              ..putIfAbsent('reference', () => reference)
+              ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final onlyCardsTypes = ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
-            .map((method) => method['type'])
-            .cast<String>()
-            .toList();
+        final onlyCardsTypes =
+            ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+                .map((method) => method['type'])
+                .cast<String>()
+                .toList();
 
         if (onlyCardsTypes.contains(selectedPaymentMethod)) {
           modifiedData.putIfAbsent(
