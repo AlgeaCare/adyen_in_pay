@@ -92,6 +92,18 @@ Future<void> dropInAdvancedMobile({
               .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
+      allowShippingContactEditing: true,
+      billingContact: ApplePayContact(
+        emailAddress: configuration.userEmail,
+        phoneNumber: shopperPaymentInformation.telephoneNumber,
+        city: shopperPaymentInformation.billingAddress.city,
+        country: shopperPaymentInformation.billingAddress.country,
+        postalCode: shopperPaymentInformation.billingAddress.postalCode,
+        addressLines: [
+          shopperPaymentInformation.billingAddress.street,
+          shopperPaymentInformation.billingAddress.houseNumberOrName,
+        ],
+      ),
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
@@ -100,6 +112,16 @@ Future<void> dropInAdvancedMobile({
             shopperPaymentInformation
                 .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
         merchantName: shopperPaymentInformation.merchantName,
+      ),
+      allowCreditCards: true,
+      allowPrepaidCards: false,
+      allowedCardNetworks: ['Visa', 'MasterCard', 'American Express'],
+      emailRequired: true,
+      allowedAuthMethods: [CardAuthMethod.cryptogram3DS, CardAuthMethod.panOnly],
+      billingAddressRequired: true,
+      billingAddressParameters: BillingAddressParameters(
+        format: 'MIN',
+        isPhoneNumberRequired: true,
       ),
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
