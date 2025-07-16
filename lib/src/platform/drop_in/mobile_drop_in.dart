@@ -85,7 +85,7 @@ Future<void> dropInAdvancedMobile({
       showStorePaymentField: true,
       supportedCardTypes: acceptOnlyCard ? paymentMethods.onlyCardBrands() : [],
     ),
-    applePayConfiguration: ApplePayConfiguration(
+    applePayConfiguration: defaultTargetPlatform == TargetPlatform.iOS ? ApplePayConfiguration(
       merchantId:
           configuration
               .adyenKeysConfiguration
@@ -93,17 +93,17 @@ Future<void> dropInAdvancedMobile({
       merchantName: configuration.adyenKeysConfiguration.merchantName,
       merchantCapability: ApplePayMerchantCapability.credit,
       allowOnboarding: true,
-    ),
-    // googlePayConfiguration: GooglePayConfiguration(
-    //   merchantInfo: MerchantInfo(
-    //     merchantId:
-    //         shopperPaymentInformation
-    //             .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
-    //     merchantName: shopperPaymentInformation.merchantName,
-    //   ),
-    //   googlePayEnvironment:
-    //       configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
-    // ),
+    ) : null,
+    googlePayConfiguration: defaultTargetPlatform == TargetPlatform.android ? GooglePayConfiguration(
+      merchantInfo: MerchantInfo(
+        merchantId:
+            shopperPaymentInformation
+                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
+        merchantName: shopperPaymentInformation.merchantName,
+      ),
+      googlePayEnvironment:
+          configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
+    ) : null,
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
