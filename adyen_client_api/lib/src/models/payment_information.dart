@@ -59,25 +59,25 @@ class PaymentInformation {
   }) : transactions = transactions ?? const [];
 
   PaymentInformation.empty()
-    : this(
-        invoiceId: '',
-        email: '',
-        firstName: '',
-        lastName: '',
-        paymentStatus: AdyenPaymentStatus.pending,
-        productType: '',
-        zid: '',
-        baskets: [],
-        amountDue: 0,
-        provider: PaymentProvider.adyen,
-        createdAt: '',
-        metaData: '',
-        updatedAt: '',
-        isFiveGram: false,
-        reverseTransfers: false,
-        productTypes: [],
-        transactions: null,
-      );
+      : this(
+          invoiceId: '',
+          email: '',
+          firstName: '',
+          lastName: '',
+          paymentStatus: AdyenPaymentStatus.pending,
+          productType: '',
+          zid: '',
+          baskets: [],
+          amountDue: 0,
+          provider: PaymentProvider.adyen,
+          createdAt: '',
+          metaData: '',
+          updatedAt: '',
+          isFiveGram: false,
+          reverseTransfers: false,
+          productTypes: [],
+          transactions: null,
+        );
 
   bool get isUnzer => provider == PaymentProvider.unzer;
 
@@ -85,18 +85,20 @@ class PaymentInformation {
 
   AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
 
+  Transaction? get latestTransaction =>
+      transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
+
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
     return PaymentInformation(
       invoiceId: json['invoice_id'],
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus:
-          json['payment_status'].toString().toLowerCase().contains('debt')
-              ? AdyenPaymentStatus.debt
-              : AdyenPaymentStatus.values.firstWhere((e) {
-                return json['payment_status'] == e.label;
-              }, orElse: () => AdyenPaymentStatus.pending),
+      paymentStatus: json['payment_status'].toString().toLowerCase().contains('debt')
+          ? AdyenPaymentStatus.debt
+          : AdyenPaymentStatus.values.firstWhere((e) {
+              return json['payment_status'] == e.label;
+            }, orElse: () => AdyenPaymentStatus.pending),
       productType: json['product_type'],
       paymentId: json['payment_id'],
       voucherCode: json['voucher_code'],
@@ -121,10 +123,9 @@ class PaymentInformation {
       isFiveGram: json['is_five_gram'],
       reverseTransfers: json['reverse_transfers'],
       productTypes: (json['product_types'] as List).map((e) => e.toString()).toList(),
-      transactions:
-          json['transactions'] != null
-              ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
-              : null,
+      transactions: json['transactions'] != null
+          ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
+          : null,
     );
   }
 
@@ -265,10 +266,9 @@ class AdyenBasket {
 
   bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
-  String? get voucherCode =>
-      items
-          .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
-          ?.basketItemReferenceId;
+  String? get voucherCode => items
+      .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+      ?.basketItemReferenceId;
 
   // we want to not show vouchers in the list
   List<AdyenBasketItem> get itemsWithoutVouchers {
