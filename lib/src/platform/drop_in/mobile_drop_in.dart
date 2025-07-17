@@ -77,7 +77,6 @@ Future<void> dropInAdvancedMobile({
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
     amount: Amount(value: configuration.amount ?? paymentInfo.amountDue, currency: 'EUR'),
-    // paymentMethodNames: paymentMethods.toMap(),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
     cardConfiguration: CardConfiguration(
@@ -107,23 +106,7 @@ Future<void> dropInAdvancedMobile({
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
-      merchantInfo: MerchantInfo(
-        merchantId:
-            shopperPaymentInformation
-                .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
-        merchantName: shopperPaymentInformation.merchantName,
-      ),
-      allowCreditCards: true,
-      allowPrepaidCards: true,
-      existingPaymentMethodRequired: true,
-      allowedCardNetworks: ['Visa', 'MasterCard', 'American Express'],
-      emailRequired: true,
-      allowedAuthMethods: [CardAuthMethod.cryptogram3DS, CardAuthMethod.panOnly],
-      billingAddressRequired: true,
-      billingAddressParameters: BillingAddressParameters(
-        format: 'MIN',
-        isPhoneNumberRequired: true,
-      ),
+      merchantAccount: configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
     ),

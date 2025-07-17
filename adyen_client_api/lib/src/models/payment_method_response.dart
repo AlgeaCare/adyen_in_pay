@@ -1,15 +1,14 @@
 class PaymentMethodResponse {
   final List<PaymentMethodConfig> paymentMethods;
 
-  PaymentMethodResponse({
-    required this.paymentMethods,
-  });
+  PaymentMethodResponse({required this.paymentMethods});
 
   factory PaymentMethodResponse.fromJson(Map<String, dynamic> json) {
     return PaymentMethodResponse(
-      paymentMethods: (json['paymentMethods'] as List)
-          .map((e) => PaymentMethodConfig.fromJson(Map.castFrom(e)))
-          .toList(),
+      paymentMethods:
+          (json['paymentMethods'] as List)
+              .map((e) => PaymentMethodConfig.fromJson(Map.castFrom(e)))
+              .toList(),
     );
   }
   Map<String, dynamic> onlyCards() {
@@ -28,9 +27,9 @@ class PaymentMethodResponse {
       'diners',
       'jcb',
       'discover',
-      'klarna_paynow'
+      'klarna_paynow',
     ]
-        /*   paymentMethods
+    /*   paymentMethods
             .where((e) => e.type == 'scheme')
             .map((e) => e.brand)
             .toList()
@@ -39,33 +38,36 @@ class PaymentMethodResponse {
           list.addAll(element ?? []);
           return list;
         }) ?? */
-        ;
+    ;
   }
 
   Map<String, dynamic> onlyKlarna() {
     return {
-      "paymentMethods": paymentMethods
-          .where((e) => e.type.toLowerCase().contains('klarna'))
-          .map((e) => e.toAllMap())
-          .toList(),
+      "paymentMethods":
+          paymentMethods
+              .where((e) => e.type.toLowerCase().contains('klarna'))
+              .map((e) => e.toAllMap())
+              .toList(),
     };
   }
 
   Map<String, dynamic> onlyKlarnaPaynow() {
     return {
-      "paymentMethods": paymentMethods
-          .where((e) => e.type.toLowerCase().contains('klarna_paynow'))
-          .map((e) => e.toAllMap())
-          .toList(),
+      "paymentMethods":
+          paymentMethods
+              .where((e) => e.type.toLowerCase().contains('klarna_paynow'))
+              .map((e) => e.toAllMap())
+              .toList(),
     };
   }
 
   Map<String, dynamic> onlyCustom(String typeName) {
     return {
-      "paymentMethods": paymentMethods
-          .where((e) => e.type.toLowerCase().contains(typeName))
-          .map((e) => e.toAllMap())
-          .toList(),
+      "paymentMethods":
+          paymentMethods
+              .where((e) => e.type.toLowerCase().contains(typeName))
+              .map((e) => e.toAllMap())
+              .toList(),
     };
   }
 
@@ -77,9 +79,9 @@ class PaymentMethodResponse {
   }
 
   Map<String, dynamic> toJson() => {
-        'paymentMethods':
-            paymentMethods.where((e) => e.type != 'multibanco').map((e) => e.toJson()).toList(),
-      };
+    'paymentMethods':
+        paymentMethods.where((e) => e.type != 'multibanco').map((e) => e.toJson()).toList(),
+  };
 }
 
 class PaymentMethodConfig {
@@ -87,19 +89,16 @@ class PaymentMethodConfig {
   final String name;
   final List<String>? brand;
 
-  PaymentMethodConfig({
-    required this.type,
-    required this.name,
-    this.brand,
-  });
+  PaymentMethodConfig({required this.type, required this.name, this.brand});
 
   factory PaymentMethodConfig.fromJson(Map<String, dynamic> json) {
     return PaymentMethodConfig(
       type: json['type'],
       name: json['name'],
-      brand: json['brands'] is List
-          ? (json['brands'] as List).map((e) => e.toString()).toList()
-          : null,
+      brand:
+          json['brands'] is List
+              ? (json['brands'] as List).map((e) => e.toString()).toList()
+              : null,
     );
   }
 

@@ -131,6 +131,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                   clientKey: EnvInfo.adyenClientKey,
                                   appleMerchantId: EnvInfo.adyenAppleMerchantId,
                                   merchantName: EnvInfo.adyenMerchantName,
+                                  googleMerchantId: 'BCR2DN7TRDA45NTJ',
                                 ),
                                 env: 'test',
                                 redirectURL:

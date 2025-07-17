@@ -141,6 +141,7 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                         clientKey: '',
                         appleMerchantId: '',
                         merchantName: '',
+                        googleMerchantId: '',
                       ),
                       env: 'test',
                       redirectURL:

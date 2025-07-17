@@ -42,4 +42,6 @@ abstract class EnvInfo {
   static String get adyenAppleMerchantId => const String.fromEnvironment('APPLE_ADYEN_MERCHANT_ID');
 
   static String get adyenMerchantName => const String.fromEnvironment('ADYEN_MERCHANT_NAME');
+
+  static String get adyenGoogleMerchantId => const String.fromEnvironment('GOOGLE_ADYEN_MERCHANT_ID');
 }
