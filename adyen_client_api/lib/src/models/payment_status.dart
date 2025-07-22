@@ -3,11 +3,12 @@ import 'package:json_annotation/json_annotation.dart';
 @JsonEnum(valueField: 'label')
 enum AdyenPaymentStatus {
   pending('pending'),
+  waiting('waiting'),
   paid('paid'),
   completed('completed'),
   review('review'),
-  cancelled('cancelled'),
-  adminCancelled('admin_cancelled'),
+  cancelled('canceled'),
+  adminCancelled('admin_canceled'),
   refunded('refunded'),
   debt('debt'),
   authorized('authorized'),
