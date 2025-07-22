@@ -59,25 +59,25 @@ class PaymentInformation {
   }) : transactions = transactions ?? const [];
 
   PaymentInformation.empty()
-      : this(
-          invoiceId: '',
-          email: '',
-          firstName: '',
-          lastName: '',
-          paymentStatus: AdyenPaymentStatus.pending,
-          productType: '',
-          zid: '',
-          baskets: [],
-          amountDue: 0,
-          provider: PaymentProvider.adyen,
-          createdAt: '',
-          metaData: '',
-          updatedAt: '',
-          isFiveGram: false,
-          reverseTransfers: false,
-          productTypes: [],
-          transactions: null,
-        );
+    : this(
+        invoiceId: '',
+        email: '',
+        firstName: '',
+        lastName: '',
+        paymentStatus: AdyenPaymentStatus.unknown,
+        productType: '',
+        zid: '',
+        baskets: [],
+        amountDue: 0,
+        provider: PaymentProvider.adyen,
+        createdAt: '',
+        metaData: '',
+        updatedAt: '',
+        isFiveGram: false,
+        reverseTransfers: false,
+        productTypes: [],
+        transactions: null,
+      );
 
   bool get isUnzer => provider == PaymentProvider.unzer;
 
@@ -94,11 +94,12 @@ class PaymentInformation {
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus: json['payment_status'].toString().toLowerCase().contains('debt')
-          ? AdyenPaymentStatus.debt
-          : AdyenPaymentStatus.values.firstWhere((e) {
-              return json['payment_status'] == e.label;
-            }, orElse: () => AdyenPaymentStatus.pending),
+      paymentStatus:
+          json['payment_status'].toString().toLowerCase().contains('debt')
+              ? AdyenPaymentStatus.debt
+              : AdyenPaymentStatus.values.firstWhere((e) {
+                return json['payment_status'] == e.label;
+              }, orElse: () => AdyenPaymentStatus.unknown),
       productType: json['product_type'],
       paymentId: json['payment_id'],
       voucherCode: json['voucher_code'],

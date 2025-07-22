@@ -7,13 +7,15 @@ enum AdyenPaymentStatus {
   completed('completed'),
   review('review'),
   cancelled('cancelled'),
+  adminCancelled('admin_cancelled'),
   refunded('refunded'),
   debt('debt'),
   authorized('authorized'),
   failed('failed'),
   partial('partial'),
   refundPending('refund_pending'),
-  refundFailed('refund_failed');
+  refundFailed('refund_failed'),
+  unknown('unknown');
 
   const AdyenPaymentStatus(this.label);
 
