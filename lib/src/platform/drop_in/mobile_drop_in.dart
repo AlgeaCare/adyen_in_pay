@@ -112,6 +112,13 @@ Future<void> dropInAdvancedMobile({
           configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
+
+      merchantInfo: MerchantInfo(
+        merchantName:
+            paymentMethods.googlePayConfiguration?["merchantId"] ??
+            configuration.adyenKeysConfiguration.merchantName,
+        merchantId: configuration.adyenKeysConfiguration.googleMerchantId,
+      ),
     ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
