@@ -31,6 +31,7 @@ void dropInPlatform({
       onPaymentResult: onPaymentResult,
       widgetChildCloseForWeb: widgetChildCloseForWeb,
       acceptOnlyCard: acceptOnlyCard,
+      ignoreGooglePay: ignoreGooglePay,
       webURL: webURL,
       shopperPaymentInformation: shopperPaymentInformation,
       onConfigurationStatus: onConfigurationStatus,

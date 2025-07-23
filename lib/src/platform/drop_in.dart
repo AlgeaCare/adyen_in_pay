@@ -15,21 +15,22 @@ class DropInPlatform {
     PaymentInformation? paymentInformation,
     Widget? widgetChildCloseForWeb,
     bool acceptOnlyCard = false,
+    bool ignoreGooglePay = false,
     String? webURL,
-  }) async =>
-      dropInPlatform(
-        context: context,
-        client: client,
-        reference: reference,
-        configuration: configuration,
-        onPaymentResult: onPaymentResult,
-        onConfigurationStatus: onConfigurationStatus,
-        acceptOnlyCard: acceptOnlyCard,
-        shopperPaymentInformation: shopperPaymentInformation,
-        paymentInformation: paymentInformation,
-        widgetChildCloseForWeb: widgetChildCloseForWeb,
-        webURL: webURL,
-      );
+  }) async => dropInPlatform(
+    context: context,
+    client: client,
+    reference: reference,
+    configuration: configuration,
+    onPaymentResult: onPaymentResult,
+    onConfigurationStatus: onConfigurationStatus,
+    acceptOnlyCard: acceptOnlyCard,
+    ignoreGooglePay: ignoreGooglePay,
+    shopperPaymentInformation: shopperPaymentInformation,
+    paymentInformation: paymentInformation,
+    widgetChildCloseForWeb: widgetChildCloseForWeb,
+    webURL: webURL,
+  );
 }
 
 String? get paymentData => DropInPlatform._paymentData;
