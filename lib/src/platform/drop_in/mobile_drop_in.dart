@@ -17,6 +17,7 @@ void dropIn({
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
+  bool ignoreGooglePay = false,
   bool acceptOnlyCard = false,
   String? webURL,
   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
@@ -29,6 +30,7 @@ void dropIn({
   shopperPaymentInformation: shopperPaymentInformation,
   onConfigurationStatus: onConfigurationStatus,
   acceptOnlyCard: acceptOnlyCard,
+  ignoreGooglePay: ignoreGooglePay,
   paymentInformation: paymentInformation,
   topTitleBottomSheetWidget: topTitleBottomSheetWidget,
 );
@@ -41,6 +43,7 @@ Future<void> dropInAdvancedMobile({
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
   bool acceptOnlyCard = false,
+  bool ignoreGooglePay = false,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentInformation? paymentInformation,
   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
@@ -128,7 +131,10 @@ Future<void> dropInAdvancedMobile({
   );
   final paymentResult = await AdyenCheckout.advanced.startDropIn(
     dropInConfiguration: dropInConfig,
-    paymentMethods: acceptOnlyCard ? paymentMethods.onlyCards() : paymentMethods.toJson(),
+    paymentMethods:
+        acceptOnlyCard
+            ? paymentMethods.onlyCards()
+            : paymentMethods.toJson(ignoreGooglePay: ignoreGooglePay),
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];

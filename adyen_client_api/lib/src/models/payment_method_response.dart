@@ -86,9 +86,14 @@ class PaymentMethodResponse {
     };
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool ignoreGooglePay = false}) => {
     'paymentMethods':
-        paymentMethods.where((e) => e.type != 'multibanco').map((e) => e.toJson()).toList(),
+        paymentMethods
+            .where(
+              (e) => e.type != 'multibanco' && (ignoreGooglePay ? e.type != 'googlepay' : true),
+            )
+            .map((e) => e.toJson())
+            .toList(),
   };
 }
 
