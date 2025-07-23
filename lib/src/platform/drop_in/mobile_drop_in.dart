@@ -107,7 +107,9 @@ Future<void> dropInAdvancedMobile({
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
-      merchantAccount: configuration.adyenKeysConfiguration.googleMerchantId,
+      merchantAccount:
+          paymentMethods.googlePayConfiguration?["merchantName"] ??
+          configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
     ),
