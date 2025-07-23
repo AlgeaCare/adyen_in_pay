@@ -15,6 +15,7 @@ void dropIn({
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
+  bool ignoreGooglePay = false,
   String? webURL,
   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) {
