@@ -131,7 +131,10 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                       verticalScrollBarEnabled: true,
                       isFindInteractionEnabled: true,
                       supportZoom: true,
-                      preferredContentMode: UserPreferredContentMode.MOBILE,
+                      preferredContentMode: UserPreferredContentMode.RECOMMENDED,
+                      allowsLinkPreview: true,
+                      disallowOverScroll: false,
+                      
                     ),
                     onPermissionRequest: (controller, request) async {
                       return PermissionResponse(

@@ -89,8 +89,9 @@ Future<void> dropInAdvancedMobile({
           configuration
               .adyenKeysConfiguration
               .appleMerchantId, //'merchant.com.algeacare.${configuration.env == 'test' ? 'staging.' : ''}app',
-      merchantName: configuration.adyenKeysConfiguration.merchantName,
-      merchantCapability: ApplePayMerchantCapability.credit,
+      merchantName:
+          paymentMethods.applePayConfiguration?["merchantName"] ??
+          configuration.adyenKeysConfiguration.merchantName,
       allowShippingContactEditing: true,
       billingContact: ApplePayContact(
         emailAddress: configuration.userEmail,

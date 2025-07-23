@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 class PaymentMethodResponse {
   final List<PaymentMethodConfig> paymentMethods;
 
@@ -16,6 +18,12 @@ class PaymentMethodResponse {
       "paymentMethods": [paymentMethods.firstWhere((e) => e.type == 'scheme').toAllMap()],
     };
   }
+
+  Map<String, String>? get applePayConfiguration =>
+      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'applepay')?.configuration;
+
+  Map<String, String>? get googlePayConfiguration =>
+      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'googlepay')?.configuration;
 
   List<String> onlyCardBrands() {
     return <String>[
@@ -88,8 +96,9 @@ class PaymentMethodConfig {
   final String type;
   final String name;
   final List<String>? brand;
+  final Map<String, String>? configuration;
 
-  PaymentMethodConfig({required this.type, required this.name, this.brand});
+  PaymentMethodConfig({required this.type, required this.name, this.brand, this.configuration});
 
   factory PaymentMethodConfig.fromJson(Map<String, dynamic> json) {
     return PaymentMethodConfig(
@@ -99,9 +108,12 @@ class PaymentMethodConfig {
           json['brands'] is List
               ? (json['brands'] as List).map((e) => e.toString()).toList()
               : null,
+      configuration:
+          json['configuration'] is Map
+              ? (json['configuration'] as Map).map((key, value) => MapEntry(key, value.toString()))
+              : null,
     );
   }
-
   Map<String, String> toMap() {
     final map = <String, String>{};
 
@@ -116,6 +128,9 @@ class PaymentMethodConfig {
     map["name"] = name;
     if (brand != null) {
       map['brands'] = brand!;
+    }
+    if (configuration != null) {
+      map['configuration'] = configuration!;
     }
     return map;
   }
