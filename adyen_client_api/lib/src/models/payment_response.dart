@@ -15,7 +15,7 @@ enum PaymentResultCode {
 
   factory PaymentResultCode.fromString(String value) {
     return PaymentResultCode.values.firstWhere(
-      (e) => e.toString().split('.').last.toLowerCase() == value.toLowerCase(),
+      (e) => e.name.toLowerCase() == value.toLowerCase(),
       orElse: () => PaymentResultCode.error,
     );
   }

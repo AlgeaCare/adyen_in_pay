@@ -9,9 +9,7 @@ void main() {
   const baseUrl = 'https://test.api.adyen.com';
 
   setUp(() {
-    adyenClient = AdyenClient(
-      baseUrl: baseUrl,
-    );
+    adyenClient = AdyenClient(baseUrl: baseUrl);
     dioAdapter = DioAdapter(dio: adyenClient.dio);
 
     dioAdapter.onGet(
@@ -33,9 +31,9 @@ void main() {
             {
               'type': 'scheme',
               'name': 'Credit Card',
-              'brand': ['visa', 'mc']
-            }
-          ]
+              'brand': ['visa', 'mc'],
+            },
+          ],
         };
         dioAdapter.onPost(
           '/methods',
@@ -64,10 +62,7 @@ void main() {
             delay: const Duration(seconds: 1),
           ),
         );
-        expect(
-          () => adyenClient.getPaymentMethods(),
-          throwsException,
-        );
+        expect(() => adyenClient.getPaymentMethods(), throwsException);
       });
     });
 
@@ -77,7 +72,7 @@ void main() {
           'pspReference': 'test-psp-ref',
           'resultCode': 'Authorised',
           'amount': {'value': 1000, 'currency': 'EUR'},
-          'merchantReference': 'test-merchant-ref'
+          'merchantReference': 'test-merchant-ref',
         };
 
         final paymentRequest = PaymentRequest(
@@ -192,6 +187,17 @@ void main() {
       });
     });
   });
+  test('test parse payment response', () async {
+    final paymentResponse = PaymentResponse.fromJson(mockResponse2);
+    expect(paymentResponse, isA<PaymentResponse>());
+    expect(paymentResponse.resultCode, PaymentResultCode.authorised);
+    expect(paymentResponse.pspReference, equals('WGXGLBM9SRW6VLG3'));
+    expect(paymentResponse.amount, isA<SessionAmount>());
+    expect(paymentResponse.amount?.value, isA<int>());
+    expect(paymentResponse.amount?.value, 1000);
+    expect(paymentResponse.amount?.currency, 'EUR');
+    expect(paymentResponse.merchantReference, equals('A32814019647000'));
+  });
 }
 
 final mockResponse = {
@@ -204,5 +210,13 @@ final mockResponse = {
   'reference': 'test-reference',
   'returnUrl': 'https://test.com/return',
   'sessionData': 'test-session-data',
-  'shopperLocale': 'en-US'
+  'shopperLocale': 'en-US',
+};
+final mockResponse2 = {
+  "additionalData": {"cardFunction": "Consumer", "isCardCommercial": "false"},
+  "amount": {"currency": "EUR", "value": 1000},
+  "merchantReference": "A32814019647000",
+  "paymentMethod": {"brand": "visa_applepay", "type": "applepay"},
+  "pspReference": "WGXGLBM9SRW6VLG3",
+  "resultCode": "Authorised",
 };
