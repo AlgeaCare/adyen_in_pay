@@ -107,103 +107,110 @@ class RedirectUrlBottomSheet extends StatelessWidget {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       height: MediaQuery.sizeOf(context).height * 0.9,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 10,
-            child: SizedBox(
-              child: SingleChildScrollView(
-                child: SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 0.85,
-                  child: InAppWebView(
-                    initialSettings: InAppWebViewSettings(
-                      isInspectable: kReleaseMode,
-                      mediaPlaybackRequiresUserGesture: false,
-                      allowsInlineMediaPlayback: true,
-                      iframeAllow: "camera",
-                      iframeAllowFullscreen: true,
-                      useOnRenderProcessGone: true,
-                      disableVerticalScroll: false,
-                      verticalScrollBarEnabled: true,
-                      isFindInteractionEnabled: true,
-                      supportZoom: true,
-                      preferredContentMode: UserPreferredContentMode.RECOMMENDED,
-                      allowsLinkPreview: true,
-                      disallowOverScroll: false,
-                      
+          topTitleWidget?.call(url, onRetry) ??
+              SizedBox(
+                height: 56,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    TextButton(
+                      child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
-                    onPermissionRequest: (controller, request) async {
-                      return PermissionResponse(
-                        resources: request.resources,
-                        action: PermissionResponseAction.GRANT,
-                      );
-                    },
-                    initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
-                    onCloseWindow: (controller) {
-                      onCloseWindow?.call(controller);
-                    },
-                    onNavigationResponse: (controller, request) async {
-                      // onRedirect(controller, request.response?.url);
-                      final uri = request.response?.url;
-                      if (uri != null &&
-                          (uri.path.contains(redirectUrl) || uri.path.contains('redirectResult'))) {
-                        controller.stopLoading();
-                        return NavigationResponseAction.CANCEL;
-                      }
-                      return NavigationResponseAction.ALLOW;
-                    },
-                    onUpdateVisitedHistory: (controller, url, isReload) {
-                      if (url != null && url.queryParameters.containsKey('redirectResult')) {
-                        controller.stopLoading();
-                        onPaymentEvent(url.queryParameters['redirectResult']!);
-                      }
-                    },
-                    onLoadStart: (controller, webURI) {
-                      if (webURI != null && webURI.queryParameters.containsKey('redirectResult')) {
-                        controller.stopLoading();
-                        onPaymentEvent(webURI.queryParameters['redirectResult']!);
-                      }
-                    },
-                  ),
+                    Expanded(
+                      child: Text(
+                        url,
+                        textAlign: TextAlign.left,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: const TextStyle(fontFamily: 'Inter', fontSize: 15),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            top: 6,
-            left: 0,
-            right: 48,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(),
-              child:
-                  topTitleWidget?.call(url, onRetry) ??
-                  SizedBox(
-                    height: 48,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        TextButton(
-                          child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
-                          onPressed: () {
-                            Navigator.of(context).pop();
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 10,
+                  child: SizedBox(
+                    child: SingleChildScrollView(
+                      controller: ScrollController(initialScrollOffset: 12, keepScrollOffset: true),
+                      physics: const ClampingScrollPhysics(),
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.85,
+                        child: InAppWebView(
+                          initialSettings: InAppWebViewSettings(
+                            isInspectable: kReleaseMode,
+                            mediaPlaybackRequiresUserGesture: false,
+                            allowsInlineMediaPlayback: true,
+                            iframeAllow: "camera",
+                            iframeAllowFullscreen: true,
+                            useOnRenderProcessGone: true,
+                            disableVerticalScroll: false,
+                            verticalScrollBarEnabled: true,
+                            isFindInteractionEnabled: true,
+                            supportZoom: true,
+                            preferredContentMode: UserPreferredContentMode.RECOMMENDED,
+                            allowsLinkPreview: true,
+                            disallowOverScroll: false,
+                          ),
+                          onPermissionRequest: (controller, request) async {
+                            return PermissionResponse(
+                              resources: request.resources,
+                              action: PermissionResponseAction.GRANT,
+                            );
+                          },
+                          initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
+                          onCloseWindow: (controller) {
+                            onCloseWindow?.call(controller);
+                          },
+                          onNavigationResponse: (controller, request) async {
+                            // onRedirect(controller, request.response?.url);
+                            final uri = request.response?.url;
+                            if (uri != null &&
+                                (uri.path.contains(redirectUrl) ||
+                                    uri.path.contains('redirectResult'))) {
+                              controller.stopLoading();
+                              return NavigationResponseAction.CANCEL;
+                            }
+                            return NavigationResponseAction.ALLOW;
+                          },
+                          onUpdateVisitedHistory: (controller, url, isReload) {
+                            if (url != null && url.queryParameters.containsKey('redirectResult')) {
+                              controller.stopLoading();
+                              onPaymentEvent(url.queryParameters['redirectResult']!);
+                            }
+                          },
+                          onLoadStart: (controller, webURI) {
+                            if (webURI != null &&
+                                webURI.queryParameters.containsKey('redirectResult')) {
+                              controller.stopLoading();
+                              onPaymentEvent(webURI.queryParameters['redirectResult']!);
+                            }
                           },
                         ),
-                        Expanded(
-                          child: Text(
-                            url,
-                            textAlign: TextAlign.left,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: const TextStyle(fontFamily: 'Inter', fontSize: 15),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
+                ),
+                const Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 56,
+                  child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
+                ),
+              ],
             ),
           ),
         ],

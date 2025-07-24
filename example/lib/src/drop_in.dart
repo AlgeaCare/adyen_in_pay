@@ -55,10 +55,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                         },
                       );
                       if (paymentInformation.value != null) {
-                        amount.value = paymentInformation.value!.baskets
-                            .map((basket) => basket.amountTotalGross)
-                            .reduce((total, total2) => total + total2)
-                            .toInt();
+                        amount.value = paymentInformation.value!.amountDue;
                       }
                     },
                   ),
@@ -260,7 +257,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              Text('Pay now ${amount.value! / 100}€ for ${reference.value!}'),
+                              Text('Pay now ${amount.value! / 1000}€ for ${reference.value!}'),
                               if (configurationStatus.value == ConfigurationStatus.started) ...[
                                 const SizedBox.square(
                                   dimension: 16,
