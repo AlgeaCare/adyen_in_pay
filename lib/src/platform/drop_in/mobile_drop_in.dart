@@ -238,7 +238,7 @@ Future<void> dropInAdvancedMobile({
         if (result.resultCode == PaymentResultCode.authorised ||
             result.resultCode == PaymentResultCode.received ||
             result.resultCode == PaymentResultCode.paid) {
-          return Finished(resultCode: '201');
+          return Finished(resultCode: result.resultCode.toString());
         }
         return Error(errorMessage: result.resultCode.toString());
       },
