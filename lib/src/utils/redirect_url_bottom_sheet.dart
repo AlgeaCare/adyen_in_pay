@@ -148,6 +148,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                       physics: const ClampingScrollPhysics(),
                       child: SizedBox(
                         height: MediaQuery.sizeOf(context).height * 0.85,
+                        width: MediaQuery.sizeOf(context).width * 0.95,
                         child: InAppWebView(
                           initialSettings: InAppWebViewSettings(
                             isInspectable: kReleaseMode,
@@ -158,9 +159,11 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                             useOnRenderProcessGone: true,
                             disableVerticalScroll: false,
                             verticalScrollBarEnabled: true,
+                            horizontalScrollBarEnabled: true,
+                            disableHorizontalScroll: false,
                             isFindInteractionEnabled: true,
                             supportZoom: true,
-                            preferredContentMode: UserPreferredContentMode.RECOMMENDED,
+                            preferredContentMode: UserPreferredContentMode.MOBILE,
                             allowsLinkPreview: true,
                             disallowOverScroll: false,
                           ),
