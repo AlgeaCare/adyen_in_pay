@@ -6,9 +6,9 @@ part of 'payments_page_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PaymentsPageResponseImpl _$$PaymentsPageResponseImplFromJson(
+_PaymentsPageResponse _$PaymentsPageResponseFromJson(
   Map<String, dynamic> json,
-) => _$PaymentsPageResponseImpl(
+) => _PaymentsPageResponse(
   payments:
       (json['payments'] as List<dynamic>)
           .map((e) => PaymentInformation.fromJson(e as Map<String, dynamic>))
@@ -17,8 +17,8 @@ _$PaymentsPageResponseImpl _$$PaymentsPageResponseImplFromJson(
   page: (json['page'] as num).toInt(),
 );
 
-Map<String, dynamic> _$$PaymentsPageResponseImplToJson(
-  _$PaymentsPageResponseImpl instance,
+Map<String, dynamic> _$PaymentsPageResponseToJson(
+  _PaymentsPageResponse instance,
 ) => <String, dynamic>{
   'payments': instance.payments,
   'count': instance.count,
