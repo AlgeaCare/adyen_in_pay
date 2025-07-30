@@ -4,7 +4,7 @@ part 'transaction.freezed.dart';
 part 'transaction.g.dart';
 
 @freezed
-abstract class Transaction with _$Transaction {
+ class Transaction with _$Transaction {
   const Transaction._();
 
   // ignore: invalid_annotation_target

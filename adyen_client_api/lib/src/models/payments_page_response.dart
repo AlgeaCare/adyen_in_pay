@@ -5,7 +5,7 @@ part 'payments_page_response.freezed.dart';
 part 'payments_page_response.g.dart';
 
 @freezed
-abstract class PaymentsPageResponse with _$PaymentsPageResponse {
+class PaymentsPageResponse with _$PaymentsPageResponse {
   factory PaymentsPageResponse({
     required List<PaymentInformation> payments,
     required int count,
