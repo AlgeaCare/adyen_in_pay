@@ -1,12 +1,16 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
-import 'package:adyen_in_pay/src/models/adyen_keys_configuration.dart' show AdyenKeysConfiguration;
+import 'package:adyen_in_pay/src/models/adyen_keys_configuration.dart'
+    show AdyenKeysConfiguration;
 import 'package:payment_client_api/payment_client_api.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
-import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
+import 'package:adyen_in_pay/src/models/shopper.dart'
+    show ShopperPaymentInformation;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'stub.dart' if (dart.library.io) 'mobile.dart' if (dart.library.js_interop) 'web_ui.dart';
+import 'stub.dart'
+    if (dart.library.io) 'mobile.dart'
+    if (dart.library.js_interop) 'web_ui.dart';
 
 class AdyenPayWidget extends StatefulWidget {
   final int amount;
@@ -78,7 +82,10 @@ class _AdyenPayState extends State<AdyenPayWidget> {
     cardComponentConfig = InstantComponentConfiguration(
       clientKey: adyenKeysConfiguration.value!.clientKey,
       amount: Amount(value: widget.amount, currency: 'EUR'),
-      environment: widget.configuration.env == 'test' ? Environment.test : Environment.europe,
+      environment:
+          widget.configuration.env == 'test'
+              ? Environment.test
+              : Environment.europe,
       countryCode: 'DE',
     );
     return AdyenCheckout.session.create(

@@ -47,12 +47,6 @@ class ShopperBillingAddress {
 
   @override
   int get hashCode {
-    return Object.hash(
-      street,
-      houseNumberOrName,
-      city,
-      postalCode,
-      country,
-    );
+    return Object.hash(street, houseNumberOrName, city, postalCode, country);
   }
 }

@@ -47,7 +47,9 @@ class PayWidget extends StatelessWidget {
             onPaymentResult(
               PaymentSessionFinished(
                 resultCode:
-                    ResultCode.values.firstWhereOrNull((e) => e.name == result["resultCode"]) ??
+                    ResultCode.values.firstWhereOrNull(
+                      (e) => e.name == result["resultCode"],
+                    ) ??
                     ResultCode.unknown,
                 sessionId: result["sessionId"],
                 sessionData: configuration.sessionData,
@@ -82,7 +84,10 @@ class PayWidget extends StatelessWidget {
             final paymentInformation = await client.paymentInformation(
               invoiceId: shopperPaymentInformation.invoiceId,
             );
-            final response = await client.makePayment(paymentInformation, bodyPayment);
+            final response = await client.makePayment(
+              paymentInformation,
+              bodyPayment,
+            );
             return json.encode(response.toJson());
           },
           onPaymentDetail: (Map<String, dynamic> data) async {
@@ -164,16 +169,17 @@ class DropInWebWidget extends StatelessWidget {
                         'channel': 'web',
                         'returnUrl': configuration.redirectURL,
                       };
-                      final paymentInformation = await client.paymentInformation(
-                        invoiceId: reference,
-                      );
+                      final paymentInformation = await client
+                          .paymentInformation(invoiceId: reference);
                       final response = await client.makePayment(
                         paymentInformation,
                         bodyPayment,
-                        billingAddress: shopperPaymentInformation.billingAddress,
+                        billingAddress:
+                            shopperPaymentInformation.billingAddress,
                         countryCode: shopperPaymentInformation.countryCode,
                         shopperLocale: shopperPaymentInformation.locale,
-                        telephoneNumber: shopperPaymentInformation.telephoneNumber,
+                        telephoneNumber:
+                            shopperPaymentInformation.telephoneNumber,
                       );
                       return json.encode(response.toJson());
                     } catch (e) {
@@ -183,7 +189,9 @@ class DropInWebWidget extends StatelessWidget {
                   },
                   onPaymentDetail: (paymentDetail) async {
                     try {
-                      final response = await client.makeDetailPayment(paymentDetail);
+                      final response = await client.makeDetailPayment(
+                        paymentDetail,
+                      );
                       return json.encode(response.toJson());
                     } catch (e) {
                       debugPrint(e.toString());
@@ -192,7 +200,10 @@ class DropInWebWidget extends StatelessWidget {
                   },
                   onPaymentMethod: () async {
                     final response = await client.getPaymentMethods();
-                    final payMethod = acceptOnlyCard ? response.onlyCards() : response.toJson();
+                    final payMethod =
+                        acceptOnlyCard
+                            ? response.onlyCards()
+                            : response.toJson();
                     return json.encode(payMethod);
                   },
                   cardBrands: () async {
@@ -224,11 +235,18 @@ class DropInWebWidget extends StatelessWidget {
                       child: DecoratedBox(
                         decoration: ShapeDecoration(
                           shape: CircleBorder(
-                            side: BorderSide(color: Colors.grey.shade100, width: 0.5),
+                            side: BorderSide(
+                              color: Colors.grey.shade100,
+                              width: 0.5,
+                            ),
                           ),
                           color: Colors.transparent,
                         ),
-                        child: const Icon(Icons.close, size: 24, color: Colors.white),
+                        child: const Icon(
+                          Icons.close,
+                          size: 24,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
               ),

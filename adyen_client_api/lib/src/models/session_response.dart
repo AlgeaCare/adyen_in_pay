@@ -43,10 +43,7 @@ class SessionAmount {
   final int value;
   final String currency;
 
-  SessionAmount({
-    required this.value,
-    required this.currency,
-  });
+  SessionAmount({required this.value, required this.currency});
 
   factory SessionAmount.fromJson(Map<String, dynamic> json) {
     return SessionAmount(
@@ -55,8 +52,5 @@ class SessionAmount {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'value': value,
-        'currency': currency,
-      };
+  Map<String, dynamic> toJson() => {'value': value, 'currency': currency};
 }

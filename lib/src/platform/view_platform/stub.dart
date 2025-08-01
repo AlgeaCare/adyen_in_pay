@@ -1,7 +1,8 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:payment_client_api/payment_client_api.dart' show AdyenClient;
 import 'package:adyen_in_pay/src/models/pay_configuration.dart';
-import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
+import 'package:adyen_in_pay/src/models/shopper.dart'
+    show ShopperPaymentInformation;
 import 'package:flutter/widgets.dart';
 
 class PayWidget extends StatelessWidget {

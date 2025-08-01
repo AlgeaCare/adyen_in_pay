@@ -16,16 +16,24 @@ class AdyenClient {
     required this.baseUrl,
     List<Interceptor> interceptors = const [],
     //  required this.apiKey,
-  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
+  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))
+         ..interceptors.addAll(interceptors);
 
-  Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
+  Future<PaymentMethodResponse> getPaymentMethods({
+    Map<String, dynamic>? data,
+  }) async {
     try {
-      final response = await dio.post<Map<String, dynamic>>('/methods', data: data!);
+      final response = await dio.post<Map<String, dynamic>>(
+        '/methods',
+        data: data!,
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentMethodResponse.fromJson(response.data!);
       } else {
-        throw Exception('Failed to get payment methods: ${response.statusCode}');
+        throw Exception(
+          'Failed to get payment methods: ${response.statusCode}',
+        );
       }
     } catch (e, trace) {
       debugPrint(trace.toString());
@@ -73,14 +81,18 @@ class AdyenClient {
     }
   }
 
-  Future<PaymentInformation> paymentInformation({required String invoiceId}) async {
+  Future<PaymentInformation> paymentInformation({
+    required String invoiceId,
+  }) async {
     try {
       final response = await dio.get<Map<String, dynamic>>('/$invoiceId');
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentInformation.fromJson(response.data!);
       } else {
-        throw Exception('Failed to get payment information: ${response.statusCode}');
+        throw Exception(
+          'Failed to get payment information: ${response.statusCode}',
+        );
       }
     } catch (e, trace) {
       throw Exception('Error getting payment methods: $e,$trace');
@@ -106,7 +118,9 @@ class AdyenClient {
           billingAddress: billingAddress,
         ),
       );
-      final browserInfo = {'userAgent': userAgent ?? paymentData['browserInfo']['userAgent']};
+      final browserInfo = {
+        'userAgent': userAgent ?? paymentData['browserInfo']['userAgent'],
+      };
       paymentData['browserInfo'] = browserInfo;
       data.addAll(paymentData);
       final response = await dio.post<Map<String, dynamic>>(

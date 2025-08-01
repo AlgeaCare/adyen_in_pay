@@ -115,7 +115,8 @@ void main() {
 
         dioAdapter.onPost(
           '/make-payment',
-          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
+          data: paymentInformation.toPaymentDataJson()
+            ..addAll(paymentRequest.toJson()),
           (server) => server.reply(
             200,
             mockResponse,
@@ -124,7 +125,10 @@ void main() {
           ),
         );
 
-        final response = await adyenClient.makePayment(paymentInformation, paymentRequest.toJson());
+        final response = await adyenClient.makePayment(
+          paymentInformation,
+          paymentRequest.toJson(),
+        );
 
         expect(response, isA<PaymentResponse>());
         expect(response.resultCode, equals(PaymentResultCode.authorised));
@@ -171,7 +175,8 @@ void main() {
         );
         dioAdapter.onPost(
           '/make-payment',
-          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
+          data: paymentInformation.toPaymentDataJson()
+            ..addAll(paymentRequest.toJson()),
           (server) => server.reply(
             500,
             {'message': 'Server Error'},
@@ -181,7 +186,10 @@ void main() {
         );
 
         expect(
-          () => adyenClient.makePayment(paymentInformation, paymentRequest.toJson()),
+          () => adyenClient.makePayment(
+            paymentInformation,
+            paymentRequest.toJson(),
+          ),
           throwsException,
         );
       });

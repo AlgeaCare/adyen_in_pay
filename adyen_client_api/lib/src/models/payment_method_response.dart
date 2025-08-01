@@ -7,23 +7,26 @@ class PaymentMethodResponse {
 
   factory PaymentMethodResponse.fromJson(Map<String, dynamic> json) {
     return PaymentMethodResponse(
-      paymentMethods:
-          (json['paymentMethods'] as List)
-              .map((e) => PaymentMethodConfig.fromJson(Map.castFrom(e)))
-              .toList(),
+      paymentMethods: (json['paymentMethods'] as List)
+          .map((e) => PaymentMethodConfig.fromJson(Map.castFrom(e)))
+          .toList(),
     );
   }
   Map<String, dynamic> onlyCards() {
     return {
-      "paymentMethods": [paymentMethods.firstWhere((e) => e.type == 'scheme').toAllMap()],
+      "paymentMethods": [
+        paymentMethods.firstWhere((e) => e.type == 'scheme').toAllMap(),
+      ],
     };
   }
 
-  Map<String, String>? get applePayConfiguration =>
-      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'applepay')?.configuration;
+  Map<String, String>? get applePayConfiguration => paymentMethods
+      .firstWhereOrNull((e) => e.type.toLowerCase() == 'applepay')
+      ?.configuration;
 
-  Map<String, String>? get googlePayConfiguration =>
-      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'googlepay')?.configuration;
+  Map<String, String>? get googlePayConfiguration => paymentMethods
+      .firstWhereOrNull((e) => e.type.toLowerCase() == 'googlepay')
+      ?.configuration;
 
   List<String> onlyCardBrands() {
     return <String>[
@@ -51,49 +54,49 @@ class PaymentMethodResponse {
 
   Map<String, dynamic> onlyKlarna() {
     return {
-      "paymentMethods":
-          paymentMethods
-              .where((e) => e.type.toLowerCase().contains('klarna'))
-              .map((e) => e.toAllMap())
-              .toList(),
+      "paymentMethods": paymentMethods
+          .where((e) => e.type.toLowerCase().contains('klarna'))
+          .map((e) => e.toAllMap())
+          .toList(),
     };
   }
 
   Map<String, dynamic> onlyKlarnaPaynow() {
     return {
-      "paymentMethods":
-          paymentMethods
-              .where((e) => e.type.toLowerCase().contains('klarna_paynow'))
-              .map((e) => e.toAllMap())
-              .toList(),
+      "paymentMethods": paymentMethods
+          .where((e) => e.type.toLowerCase().contains('klarna_paynow'))
+          .map((e) => e.toAllMap())
+          .toList(),
     };
   }
 
   Map<String, dynamic> onlyCustom(String typeName) {
     return {
-      "paymentMethods":
-          paymentMethods
-              .where((e) => e.type.toLowerCase().contains(typeName))
-              .map((e) => e.toAllMap())
-              .toList(),
+      "paymentMethods": paymentMethods
+          .where((e) => e.type.toLowerCase().contains(typeName))
+          .map((e) => e.toAllMap())
+          .toList(),
     };
   }
 
   Map<String, dynamic> toAllMap() {
     return {
-      "paymentMethods":
-          paymentMethods.where((e) => e.type != 'multibanco').map((e) => e.toAllMap()).toList(),
+      "paymentMethods": paymentMethods
+          .where((e) => e.type != 'multibanco')
+          .map((e) => e.toAllMap())
+          .toList(),
     };
   }
 
   Map<String, dynamic> toJson({bool ignoreGooglePay = false}) => {
-    'paymentMethods':
-        paymentMethods
-            .where(
-              (e) => e.type != 'multibanco' && (ignoreGooglePay ? e.type != 'googlepay' : true),
-            )
-            .map((e) => e.toJson())
-            .toList(),
+    'paymentMethods': paymentMethods
+        .where(
+          (e) =>
+              e.type != 'multibanco' &&
+              (ignoreGooglePay ? e.type != 'googlepay' : true),
+        )
+        .map((e) => e.toJson())
+        .toList(),
   };
 }
 
@@ -103,20 +106,25 @@ class PaymentMethodConfig {
   final List<String>? brand;
   final Map<String, String>? configuration;
 
-  PaymentMethodConfig({required this.type, required this.name, this.brand, this.configuration});
+  PaymentMethodConfig({
+    required this.type,
+    required this.name,
+    this.brand,
+    this.configuration,
+  });
 
   factory PaymentMethodConfig.fromJson(Map<String, dynamic> json) {
     return PaymentMethodConfig(
       type: json['type'],
       name: json['name'],
-      brand:
-          json['brands'] is List
-              ? (json['brands'] as List).map((e) => e.toString()).toList()
-              : null,
-      configuration:
-          json['configuration'] is Map
-              ? (json['configuration'] as Map).map((key, value) => MapEntry(key, value.toString()))
-              : null,
+      brand: json['brands'] is List
+          ? (json['brands'] as List).map((e) => e.toString()).toList()
+          : null,
+      configuration: json['configuration'] is Map
+          ? (json['configuration'] as Map).map(
+              (key, value) => MapEntry(key, value.toString()),
+            )
+          : null,
     );
   }
   Map<String, String> toMap() {

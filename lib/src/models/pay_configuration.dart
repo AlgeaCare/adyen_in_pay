@@ -1,4 +1,5 @@
-import 'package:adyen_in_pay/src/models/adyen_keys_configuration.dart' show AdyenKeysConfiguration;
+import 'package:adyen_in_pay/src/models/adyen_keys_configuration.dart'
+    show AdyenKeysConfiguration;
 
 typedef DopplerConfiguration = ({String dopplerKey, String dopplerEnvironment});
 

@@ -9,6 +9,7 @@ abstract class Event<T> {
 class OnPaymentSessionDone extends Event<String> {
   OnPaymentSessionDone(super.value);
 }
+
 class OnPaymentAdvancedDone extends Event<String> {
   OnPaymentAdvancedDone(super.value);
 }

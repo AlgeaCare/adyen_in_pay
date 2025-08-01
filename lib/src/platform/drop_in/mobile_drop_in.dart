@@ -1,11 +1,15 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
+import 'package:adyen_in_pay/src/platform/drop_in.dart'
+    show paymentData, setPaymentData;
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
 import 'package:adyen_in_pay/src/utils/redirect_url_bottom_sheet.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
-import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
+import 'package:flutter/material.dart'
+    show BuildContext, Widget, TargetPlatform;
+import 'package:ua_client_hints/ua_client_hints.dart'
+    as user_agent
+    show userAgent;
 
 void dropIn({
   required BuildContext context,
@@ -14,7 +18,8 @@ void dropIn({
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
-  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus)
+  onConfigurationStatus,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool ignoreGooglePay = false,
@@ -44,13 +49,15 @@ Future<void> dropInAdvancedMobile({
   required ShopperPaymentInformation shopperPaymentInformation,
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
-  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus)
+  onConfigurationStatus,
   PaymentInformation? paymentInformation,
   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
   final ValueNotifier<bool> isKlarnaNotifier = ValueNotifier(false);
-  final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
+  final channel =
+      defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
   var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
   try {
@@ -79,7 +86,10 @@ Future<void> dropInAdvancedMobile({
 
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
-    amount: Amount(value: configuration.amount ?? paymentInfo.amountDue, currency: 'EUR'),
+    amount: Amount(
+      value: configuration.amount ?? paymentInfo.amountDue,
+      currency: 'EUR',
+    ),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
     cardConfiguration: CardConfiguration(
@@ -114,7 +124,9 @@ Future<void> dropInAdvancedMobile({
           paymentMethods.googlePayConfiguration?["merchantId"] ??
           configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
-          configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
+          configuration.env == 'test'
+              ? GooglePayEnvironment.test
+              : GooglePayEnvironment.production,
 
       merchantInfo: MerchantInfo(
         merchantName:
@@ -126,7 +138,8 @@ Future<void> dropInAdvancedMobile({
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
-    environment: configuration.env == 'test' ? Environment.test : Environment.europe,
+    environment:
+        configuration.env == 'test' ? Environment.test : Environment.europe,
     countryCode: shopperPaymentInformation.countryCode,
   );
   final paymentResult = await AdyenCheckout.advanced.startDropIn(
@@ -160,7 +173,9 @@ Future<void> dropInAdvancedMobile({
           );
         }
         final userAgent =
-            defaultTargetPlatform == TargetPlatform.android ? await user_agent.userAgent() : null;
+            defaultTargetPlatform == TargetPlatform.android
+                ? await user_agent.userAgent()
+                : null;
         final result = await client.makePayment(
           paymentInfo!,
           modifiedData,
@@ -216,7 +231,9 @@ Future<void> dropInAdvancedMobile({
 
               onPaymentResult(
                 PaymentAdvancedFinished(
-                  resultCode: resultCodeFromString(resultRedirectURL.resultCode),
+                  resultCode: resultCodeFromString(
+                    resultRedirectURL.resultCode,
+                  ),
                 ),
               );
               break;
@@ -224,7 +241,9 @@ Future<void> dropInAdvancedMobile({
             case Update():
               onPaymentResult(PaymentError(reason: 'Action should not happen'));
             case Error():
-              onPaymentResult(PaymentError(reason: resultRedirectURL.errorMessage));
+              onPaymentResult(
+                PaymentError(reason: resultRedirectURL.errorMessage),
+              );
           }
         }
         if (result.actionType == 'threeDS2' ||
@@ -248,10 +267,14 @@ Future<void> dropInAdvancedMobile({
         data["provider"] = paymentResult;
         data["payment"] = {'invoiceId': reference};
         final result = await client.makeDetailPayment(data);
-        if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
+        if (result.resultCode.toLowerCase() ==
+                PaymentResultCode.authorised.name.toLowerCase() ||
+            result.resultCode.toLowerCase() ==
+                PaymentResultCode.pending.name.toLowerCase() ||
+            result.resultCode.toLowerCase() ==
+                PaymentResultCode.received.name.toLowerCase() ||
+            result.resultCode.toLowerCase() ==
+                PaymentResultCode.paid.name.toLowerCase()) {
           return Finished(resultCode: '201');
         }
         return Error(errorMessage: result.resultCode.toString());

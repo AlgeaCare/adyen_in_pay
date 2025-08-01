@@ -83,10 +83,12 @@ class PaymentInformation {
 
   bool get isAdyen => provider == PaymentProvider.adyen;
 
-  AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
+  AdyenBasket? get activeBasket =>
+      baskets.where((basket) => basket.active).firstOrNull;
 
-  Transaction? get latestTransaction =>
-      transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
+  Transaction? get latestTransaction => transactions
+      .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
+      .lastOrNull;
 
   factory PaymentInformation.fromJson(Map<String, dynamic> json) {
     return PaymentInformation(
@@ -125,9 +127,13 @@ class PaymentInformation {
       updatedAt: json['updated_at'],
       isFiveGram: json['is_five_gram'],
       reverseTransfers: json['reverse_transfers'],
-      productTypes: (json['product_types'] as List).map((e) => e.toString()).toList(),
+      productTypes: (json['product_types'] as List)
+          .map((e) => e.toString())
+          .toList(),
       transactions: json['transactions'] != null
-          ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
+          ? (json['transactions'] as List)
+                .map((e) => Transaction.fromJson(e))
+                .toList()
           : null,
     );
   }
@@ -267,10 +273,13 @@ class AdyenBasket {
     required this.items,
   });
 
-  bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
+  bool get hasVoucher =>
+      items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
   String? get voucherCode => items
-      .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+      .firstWhereOrNull(
+        (item) => item.type == VoucherBasketItemType.voucher.label,
+      )
       ?.basketItemReferenceId;
 
   // we want to not show vouchers in the list
@@ -296,7 +305,9 @@ class AdyenBasket {
       resourceId: json['resource_id'],
       subMerchantResourceId: json['sub_merchant_resource_id'],
       active: json['active'],
-      items: (json['items'] as List).map((itemJson) => AdyenBasketItem.fromJson(itemJson)).toList(),
+      items: (json['items'] as List)
+          .map((itemJson) => AdyenBasketItem.fromJson(itemJson))
+          .toList(),
     );
   }
 

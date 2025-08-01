@@ -11,7 +11,9 @@ Set<String> _keys = {};
 void call(Event event) {
   for (final key in _keys) {
     final value = web.window.localStorage.getItem(key);
-    if (value != null && event.isA<StorageEvent>() && (event as StorageEvent).key == key) {
+    if (value != null &&
+        event.isA<StorageEvent>() &&
+        (event as StorageEvent).key == key) {
       callback?.call(json.decode(value /*event.newValue!*/) as Map);
     }
   }

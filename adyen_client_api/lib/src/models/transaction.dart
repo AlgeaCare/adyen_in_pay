@@ -4,7 +4,7 @@ part 'transaction.freezed.dart';
 part 'transaction.g.dart';
 
 @freezed
- class Transaction with _$Transaction {
+class Transaction with _$Transaction {
   const Transaction._();
 
   // ignore: invalid_annotation_target
@@ -34,5 +34,6 @@ part 'transaction.g.dart';
       pspNumber!.toLowerCase() != 'na' &&
       pspNumber!.toLowerCase() != 'unknown';
 
-  factory Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
+  factory Transaction.fromJson(Map<String, dynamic> json) =>
+      _$TransactionFromJson(json);
 }

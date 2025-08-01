@@ -1,4 +1,4 @@
 mixin WebMixin {
   void refresh();
-  void unmount(); 
+  void unmount();
 }

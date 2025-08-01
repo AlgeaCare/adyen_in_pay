@@ -11,7 +11,8 @@ void dropIn({
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
-  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus)
+  onConfigurationStatus,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
@@ -49,7 +50,11 @@ Future<void> dropInAdvancedWeb({
   required String webURL,
 }) async {
   platformListenToState('pay-$reference-result', (Map input) {
-    onPaymentResult(PaymentAdvancedFinished(resultCode: resultCodeFromString(input['resultCode'])));
+    onPaymentResult(
+      PaymentAdvancedFinished(
+        resultCode: resultCodeFromString(input['resultCode']),
+      ),
+    );
   });
   await launchUrl(Uri.parse(webURL));
   // return showDialog(

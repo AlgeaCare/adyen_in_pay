@@ -22,14 +22,16 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
   @override
   void initState() {
     super.initState();
-    client = AdyenClient(baseUrl: 'https://api.payments.dev.bloomwell.de/v1', interceptors: [
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          options.headers['Authorization'] = 'Bearer ';
-          handler.next(options);
-        },
-      )
-    ]);
+    client = AdyenClient(
+        baseUrl: 'https://api.payments.dev.bloomwell.de/v1',
+        interceptors: [
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              options.headers['Authorization'] = 'Bearer ';
+              handler.next(options);
+            },
+          )
+        ]);
   }
 
   @override
@@ -151,20 +153,24 @@ class _MyAdyenComponentAppState extends State<MyAdyenComponentApp> {
                       setState(() {
                         switch (payment) {
                           case PaymentAdvancedFinished():
-                            paymentStatus = "Your payment has been completed successfully!";
+                            paymentStatus =
+                                "Your payment has been completed successfully!";
                           case PaymentSessionFinished():
                             if (payment.resultCode == ResultCode.authorised ||
                                 payment.resultCode == ResultCode.received) {
-                              paymentStatus = "Payment session completed successfully!";
+                              paymentStatus =
+                                  "Payment session completed successfully!";
                             } else {
-                              paymentStatus = "Payment session failed: ${payment.resultCode.name}";
+                              paymentStatus =
+                                  "Payment session failed: ${payment.resultCode.name}";
                               isError = true;
                             }
                           case PaymentCancelledByUser():
                             paymentStatus = "Payment was cancelled";
                             isError = true;
                           case PaymentError():
-                            paymentStatus = "An error occurred during payment processing";
+                            paymentStatus =
+                                "An error occurred during payment processing";
                             isError = true;
                         }
                       });

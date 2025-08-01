@@ -10,7 +10,8 @@ class AdyenKeysConfiguration {
     required this.googleMerchantId,
   });
 
-  factory AdyenKeysConfiguration.fromJson(Map<String, dynamic> json) => AdyenKeysConfiguration(
+  factory AdyenKeysConfiguration.fromJson(Map<String, dynamic> json) =>
+      AdyenKeysConfiguration(
         clientKey: json['ADYEN_CLIENT_KEY'],
         appleMerchantId: json['APPLE_MERCHANT_ID'],
         merchantName: json['MERCHANT_NAME'],
@@ -33,6 +34,8 @@ class AdyenKeysConfiguration {
 
   @override
   int get hashCode {
-    return clientKey.hashCode ^ appleMerchantId.hashCode ^ merchantName.hashCode;
+    return clientKey.hashCode ^
+        appleMerchantId.hashCode ^
+        merchantName.hashCode;
   }
 }

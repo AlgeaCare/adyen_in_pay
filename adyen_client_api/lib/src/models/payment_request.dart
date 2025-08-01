@@ -15,10 +15,7 @@ class PaymentRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'amount': {
-        'value': amount,
-        'currency': currency,
-      },
+      'amount': {'value': amount, 'currency': currency},
       'reference': reference,
       'returnUrl': redirectURL,
       'paymentMethod': paymentMethod.toJson(),
