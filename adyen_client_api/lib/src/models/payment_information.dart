@@ -94,14 +94,13 @@ class PaymentInformation {
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus:
-          json.containsKey('payment_status')
-              ? json['payment_status'].toString().toLowerCase().contains('debt')
-                  ? AdyenPaymentStatus.debt
-                  : AdyenPaymentStatus.values.firstWhere((e) {
+      paymentStatus: json.containsKey('payment_status')
+          ? json['payment_status'].toString().toLowerCase().contains('debt')
+                ? AdyenPaymentStatus.debt
+                : AdyenPaymentStatus.values.firstWhere((e) {
                     return json['payment_status'] == e.label;
                   }, orElse: () => AdyenPaymentStatus.unknown)
-              : AdyenPaymentStatus.unknown,
+          : AdyenPaymentStatus.unknown,
       productType: json['product_type'],
       paymentId: json['payment_id'],
       voucherCode: json['voucher_code'],
@@ -114,8 +113,9 @@ class PaymentInformation {
         orElse: () => PaymentProvider.adyen,
       ),
       createdAt: json['created_at'],
-      baskets:
-          (json['baskets'] as List).map((basketJson) => AdyenBasket.fromJson(basketJson)).toList(),
+      baskets: (json['baskets'] as List)
+          .map((basketJson) => AdyenBasket.fromJson(basketJson))
+          .toList(),
       metaData: json['meta_data'],
       warnings: json['warnings'],
       comment: json['comment'],
@@ -126,10 +126,9 @@ class PaymentInformation {
       isFiveGram: json['is_five_gram'],
       reverseTransfers: json['reverse_transfers'],
       productTypes: (json['product_types'] as List).map((e) => e.toString()).toList(),
-      transactions:
-          json['transactions'] != null
-              ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
-              : null,
+      transactions: json['transactions'] != null
+          ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
+          : null,
     );
   }
 
@@ -270,10 +269,9 @@ class AdyenBasket {
 
   bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
-  String? get voucherCode =>
-      items
-          .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
-          ?.basketItemReferenceId;
+  String? get voucherCode => items
+      .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+      ?.basketItemReferenceId;
 
   // we want to not show vouchers in the list
   List<AdyenBasketItem> get itemsWithoutVouchers {

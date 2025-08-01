@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 enum AdyenPaymentStatus {
   pending('pending'),
   waiting('waiting'),
+  adminWaiting('admin_waiting'),
   paid('paid'),
   completed('completed'),
   adminCompleted('admin_completed'),
