@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'package:adyen_checkout/adyen_checkout.dart'
-    as adyen
-    show PaymentEvent, Finished, Error;
-import 'package:adyen_in_pay/adyen_in_pay.dart'
-    show DetailPaymentResponse, PaymentResultCode;
+import 'package:adyen_checkout/adyen_checkout.dart' as adyen show PaymentEvent, Finished, Error;
+import 'package:adyen_in_pay/adyen_in_pay.dart' show DetailPaymentResponse, PaymentResultCode;
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
   required BuildContext context,
   required String redirectUrl,
   required String url,
-  required Future<DetailPaymentResponse> Function(String resultCode)
-  onPaymentDetail,
+  required Future<DetailPaymentResponse> Function(String resultCode) onPaymentDetail,
   required Function() onRetry,
   Widget Function(String url, Function()? onRetry)? topTitleWidget,
 }) async {
@@ -56,22 +53,14 @@ Future<adyen.PaymentEvent> showRedirectUrlBottomSheet({
           if (!context.mounted) {
             return;
           }
-          if (result.resultCode.toLowerCase() ==
-                  PaymentResultCode.authorised.name.toLowerCase() ||
-              result.resultCode.toLowerCase() ==
-                  PaymentResultCode.pending.name.toLowerCase() ||
-              result.resultCode.toLowerCase() ==
-                  PaymentResultCode.received.name.toLowerCase() ||
-              result.resultCode.toLowerCase() ==
-                  PaymentResultCode.paid.name.toLowerCase()) {
+          if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
+              result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
+              result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
+              result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
             // completer.complete(adyen.Finished(resultCode: event));
-            Navigator.of(
-              context,
-            ).pop(adyen.Finished(resultCode: result.resultCode.toString()));
+            Navigator.of(context).pop(adyen.Finished(resultCode: result.resultCode.toString()));
           } else {
-            Navigator.of(
-              context,
-            ).pop(adyen.Error(errorMessage: result.resultCode.toString()));
+            Navigator.of(context).pop(adyen.Error(errorMessage: result.resultCode.toString()));
             // completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
           }
         },
@@ -128,10 +117,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     TextButton(
-                      child: const Text(
-                        'cancel',
-                        style: TextStyle(fontFamily: 'Inter'),
-                      ),
+                      child: const Text('cancel', style: TextStyle(fontFamily: 'Inter')),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -142,10 +128,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                         textAlign: TextAlign.left,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 15,
-                        ),
+                        style: const TextStyle(fontFamily: 'Inter', fontSize: 15),
                       ),
                     ),
                   ],
@@ -162,10 +145,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                   bottom: 10,
                   child: SizedBox(
                     child: SingleChildScrollView(
-                      controller: ScrollController(
-                        initialScrollOffset: 12,
-                        keepScrollOffset: true,
-                      ),
+                      controller: ScrollController(initialScrollOffset: 12, keepScrollOffset: true),
                       physics: const ClampingScrollPhysics(),
                       child: SizedBox(
                         height: MediaQuery.sizeOf(context).height * 0.85,
@@ -184,8 +164,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                             disableHorizontalScroll: false,
                             isFindInteractionEnabled: true,
                             supportZoom: true,
-                            preferredContentMode:
-                                UserPreferredContentMode.MOBILE,
+                            preferredContentMode: UserPreferredContentMode.MOBILE,
                             allowsLinkPreview: true,
                             disallowOverScroll: false,
                           ),
@@ -195,9 +174,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                               action: PermissionResponseAction.GRANT,
                             );
                           },
-                          initialUrlRequest: URLRequest(
-                            url: WebUri.uri(Uri.parse(url)),
-                          ),
+                          initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
                           onCloseWindow: (controller) {
                             onCloseWindow?.call(controller);
                           },
@@ -213,25 +190,22 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                             return NavigationResponseAction.ALLOW;
                           },
                           onUpdateVisitedHistory: (controller, url, isReload) {
-                            if (url != null &&
-                                url.queryParameters.containsKey(
-                                  'redirectResult',
-                                )) {
+                            if (url != null && url.queryParameters.containsKey('redirectResult')) {
                               controller.stopLoading();
-                              onPaymentEvent(
-                                url.queryParameters['redirectResult']!,
-                              );
+                              onPaymentEvent(url.queryParameters['redirectResult']!);
                             }
                           },
-                          onLoadStart: (controller, webURI) {
-                            if (webURI != null &&
-                                webURI.queryParameters.containsKey(
-                                  'redirectResult',
-                                )) {
+                          onLoadStart: (controller, webURI) async {
+                            if (webURI != null && webURI.path.startsWith('intent://')) {
                               controller.stopLoading();
-                              onPaymentEvent(
-                                webURI.queryParameters['redirectResult']!,
-                              );
+                              if (await canLaunchUrl(Uri.parse(webURI.path))) {
+                                launchUrl(Uri.parse(webURI.path));
+                              } else {}
+                              onPaymentEvent(webURI.queryParameters['redirectResult']!);
+                            } else if (webURI != null &&
+                                webURI.queryParameters.containsKey('redirectResult')) {
+                              controller.stopLoading();
+                              onPaymentEvent(webURI.queryParameters['redirectResult']!);
                             }
                           },
                         ),
@@ -244,9 +218,7 @@ class RedirectUrlBottomSheet extends StatelessWidget {
                   left: 0,
                   right: 0,
                   height: 56,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: Colors.white),
-                  ),
+                  child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                 ),
               ],
             ),
