@@ -177,7 +177,11 @@ Future<void> dropInAdvancedMobile({
           if (!context.mounted) {
             return Error(errorMessage: "");
           }
-          await launchUrl(Uri.parse(result.action!['url']));
+          await launchUrl(
+            Uri.parse(result.action!['url']),
+            mode: LaunchMode.externalApplication,
+            browserConfiguration: const BrowserConfiguration(showTitle: true),
+          );
           // final resultRedirectURL = await showRedirectUrlBottomSheet(
           //   context: context,
           //   redirectUrl: configuration.redirectURL,
@@ -198,12 +202,12 @@ Future<void> dropInAdvancedMobile({
           //     );
           //   },
           //   onPaymentDetail: (String resultCode) async {
-              // final data = <String, dynamic>{};
-              // // data.putIfAbsent('paymentData', () => paymentData);
-              // data["provider"] = {
-              //   "details": {"redirectResult": resultCode},
-              // };
-              // data["payment"] = {'invoiceId': reference};
+          // final data = <String, dynamic>{};
+          // // data.putIfAbsent('paymentData', () => paymentData);
+          // data["provider"] = {
+          //   "details": {"redirectResult": resultCode},
+          // };
+          // data["payment"] = {'invoiceId': reference};
           //     return await client.makeDetailPayment(data);
           //   },
           // );
