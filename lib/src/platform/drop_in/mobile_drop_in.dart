@@ -169,7 +169,8 @@ Future<void> dropInAdvancedMobile({
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
           userAgent: userAgent,
         );
-        if (result.action?['paymentMethodType']?.contains('klarna') == true &&
+        if ((result.action?['paymentMethodType']?.contains('klarna') == true ||
+                result.action?['paymentMethodType']?.contains('paybybank') == true) &&
             result.actionType == 'redirect') {
           // setPaymentData(result.action?['paymentData']);
           isKlarnaNotifier.value = true;
