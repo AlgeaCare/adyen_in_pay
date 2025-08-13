@@ -11,13 +11,13 @@ class DropInPlatform {
     required AdyenConfiguration configuration,
     required ShopperPaymentInformation shopperPaymentInformation,
     required Function(PaymentResult payment) onPaymentResult,
-    required Function(ConfigurationStatus configurationStatus)
-    onConfigurationStatus,
+    required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
     PaymentInformation? paymentInformation,
     Widget? widgetChildCloseForWeb,
     bool acceptOnlyCard = false,
     bool ignoreGooglePay = false,
     String? webURL,
+    PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   }) async => dropInPlatform(
     context: context,
     client: client,
@@ -28,6 +28,7 @@ class DropInPlatform {
     acceptOnlyCard: acceptOnlyCard,
     ignoreGooglePay: ignoreGooglePay,
     shopperPaymentInformation: shopperPaymentInformation,
+    skipPaymentMethodCallback: skipPaymentMethodCallback,
     paymentInformation: paymentInformation,
     widgetChildCloseForWeb: widgetChildCloseForWeb,
     webURL: webURL,
