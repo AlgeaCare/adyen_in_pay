@@ -14,6 +14,7 @@ void dropIn({
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool ignoreGooglePay = false,
@@ -27,6 +28,7 @@ void dropIn({
   configuration: configuration,
   onPaymentResult: onPaymentResult,
   shopperPaymentInformation: shopperPaymentInformation,
+  skipPaymentMethodCallback: skipPaymentMethodCallback,
   onConfigurationStatus: onConfigurationStatus,
   acceptOnlyCard: acceptOnlyCard,
   ignoreGooglePay: ignoreGooglePay,
@@ -41,6 +43,7 @@ Future<void> dropInAdvancedMobile({
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
+  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
@@ -68,7 +71,7 @@ Future<void> dropInAdvancedMobile({
         'shopperLocale': shopperPaymentInformation.locale,
       },
     );
-
+    paymentMethods = skipPaymentMethodCallback?.call(paymentMethods) ?? paymentMethods;
     await Future.delayed(const Duration(seconds: 2));
     onConfigurationStatus(ConfigurationStatus.done);
   } catch (e) {

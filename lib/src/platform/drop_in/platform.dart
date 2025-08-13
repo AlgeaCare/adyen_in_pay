@@ -1,11 +1,9 @@
 import 'package:adyen_checkout/adyen_checkout.dart' show PaymentResult;
-import 'package:payment_client_api/payment_client_api.dart'
-    show AdyenClient, PaymentInformation;
+import 'package:adyen_in_pay/adyen_in_pay.dart' show PaymentMethodResponse;
+import 'package:payment_client_api/payment_client_api.dart' show AdyenClient, PaymentInformation;
 import 'package:adyen_in_pay/src/models/configuration_status.dart';
-import 'package:adyen_in_pay/src/models/pay_configuration.dart'
-    show AdyenConfiguration;
-import 'package:adyen_in_pay/src/models/shopper.dart'
-    show ShopperPaymentInformation;
+import 'package:adyen_in_pay/src/models/pay_configuration.dart' show AdyenConfiguration;
+import 'package:adyen_in_pay/src/models/shopper.dart' show ShopperPaymentInformation;
 import 'package:flutter/material.dart' show BuildContext, Widget;
 import 'stub_drop_in.dart'
     if (dart.library.io) 'mobile_drop_in.dart'
@@ -18,13 +16,13 @@ void dropInPlatform({
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
-  required Function(ConfigurationStatus configurationStatus)
-  onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
   String? webURL,
+  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) => dropIn(
   context: context,
@@ -37,6 +35,7 @@ void dropInPlatform({
   ignoreGooglePay: ignoreGooglePay,
   webURL: webURL,
   shopperPaymentInformation: shopperPaymentInformation,
+  skipPaymentMethodCallback: skipPaymentMethodCallback,
   onConfigurationStatus: onConfigurationStatus,
   paymentInformation: paymentInformation,
   topTitleBottomSheetWidget: topTitleBottomSheetWidget,

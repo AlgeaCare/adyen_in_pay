@@ -8,8 +8,8 @@ void dropIn({
   required AdyenConfiguration configuration,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(PaymentResult payment) onPaymentResult,
-  required Function(ConfigurationStatus configurationStatus)
-  onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
