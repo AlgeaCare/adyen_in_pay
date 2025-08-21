@@ -46,6 +46,7 @@ class PaymentResponse {
   final PaymentResultCode resultCode;
   final Map<String, dynamic>? additionalData;
   final Map<String, dynamic>? action;
+  final String? paymentData;
   final SessionAmount? amount;
   final String? donationToken;
   final String? merchantReference;
@@ -55,6 +56,7 @@ class PaymentResponse {
     required this.resultCode,
     this.additionalData,
     this.action,
+    this.paymentData,
     this.amount,
     this.donationToken,
     this.merchantReference,
@@ -68,6 +70,7 @@ class PaymentResponse {
           : throw Exception('Invalid result code'),
       additionalData: json['additionalData'] as Map<String, dynamic>?,
       action: json['action'] as Map<String, dynamic>?,
+      paymentData: json['action']?['paymentData'] as String?,
       amount: json['amount'] != null
           ? SessionAmount.fromJson(json['amount'] as Map<String, dynamic>)
           : null,

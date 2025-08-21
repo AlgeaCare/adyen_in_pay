@@ -1,9 +1,12 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
+import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
+import 'package:adyen_in_pay/src/utils/klarna_native_bottom_sheet.dart' show showKlarnaBottomSheet;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
-import 'package:ua_client_hints/ua_client_hints.dart' as user_agent show userAgent;
+import 'package:ua_client_hints/ua_client_hints.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void dropIn({
@@ -55,8 +58,9 @@ Future<void> dropInAdvancedMobile({
   final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
   var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
+  String userAgentStr = 'Bloomwell/7.4.1 (Android 15; SM-A546B; a54x; arm64-v8a)';
   try {
-    final String userAgent = await user_agent.userAgent();
+    // userAgentStr = await userAgent();
 
     paymentInfo ??= await client.paymentInformation(invoiceId: reference);
     paymentMethods = await client.getPaymentMethods(
@@ -65,16 +69,17 @@ Future<void> dropInAdvancedMobile({
         'browserInfo': {
           'acceptHeader':
               'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-          'userAgentHeader': userAgent,
+          'userAgentHeader': userAgentStr,
         },
         'channel': channel,
         'shopperLocale': shopperPaymentInformation.locale,
       },
     );
     paymentMethods = skipPaymentMethodCallback?.call(paymentMethods) ?? paymentMethods;
-    await Future.delayed(const Duration(seconds: 2));
     onConfigurationStatus(ConfigurationStatus.done);
-  } catch (e) {
+  } catch (e, trace) {
+    debugPrint(e.toString());
+    debugPrint(trace.toString());
     onConfigurationStatus(ConfigurationStatus.error);
     return;
   }
@@ -140,7 +145,10 @@ Future<void> dropInAdvancedMobile({
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
-
+        final paymentMethodType = data['paymentMethod']['type'];
+        if (paymentMethodType.contains('klarna')) {
+          data['paymentMethod'] = {'type': paymentMethodType, 'subtype': 'sdk'};
+        }
         final modifiedData =
             data
               ..putIfAbsent('channel', () => channel)
@@ -161,8 +169,6 @@ Future<void> dropInAdvancedMobile({
             },
           );
         }
-        final userAgent =
-            defaultTargetPlatform == TargetPlatform.android ? await user_agent.userAgent() : null;
         final result = await client.makePayment(
           paymentInfo!,
           modifiedData,
@@ -170,12 +176,65 @@ Future<void> dropInAdvancedMobile({
           countryCode: shopperPaymentInformation.countryCode,
           shopperLocale: shopperPaymentInformation.locale,
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
-          userAgent: userAgent,
+          userAgent: defaultTargetPlatform == TargetPlatform.android ? userAgentStr : null,
         );
-        if ((result.action?['paymentMethodType']?.contains('klarna') == true ||
-                result.action?['paymentMethodType']?.contains('paybybank') == true) &&
-            result.actionType == 'redirect') {
+        if (result.action?['paymentMethodType']?.contains('klarna') == true) {
+          debugPrint("result: ${result.action.toString()}");
           // setPaymentData(result.action?['paymentData']);
+          if (!context.mounted) {
+            await AdyenCheckout.advanced.stopDropIn();
+            return Error(errorMessage: "context is not mounted");
+          }
+          final resultKlarna = await showKlarnaBottomSheet(
+            context: context,
+            klarnaNativeConfiguration: KlarnaNativeConfiguration(
+              redirectUrl: configuration.redirectURL,
+              clientToken: result.action!['sdkData']['client_token'],
+              paymentData: result.action!['paymentData'],
+              category: result.action!['sdkData']['payment_method_category'],
+            ),
+            topTitleWidget: topTitleBottomSheetWidget,
+            onRetry: () {
+              debugPrint("onRetry called");
+              dropInAdvancedMobile(
+                context: context,
+                client: client,
+                reference: reference,
+                configuration: configuration,
+                onPaymentResult: onPaymentResult,
+                shopperPaymentInformation: shopperPaymentInformation,
+                onConfigurationStatus: onConfigurationStatus,
+                acceptOnlyCard: false,
+                paymentInformation: paymentInfo,
+              );
+            },
+            onPaymentDetail: (Map<String, dynamic> paymentDetailbody) async {
+              final data = <String, dynamic>{};
+              // data.putIfAbsent('paymentData', () => paymentData);
+              data["provider"] = paymentDetailbody;
+              data["payment"] = {'invoiceId': reference};
+              return await client.makeDetailPayment(data);
+            },
+          );
+          switch (resultKlarna) {
+            case Finished():
+              if (resultKlarna.resultCode == "cancelled") {
+                onPaymentResult(PaymentCancelledByUser());
+                break;
+              }
+
+              onPaymentResult(
+                PaymentAdvancedFinished(resultCode: resultCodeFromString(resultKlarna.resultCode)),
+              );
+              break;
+            case Action():
+            case Update():
+              onPaymentResult(PaymentError(reason: 'Action should not happen'));
+            case Error():
+              onPaymentResult(PaymentError(reason: resultKlarna.errorMessage));
+          }
+        } else if (result.action?['paymentMethodType']?.contains('paybybank') == true &&
+            result.actionType == 'redirect') {
           isKlarnaNotifier.value = true;
           await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
@@ -186,59 +245,8 @@ Future<void> dropInAdvancedMobile({
             mode: LaunchMode.externalApplication,
             browserConfiguration: const BrowserConfiguration(showTitle: true),
           );
-          // final resultRedirectURL = await showRedirectUrlBottomSheet(
-          //   context: context,
-          //   redirectUrl: configuration.redirectURL,
-          //   url: result.action!['url'],
-          //   topTitleWidget: topTitleBottomSheetWidget,
-          //   onRetry: () {
-          //     debugPrint("onRetry called");
-          //     dropInAdvancedMobile(
-          //       context: context,
-          //       client: client,
-          //       reference: reference,
-          //       configuration: configuration,
-          //       onPaymentResult: onPaymentResult,
-          //       shopperPaymentInformation: shopperPaymentInformation,
-          //       onConfigurationStatus: onConfigurationStatus,
-          //       acceptOnlyCard: false,
-          //       paymentInformation: paymentInfo,
-          //     );
-          //   },
-          //   onPaymentDetail: (String resultCode) async {
-          // final data = <String, dynamic>{};
-          // // data.putIfAbsent('paymentData', () => paymentData);
-          // data["provider"] = {
-          //   "details": {"redirectResult": resultCode},
-          // };
-          // data["payment"] = {'invoiceId': reference};
-          //     return await client.makeDetailPayment(data);
-          //   },
-          // );
-          // switch (resultRedirectURL) {
-          //   case Finished():
-          //     if (resultRedirectURL.resultCode == "cancelled") {
-          //       onPaymentResult(PaymentCancelledByUser());
-          //       break;
-          //     }
-
-          //     onPaymentResult(
-          //       PaymentAdvancedFinished(
-          //         resultCode: resultCodeFromString(
-          //           resultRedirectURL.resultCode,
-          //         ),
-          //       ),
-          //     );
-          //     break;
-          //   case Action():
-          //   case Update():
-          //     onPaymentResult(PaymentError(reason: 'Action should not happen'));
-          //   case Error():
-          //     onPaymentResult(
-          //       PaymentError(reason: resultRedirectURL.errorMessage),
-          //     );
-          // }
         }
+
         if (result.actionType == 'threeDS2' ||
             // result.actionType == 'redirect' ||
             result.actionType == 'qrCode' ||

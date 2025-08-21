@@ -17,9 +17,11 @@ class KlarnaPaymentWidget extends StatefulWidget {
     this.onKlarnaError,
     this.onKlarnaFinished,
     this.onKlarnaEvent,
+    this.category = 'klarna',
   });
 
   final String clientToken;
+  final String category;
   final String returnURL;
   final KlarnaEnvironment environment;
   final KlarnaRegion region;
@@ -122,6 +124,7 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
       'returnURL': widget.returnURL,
       'environment': widget.environment,
       'region': widget.region.value,
+      'category': widget.category,
       'loggingLevel': widget.loggingLevel,
     };
   }

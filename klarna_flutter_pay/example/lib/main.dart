@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-import 'package:klarna_flutter_pay/klarna_flutter_pay.dart';
+import 'package:klarna_flutter_pay_example/klarna_example.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,26 +13,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _klarnaFlutterPayPlugin = KlarnaFlutterPay();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
-        ),
+        appBar: AppBar(title: const Text('Plugin example app')),
+        body: KlarnaExample(),
       ),
     );
   }

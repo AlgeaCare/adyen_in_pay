@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:klarna_flutter_pay/klarna_flutter_pay.dart';
 
 class KlarnaExample extends StatefulWidget {
-  const KlarnaExample({Key? key}) : super(key: key);
+  const KlarnaExample({super.key});
 
   @override
   State<KlarnaExample> createState() => _KlarnaExampleState();
@@ -38,22 +38,19 @@ class _KlarnaExampleState extends State<KlarnaExample> {
     _showMessage('Klarna error: ${error['message'] ?? 'Unknown error'}', isError: true);
   }
 
-  void _onKlarnaFinished(Map<String, dynamic> result) {
-    final bool approved = result['approved'] == true;
-    final String? authToken = result['authToken'];
-    
+  void _onKlarnaFinished(String? authToken, bool approved) {
     setState(() {
       _status = 'Payment ${approved ? 'approved' : 'declined'}';
       if (approved && authToken != null) {
         _status += '\nAuth Token: ${authToken.substring(0, 20)}...'; // Show first 20 chars
       }
     });
-    
+
     _showMessage(
       'Payment ${approved ? 'approved' : 'declined'}${authToken != null ? ' - Token received' : ''}',
       isError: !approved,
     );
-    
+
     // You can now use the authToken for your backend processing
     if (approved && authToken != null) {
       print('Payment approved with authToken: $authToken');
@@ -88,10 +85,7 @@ class _KlarnaExampleState extends State<KlarnaExample> {
                 children: [
                   Text(
                     'Status: $_status',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -114,7 +108,7 @@ class _KlarnaExampleState extends State<KlarnaExample> {
                 ],
               ),
             ),
-            
+
             // Klarna Payment Widget
             Expanded(
               child: KlarnaPaymentWidget(

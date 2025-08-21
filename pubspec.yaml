@@ -23,6 +23,8 @@ dependencies:
     path: ./adyen_client_api
   adyen_web_flutter:
     path: ./adyen_web_flutter
+  klarna_flutter_pay:
+    path: ./klarna_flutter_pay
   ua_client_hints: ^1.4.1
 
 dev_dependencies:
