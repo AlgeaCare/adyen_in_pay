@@ -17,8 +17,8 @@ class _DropInWidgetState extends State<DropInWidget> {
   ValueNotifier<PaymentInformation?> paymentInformation = ValueNotifier(null);
   ValueNotifier<ConfigurationStatus?> configurationStatus = ValueNotifier(null);
   AdyenClient? client;
-  late final listenable = Listenable.merge(
-      [amount, reference, configurationStatus, paymentInformation]);
+  late final listenable =
+      Listenable.merge([amount, reference, configurationStatus, paymentInformation]);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,8 +42,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                         )
                       ]);
                       reference.value = invoiceID;
-                      paymentInformation.value =
-                          await showDialog<PaymentInformation>(
+                      paymentInformation.value = await showDialog<PaymentInformation>(
                         context: context,
                         builder: (context) {
                           return LoadInformation(
@@ -95,8 +94,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                       TableRow(
                         children: [
                           const Text('status'),
-                          Text(paymentInformation.value!.paymentStatus
-                              .toString()),
+                          Text(paymentInformation.value!.paymentStatus.toString()),
                         ],
                       ),
                     ],
@@ -107,16 +105,13 @@ class _DropInWidgetState extends State<DropInWidget> {
                 animation: listenable,
                 builder: (context, child) {
                   return TextButton(
-                    onPressed: !isDone(
-                                paymentInformation.value?.paymentStatus) &&
+                    onPressed: !isDone(paymentInformation.value?.paymentStatus) &&
                             amount.value != null &&
                             reference.value != null &&
-                            configurationStatus.value !=
-                                ConfigurationStatus.started
+                            configurationStatus.value != ConfigurationStatus.started
                         ? () async {
-                            final information = await client!
-                                .paymentInformation(
-                                    invoiceId: reference.value!);
+                            final information =
+                                await client!.paymentInformation(invoiceId: reference.value!);
                             if (!context.mounted) {
                               return;
                             }
@@ -138,26 +133,25 @@ class _DropInWidgetState extends State<DropInWidget> {
                                 ),
                                 env: 'test',
                                 redirectURL:
-                                    'https://app.staging.bloomwell.de/checkout?shopperOrder=${reference.value}',
+                                    'https://app.staging.bloomwell.de/payment_status?merchantReference=${reference.value}',
                               ),
                               onConfigurationStatus: (status) {
                                 configurationStatus.value = status;
                               },
-                              shopperPaymentInformation:
-                                  ShopperPaymentInformation(
-                                      billingAddress: ShopperBillingAddress(
-                                        city: 'Frankfurt',
-                                        street: 'berliner strasse',
-                                        houseNumberOrName: '1',
-                                        country: 'DE',
-                                        postalCode: '60351',
-                                      ),
-                                      countryCode: 'DE',
-                                      invoiceId: reference.value!,
-                                      locale: 'de_DE',
-                                      appleMerchantId: '',
-                                      merchantName: 'BloomwellECOM',
-                                      telephoneNumber: ''),
+                              shopperPaymentInformation: ShopperPaymentInformation(
+                                  billingAddress: ShopperBillingAddress(
+                                    city: 'Frankfurt',
+                                    street: 'berliner strasse',
+                                    houseNumberOrName: '1',
+                                    country: 'DE',
+                                    postalCode: '60351',
+                                  ),
+                                  countryCode: 'DE',
+                                  invoiceId: reference.value!,
+                                  locale: 'de_DE',
+                                  appleMerchantId: '',
+                                  merchantName: 'BloomwellECOM',
+                                  telephoneNumber: ''),
                               onPaymentResult: (payment) {
                                 switch (payment) {
                                   case PaymentAdvancedFinished():
@@ -170,8 +164,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                             color: Colors.green,
                                             size: 64,
                                           ),
-                                          title:
-                                              const Text('Payment successful'),
+                                          title: const Text('Payment successful'),
                                           actions: [
                                             TextButton(
                                               child: const Text('OK'),
@@ -194,8 +187,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                             color: Colors.green,
                                             size: 64,
                                           ),
-                                          title:
-                                              const Text('Payment successful'),
+                                          title: const Text('Payment successful'),
                                           actions: [
                                             TextButton(
                                               child: const Text('OK'),
@@ -218,8 +210,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                                             color: Colors.orangeAccent,
                                             size: 56,
                                           ),
-                                          title:
-                                              const Text('Payment cancelled'),
+                                          title: const Text('Payment cancelled'),
                                           actions: [
                                             TextButton(
                                               child: const Text('OK'),
@@ -267,10 +258,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              Text(
-                                  'Pay now ${amount.value! / 1000}€ for ${reference.value!}'),
-                              if (configurationStatus.value ==
-                                  ConfigurationStatus.started) ...[
+                              Text('Pay now ${amount.value! / 1000}€ for ${reference.value!}'),
+                              if (configurationStatus.value == ConfigurationStatus.started) ...[
                                 const SizedBox.square(
                                   dimension: 16,
                                   child: CircularProgressIndicator(),
@@ -300,8 +289,7 @@ class _DropInWidgetState extends State<DropInWidget> {
 
 class ConfigurationInputWidget extends StatefulWidget {
   final Function(String, String, String) onConfigurationSaved;
-  const ConfigurationInputWidget(
-      {super.key, required this.onConfigurationSaved});
+  const ConfigurationInputWidget({super.key, required this.onConfigurationSaved});
 
   @override
   State<StatefulWidget> createState() => _ConfigurationInputState();
@@ -309,10 +297,12 @@ class ConfigurationInputWidget extends StatefulWidget {
 
 class _ConfigurationInputState extends State<ConfigurationInputWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _baseUrlController = TextEditingController(
-      text: 'https://api.payments.staging.bloomwell.de/v1');
-  final _invoiceIdController = TextEditingController(text: 'A73748318300575');
-  final _tokenController = TextEditingController();
+  final _baseUrlController =
+      TextEditingController(text: 'https://api.payments.staging.bloomwell.de/v1');
+  final _invoiceIdController = TextEditingController(text: 'A65912589186994');
+  final _tokenController = TextEditingController(
+      text:
+          'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlhXSGlYLXpzSWcwYW5KTzFwc1VpWSJ9.eyJodHRwczovL2dydWVuZWJyaXNlLmRlL2VtYWlsIjoic2FiaW5hLmxhdXRoK3N0ZzE0QGJsb29td2VsbC5kZSIsImh0dHBzOi8vZ3J1ZW5lYnJpc2UuZGUvZmlyc3RfbmFtZSI6IlNhYmluYSIsImh0dHBzOi8vZ3J1ZW5lYnJpc2UuZGUvbGFzdF9uYW1lIjoiVmllcnplaG4iLCJodHRwczovL2xvZ2luLmFsZ2VhY2FyZS5jb20vemlkIjoiWjQ5MTk1OTg0ODI1MjE3IiwiaXNzIjoiaHR0cHM6Ly9hbGdlYWNhcmUtc3RhZ2luZy5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjgxMjA5NDQ5MWI4MjIzNGZmOWRiNGM3IiwiYXVkIjpbImh0dHBzOi8vYWxnZWFjYXJlLXN0YWdpbmcuZXUuYXV0aDAuY29tL2FwaS92Mi8iLCJodHRwczovL2FsZ2VhY2FyZS1zdGFnaW5nLmV1LmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTU3ODYxODQsImV4cCI6MTc1NTk1ODk4NCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCByZWFkOmN1cnJlbnRfdXNlciB1cGRhdGU6Y3VycmVudF91c2VyX21ldGFkYXRhIGRlbGV0ZTpjdXJyZW50X3VzZXJfbWV0YWRhdGEgY3JlYXRlOmN1cnJlbnRfdXNlcl9tZXRhZGF0YSBjcmVhdGU6Y3VycmVudF91c2VyX2RldmljZV9jcmVkZW50aWFscyBkZWxldGU6Y3VycmVudF91c2VyX2RldmljZV9jcmVkZW50aWFscyB1cGRhdGU6Y3VycmVudF91c2VyX2lkZW50aXRpZXMgb2ZmbGluZV9hY2Nlc3MiLCJndHkiOlsicmVmcmVzaF90b2tlbiIsInBhc3N3b3JkIl0sImF6cCI6Ik54Nkk0d2FLYWF3WUl2WWI2czl3cExyZGpFTGdkcmtFIn0.K_zLFt9jxQF8m8QgVN8LNE5taPkM8wOuloR3Apt13mnHNhujUNgBuy0ZwtSbWNp6ElQUN8EhGYstezMtOINBwH2NAIbOJ-K-XWkSUDiOxtZdpB5cT_5ge9XET-o5w-rgYLBPlwQwlRJmO1hYboGjVbWc5uHUUK4pqNL2xZTpG4jbCxE3mlacpQ-PsuWGs1vnTNDHr4XzqJwBB5KMyqMRN_12VGMR4TqZ48ecCAQTZDlPv0DWA5b9nHc0lYn6Fiut4KOYyepyIUMJUYWChWE-_YnvdWcpuvKDE3fbaQhcmUIyrcHwysfxgoNA-dsSoDMubllS_IMomgNtqLV767wpkQ');
 
   @override
   void dispose() {
@@ -496,8 +486,7 @@ class _LoadInformationState extends State<LoadInformation> {
   }
 
   Future<PaymentInformation> loadInformation() async {
-    final data =
-        await widget.client.paymentInformation(invoiceId: widget.invoiceID);
+    final data = await widget.client.paymentInformation(invoiceId: widget.invoiceID);
     widget.onResult(data);
     return data;
   }

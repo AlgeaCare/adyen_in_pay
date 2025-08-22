@@ -6,6 +6,7 @@ import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
 import 'package:adyen_in_pay/src/utils/klarna_native_bottom_sheet.dart' show showKlarnaBottomSheet;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
+import 'package:klarna_flutter_pay/klarna_flutter_pay.dart' show KlarnaEnvironment;
 import 'package:ua_client_hints/ua_client_hints.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -179,14 +180,20 @@ Future<void> dropInAdvancedMobile({
           userAgent: defaultTargetPlatform == TargetPlatform.android ? userAgentStr : null,
         );
         if (result.action?['paymentMethodType']?.contains('klarna') == true) {
-          debugPrint("result: ${result.action.toString()}");
+          debugPrint("result: ${result.action?.toString()}");
           // setPaymentData(result.action?['paymentData']);
+
+          isKlarnaNotifier.value = true;
+          await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
-            await AdyenCheckout.advanced.stopDropIn();
             return Error(errorMessage: "context is not mounted");
           }
           final resultKlarna = await showKlarnaBottomSheet(
             context: context,
+            environment:
+                configuration.env == 'test'
+                    ? KlarnaEnvironment.staging
+                    : KlarnaEnvironment.production,
             klarnaNativeConfiguration: KlarnaNativeConfiguration(
               redirectUrl: configuration.redirectURL,
               clientToken: result.action!['sdkData']['client_token'],

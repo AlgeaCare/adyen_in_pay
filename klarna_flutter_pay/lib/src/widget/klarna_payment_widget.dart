@@ -14,6 +14,7 @@ class KlarnaPaymentWidget extends StatefulWidget {
     this.loggingLevel = 'verbose',
     this.additionalArgs,
     this.onKlarnaStarted,
+    this.onKlarnaClosed,
     this.onKlarnaError,
     this.onKlarnaFinished,
     this.onKlarnaEvent,
@@ -28,6 +29,7 @@ class KlarnaPaymentWidget extends StatefulWidget {
   final String loggingLevel;
   final Map<String, dynamic>? additionalArgs;
   final VoidCallback? onKlarnaStarted;
+  final Function()? onKlarnaClosed;
   final Function(Map<String, dynamic>)? onKlarnaError;
   final Function(String? authToken, bool approved)? onKlarnaFinished;
   final Function(Map<String, dynamic>)? onKlarnaEvent;
@@ -39,90 +41,155 @@ class KlarnaPaymentWidget extends StatefulWidget {
 
 class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
   MethodChannel? _methodChannel;
-  bool _isKlarnaStarted = false;
-  bool _isLoading = true;
-  String? _errorMessage;
+  late final ValueNotifier<bool> _isKlarnaStarted;
+  late final ValueNotifier<bool> _isLoading;
+  late final ValueNotifier<bool> _isProcessingPayment;
+  late final ValueNotifier<String?> _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _isKlarnaStarted = ValueNotifier(false);
+    _isLoading = ValueNotifier(true);
+    _isProcessingPayment = ValueNotifier(false);
+    _errorMessage = ValueNotifier(null);
+  }
+
+  @override
+  void dispose() {
+    _isKlarnaStarted.dispose();
+    _isLoading.dispose();
+    _isProcessingPayment.dispose();
+    _errorMessage.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Platform View
-        if (defaultTargetPlatform == TargetPlatform.android)
-          AndroidView(
+        switch (defaultTargetPlatform) {
+          TargetPlatform.android => AndroidView(
             viewType: KlarnaPaymentWidget.viewType,
             creationParams: _getCreationParams(),
-            creationParamsCodec: const StandardMessageCodec(),
+            creationParamsCodec: const StandardMethodCodec().messageCodec,
             onPlatformViewCreated: _onPlatformViewCreated,
-          )
-        else if (defaultTargetPlatform == TargetPlatform.iOS)
-          UiKitView(
+          ),
+          TargetPlatform.iOS => UiKitView(
             viewType: KlarnaPaymentWidget.viewType,
             creationParams: _getCreationParams(),
-            creationParamsCodec: const StandardMessageCodec(),
+            creationParamsCodec: const StandardMethodCodec().messageCodec,
             onPlatformViewCreated: _onPlatformViewCreated,
-          )
-        else
-          const Center(
+          ),
+          _ => const Center(
             child: Text(
               'Klarna Payment is not supported on this platform',
               style: TextStyle(fontSize: 16, color: Colors.red),
             ),
           ),
-
+        },
         // Loading overlay with circular progress indicator
-        if (_isLoading && !_isKlarnaStarted)
-          Container(
-            color: Colors.white.withValues(alpha: 0.9),
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.blue)),
-                  SizedBox(height: 16),
-                  Text(
-                    'Initializing Klarna Payment...',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ValueListenableBuilder<bool>(
+          valueListenable: _isLoading,
+          builder: (context, isLoading, child) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: _isKlarnaStarted,
+              builder: (context, isKlarnaStarted, child) {
+                if (isLoading && !isKlarnaStarted) {
+                  return Container(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Initializing Klarna Payment...',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            );
+          },
+        ),
+
+        // Payment processing overlay
+        ValueListenableBuilder<bool>(
+          valueListenable: _isProcessingPayment,
+          builder: (context, isProcessingPayment, child) {
+            if (isProcessingPayment) {
+              return Container(
+                color: Colors.white.withValues(alpha: 0.9),
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Payment is processing...',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
 
         // Error overlay
-        if (_errorMessage != null)
-          Container(
-            color: Colors.white.withValues(alpha: 0.9),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: $_errorMessage',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.red,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
+        ValueListenableBuilder<String?>(
+          valueListenable: _errorMessage,
+          builder: (context, errorMessage, child) {
+            if (errorMessage != null) {
+              return Container(
+                color: Colors.white.withValues(alpha: 0.9),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Error: $errorMessage',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(onPressed: _retry, child: const Text('Retry')),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(onPressed: _retry, child: const Text('Retry')),
-                ],
-              ),
-            ),
-          ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ],
     );
   }
 
   Map<String, dynamic> _getCreationParams() {
     return {
-      'clientToken': widget.clientToken,
+      'tokenClient': widget.clientToken,
       'returnURL': widget.returnURL,
-      'environment': widget.environment,
+      'environment': widget.environment.name,
       'region': widget.region.value,
       'category': widget.category,
       'loggingLevel': widget.loggingLevel,
@@ -137,37 +204,35 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'initKlarna':
-        setState(() {
-          _isLoading = false;
-        });
+        _isLoading.value = false;
         break;
 
       case 'startedKlarna':
-        setState(() {
-          _isKlarnaStarted = true;
-          _isLoading = false;
-        });
+        _isKlarnaStarted.value = true;
+        _isLoading.value = false;
         widget.onKlarnaStarted?.call();
         break;
 
       case 'errorKlarna':
         final errorData = call.arguments as Map<String, dynamic>;
-        setState(() {
-          _errorMessage = errorData['message'] ?? 'Unknown error occurred';
-          _isLoading = false;
-        });
+        _errorMessage.value = errorData['message'] ?? 'Unknown error occurred';
+        _isLoading.value = false;
         widget.onKlarnaError?.call(errorData);
         break;
 
       case 'finishKlarna':
-        final finishData = call.arguments as Map<String, dynamic>;
+        _isProcessingPayment.value = true;
+        final finishData = Map<String, dynamic>.from(call.arguments);
         widget.onKlarnaFinished?.call(finishData['authToken'], finishData['approved']);
         break;
-
-      case 'onLoadedKlarna':
-      case 'loadPaymentReviewKlarna':
-      case 'reauthorizedKlarna':
       case 'klarnaEvent':
+        final eventData = call.arguments as Map<String, dynamic>?;
+        if (eventData != null && eventData['params']['name'] == 'close') {
+          widget.onKlarnaClosed?.call();
+        }
+        widget.onKlarnaEvent?.call(eventData?['params'] ?? {});
+        break;
+      case 'reauthorizedKlarna':
       case 'klarnaRedirect':
         final eventData = call.arguments as Map<String, dynamic>?;
         widget.onKlarnaEvent?.call(eventData ?? {});
@@ -179,11 +244,9 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
   }
 
   void _retry() {
-    setState(() {
-      _errorMessage = null;
-      _isLoading = true;
-      _isKlarnaStarted = false;
-    });
+    _errorMessage.value = null;
+    _isLoading.value = true;
+    _isKlarnaStarted.value = false;
     // The platform view will reinitialize automatically
   }
 
@@ -192,9 +255,7 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
       try {
         await _methodChannel!.invokeMethod('pay');
       } catch (e) {
-        setState(() {
-          _errorMessage = 'Failed to initiate payment: $e';
-        });
+        _errorMessage.value = 'Failed to initiate payment: $e';
       }
     }
   }
@@ -207,9 +268,7 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
           'sessionData': sessionData,
         });
       } catch (e) {
-        setState(() {
-          _errorMessage = 'Failed to authorize: $e';
-        });
+        _errorMessage.value = 'Failed to authorize: $e';
       }
     }
   }
@@ -219,9 +278,7 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
       try {
         await _methodChannel!.invokeMethod('finalize', {'sessionData': sessionData});
       } catch (e) {
-        setState(() {
-          _errorMessage = 'Failed to finalize: $e';
-        });
+        _errorMessage.value = 'Failed to finalize: $e';
       }
     }
   }

@@ -1,23 +1,30 @@
 package de.bloomwell.klarna_flutter_pay
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.os.IBinder
+import android.support.customtabs.IAuthTabCallback
+import android.support.customtabs.ICustomTabsCallback
+import android.support.customtabs.ICustomTabsService
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsSession
+import androidx.core.app.PendingIntentCompat
 import androidx.core.view.children
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.klarna.mobile.sdk.KlarnaMobileSDKError
 import com.klarna.mobile.sdk.api.KlarnaEnvironment
 import com.klarna.mobile.sdk.api.KlarnaEventHandler
 import com.klarna.mobile.sdk.api.KlarnaLoggingLevel
-import com.klarna.mobile.sdk.api.KlarnaProduct
 import com.klarna.mobile.sdk.api.KlarnaProductEvent
 import com.klarna.mobile.sdk.api.KlarnaRegion
 import com.klarna.mobile.sdk.api.component.KlarnaComponent
@@ -26,6 +33,7 @@ import com.klarna.mobile.sdk.api.payments.KlarnaPaymentViewCallback
 import com.klarna.mobile.sdk.api.payments.KlarnaPaymentsSDKError
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.platform.PlatformView
 
 class KlarnaView(
@@ -37,13 +45,12 @@ class KlarnaView(
 ) : PlatformView, MethodChannel.MethodCallHandler, KlarnaPaymentViewCallback, KlarnaEventHandler,
     DefaultLifecycleObserver {
     var klarnaViewPayment: KlarnaPaymentView? = null
-    /*val klarnaViewPayment: KlarnaPaymentView = KlarnaPaymentView(
-        context,
-        returnURL = ""
-    )*/
-    val frameLayout = FrameLayout(context).apply {
-        this.layoutParams =
-            FrameLayout.LayoutParams(FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
+
+    val frameLayout by lazy {
+        FrameLayout(context).apply {
+            this.layoutParams =
+                FrameLayout.LayoutParams(FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
+        }
     }
 
 
@@ -59,7 +66,6 @@ class KlarnaView(
     override fun dispose() {
         provider.getLifecycle()?.removeObserver(this)
         klarnaViewPayment?.unregisterPaymentViewCallback(this)
-        klarnaViewPayment?.finalize(null)
         frameLayout.removeAllViews()
     }
 
