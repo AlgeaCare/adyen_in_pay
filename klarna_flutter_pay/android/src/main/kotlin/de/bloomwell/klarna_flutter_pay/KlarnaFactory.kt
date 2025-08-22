@@ -1,10 +1,16 @@
 package de.bloomwell.klarna_flutter_pay
 
 import android.content.Context
+import androidx.lifecycle.Lifecycle
 import com.klarna.mobile.sdk.api.KlarnaEnvironment
 import com.klarna.mobile.sdk.api.KlarnaLoggingLevel
+import com.klarna.mobile.sdk.api.KlarnaProduct
 import com.klarna.mobile.sdk.api.KlarnaRegion
+import com.klarna.mobile.sdk.api.KlarnaResourceEndpoint
 import com.klarna.mobile.sdk.api.payments.KlarnaPaymentView
+import com.klarna.mobile.sdk.api.payments.KlarnaPaymentViewCallback
+import com.klarna.mobile.sdk.api.payments.KlarnaPaymentsSDKError
+import com.klarna.mobile.sdk.api.postpurchase.KlarnaPostPurchaseSDK
 import de.bloomwell.klarna_flutter_pay.KlarnaFlutterPayPlugin.Companion.VIEW_TYPE
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -15,44 +21,23 @@ import java.util.HashMap
 
 class KlarnaFactory(
     private val binaryMessage: BinaryMessenger,
+    private val provider: LifecycleProvider
 
 ): PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+
     override fun create(
         context: Context?,
         viewId: Int,
         args: Any?
     ): PlatformView {
+
         val argsMap = args as? HashMap<*, *> ?: HashMap<String, Any>()
-        
-        val klarnaViewPayment: KlarnaPaymentView = KlarnaPaymentView(
-            requireNotNull(context),
-            returnURL = argsMap["returnURL"] as? String ?: ""
-        )
-        
-        // Configure Klarna payment view
-        klarnaViewPayment.region = when(argsMap["region"] as? String) {
-            "EU" -> KlarnaRegion.EU
-            else -> KlarnaRegion.EU
-        }
-        
-        klarnaViewPayment.environment = when(argsMap["environment"] as? String) {
-            "test", "staging" -> KlarnaEnvironment.STAGING
-            "production" -> KlarnaEnvironment.PRODUCTION
-            else -> KlarnaEnvironment.STAGING
-        }
-        
-        klarnaViewPayment.loggingLevel =  KlarnaLoggingLevel.Verbose
-        
-        // Extract additional arguments
-        val additionalArgs = argsMap.filterKeys { key ->
-            key !in listOf("returnURL", "tokenClient", "environment", "region", "loggingLevel")
-        }.mapKeys { it.key.toString() }
-        
         return KlarnaView(
             requireNotNull(context),
             MethodChannel(binaryMessage,"${VIEW_TYPE}_$viewId"),
-            klarnaViewPayment,
-            argsMap["tokenClient"] as? String ?: ""
+            argsMap,
+            argsMap["tokenClient"] as? String ?: "",
+            provider
         )
     }
 
