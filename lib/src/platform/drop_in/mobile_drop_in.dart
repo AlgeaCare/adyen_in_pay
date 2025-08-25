@@ -61,7 +61,7 @@ Future<void> dropInAdvancedMobile({
   PaymentMethodResponse? paymentMethods;
   String userAgentStr = 'Bloomwell/7.4.1 (Android 15; SM-A546B; a54x; arm64-v8a)';
   try {
-    // userAgentStr = await userAgent();
+    userAgentStr = await userAgent();
 
     paymentInfo ??= await client.paymentInformation(invoiceId: reference);
     paymentMethods = await client.getPaymentMethods(

@@ -25,9 +25,11 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
     builder: (context) {
       return PopScope(
         onPopInvokedWithResult: (isPop, result) {
-          if (result is adyen.PaymentEvent) {
-            Navigator.of(context).pop(result);
-          }
+          // if (result is adyen.PaymentEvent) {
+          //   if(context.mounted){
+          //     Navigator.of(context).pop(result);
+          //   }
+          // }
         },
         child: KlarnaWidgetBottomSheet.native(
           klarnaNativeConfiguration: klarnaNativeConfiguration,
@@ -35,24 +37,29 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
           topTitleWidget: topTitleWidget,
           environment: environment,
           onPaymentEvent: (String authToken) async {
-            final data = {
-              'paymentData': klarnaNativeConfiguration.paymentData,
-              'details': {'token': authToken},
-            };
-            final result = await onPaymentDetail(data);
-            if (!context.mounted) {
-              return;
-            }
-            if (result.resultCode.toLowerCase() ==
-                    PaymentResultCode.authorised.name.toLowerCase() ||
-                result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
-                result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
-                result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
-              // completer.complete(adyen.Finished(resultCode: event));
-              Navigator.of(context).pop(adyen.Finished(resultCode: result.resultCode.toString()));
-            } else {
-              Navigator.of(context).pop(adyen.Error(errorMessage: result.resultCode.toString()));
-              // completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
+            try {
+              final data = {
+                'paymentData': klarnaNativeConfiguration.paymentData,
+                'details': {'token': authToken},
+              };
+              final result = await onPaymentDetail(data);
+              if (!context.mounted) {
+                return;
+              }
+              if (result.resultCode.toLowerCase() ==
+                      PaymentResultCode.authorised.name.toLowerCase() ||
+                  result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
+                  result.resultCode.toLowerCase() ==
+                      PaymentResultCode.received.name.toLowerCase() ||
+                  result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
+                // completer.complete(adyen.Finished(resultCode: event));
+                Navigator.of(context).pop(adyen.Finished(resultCode: result.resultCode.toString()));
+              } else {
+                Navigator.of(context).pop(adyen.Error(errorMessage: result.resultCode.toString()));
+                // completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
+              }
+            } catch (e) {
+              Navigator.of(context).pop(adyen.Error(errorMessage: e.toString()));
             }
           },
         ),
@@ -96,38 +103,24 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
   final KlarnaEnvironment environment;
   @override
   Widget build(BuildContext context) {
-    var isAdditionalDetailLoading = false;
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          height: MediaQuery.sizeOf(context).height * 0.9,
-          child: Stack(
-            children: [
-              Opacity(
-                opacity: isAdditionalDetailLoading ? 0.0 : 1.0,
-                child: KlarnaPaymentWidget(
-                  environment: environment,
-                  clientToken: klarnaNativeConfiguration.clientToken,
-                  returnURL: klarnaNativeConfiguration.redirectUrl,
-                  onKlarnaFinished: (authToken, approved) async {
-                    if (authToken == null || !approved || authToken.isEmpty) {
-                      Navigator.of(context).pop(adyen.Error(errorMessage: "no authtoken"));
-                    }
-                    setState(() {
-                      isAdditionalDetailLoading = true;
-                    });
-                    await onPaymentEvent(authToken!);
-                  },
-                  onKlarnaClosed: () {
-                    Navigator.of(context).pop(adyen.Finished(resultCode: "cancelled"));
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width,
+      height: MediaQuery.sizeOf(context).height * 0.9,
+      child: KlarnaPaymentWidget(
+        environment: environment,
+        clientToken: klarnaNativeConfiguration.clientToken,
+        returnURL: klarnaNativeConfiguration.redirectUrl,
+        onKlarnaFinished: (authToken, approved) async {
+          if (authToken == null || !approved || authToken.isEmpty) {
+            Navigator.of(context).pop(adyen.Error(errorMessage: "no authtoken"));
+          }
+
+          await onPaymentEvent(authToken!);
+        },
+        onKlarnaClosed: () {
+          Navigator.of(context).pop(adyen.Finished(resultCode: "cancelled"));
+        },
+      ),
     );
   }
 }

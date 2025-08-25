@@ -54,7 +54,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
                     "ready" : true
                    ]
                )
-        paymentView.authorize(autoFinalize: true) // optionally load payment widget upon initialize
+        paymentView.authorize(autoFinalize: false) // optionally load payment widget upon initialize
     }
     func klarnaAuthorized(paymentView: KlarnaPaymentView, approved: Bool, authToken: String?, finalizeRequired: Bool) {
         if let token = authToken, approved {
@@ -63,9 +63,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
             self.isApproved = approved
         }
         
-        if finalizeRequired == true {
-            paymentView.finalise()
-        }
+        paymentView.finalise()
     }
 
     func klarnaFailed(inPaymentView paymentView: KlarnaPaymentView, withError error: KlarnaPaymentError) {
@@ -80,7 +78,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
     func klarnaFinalized(paymentView: KlarnaPaymentView, approved: Bool, authToken: String?) {
         self.sendToFlutter(method: "finishKlarna", data: [
             "authToken": authToken ?? "",
-            "isApproved": approved
+            "approved": approved
         ])
     }
     func klarnaReauthorized(paymentView: KlarnaPaymentView, approved: Bool, authToken: String?) {
@@ -88,7 +86,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
     }
     
     func sendToFlutter(method:String, data:Any?) {
-        methodChannel.invokeMethod(method, arguments: method)
+        methodChannel.invokeMethod(method, arguments: data)
     }
     
 }

@@ -13,7 +13,6 @@ class KlarnaPaymentWidget extends StatefulWidget {
     this.region = KlarnaRegion.eu,
     this.loggingLevel = 'verbose',
     this.additionalArgs,
-    this.onKlarnaStarted,
     this.onKlarnaClosed,
     this.onKlarnaError,
     this.onKlarnaFinished,
@@ -28,7 +27,6 @@ class KlarnaPaymentWidget extends StatefulWidget {
   final KlarnaRegion region;
   final String loggingLevel;
   final Map<String, dynamic>? additionalArgs;
-  final VoidCallback? onKlarnaStarted;
   final Function()? onKlarnaClosed;
   final Function(Map<String, dynamic>)? onKlarnaError;
   final Function(String? authToken, bool approved)? onKlarnaFinished;
@@ -207,12 +205,6 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
         _isLoading.value = false;
         break;
 
-      case 'startedKlarna':
-        _isKlarnaStarted.value = true;
-        _isLoading.value = false;
-        widget.onKlarnaStarted?.call();
-        break;
-
       case 'errorKlarna':
         final errorData = call.arguments as Map<String, dynamic>;
         _errorMessage.value = errorData['message'] ?? 'Unknown error occurred';
@@ -223,7 +215,7 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
       case 'finishKlarna':
         _isProcessingPayment.value = true;
         final finishData = Map<String, dynamic>.from(call.arguments);
-        widget.onKlarnaFinished?.call(finishData['authToken'], finishData['approved']);
+        widget.onKlarnaFinished?.call(finishData['authToken'], finishData['approved'] ?? false);
         break;
       case 'klarnaEvent':
         final eventData = call.arguments as Map<String, dynamic>?;
