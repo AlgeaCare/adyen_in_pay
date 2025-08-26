@@ -72,7 +72,6 @@ class KlarnaView(
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         val returnURL = argsMap["returnURL"] as? String ?: ""
-        Toast.makeText(context,"created klarna native", Toast.LENGTH_SHORT).show()
         klarnaViewPayment = KlarnaPaymentView(
             requireNotNull(context),
             returnURL = returnURL,
@@ -138,16 +137,8 @@ class KlarnaView(
         authToken: String?,
         finalizedRequired: Boolean?
     ) {
-        sendEventToFlutter(
-            "startedKlarna", mapOf(
-                "approved" to approved,
-                "authToken" to authToken,
-                "finalizedRequired" to (finalizedRequired ?: false)
-            )
-        )
-        view.finalize(sessionData = authToken)
-        Toast.makeText(context,"startedKlarna:${authToken}", Toast.LENGTH_SHORT).show()
 
+        view.finalize(sessionData = authToken)
     }
 
     override fun onErrorOccurred(
@@ -162,7 +153,6 @@ class KlarnaView(
             "message" to error.message
         )
         sendEventToFlutter("errorKlarna", errorData)
-        Toast.makeText(context,errorData.toString(), Toast.LENGTH_SHORT).show()
     }
 
     override fun onFinalized(
@@ -192,7 +182,7 @@ class KlarnaView(
                 "ready" to true
             )
         )
-        view.authorize(true, null)
+        view.authorize(false, null)
     }
 
     override fun onLoadPaymentReview(
@@ -235,11 +225,6 @@ class KlarnaView(
                 "isFatal" to error.isFatal
             ).toString()
         )
-        Toast.makeText(context,mapOf(
-            "message" to error.message,
-            "name" to error.name,
-            "isFatal" to error.isFatal
-        ).toString(), Toast.LENGTH_SHORT).show()
     }
 
     override fun onEvent(
