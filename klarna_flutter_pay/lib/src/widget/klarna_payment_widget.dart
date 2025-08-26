@@ -210,6 +210,7 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
         _errorMessage.value = errorData['message'] ?? 'Unknown error occurred';
         _isLoading.value = false;
         widget.onKlarnaError?.call(errorData);
+         widget.onKlarnaClosed?.call();
         break;
 
       case 'finishKlarna':

@@ -130,15 +130,30 @@ class KlarnaView(
             }
         }
     }
-
+    override fun onInitialized(view: KlarnaPaymentView) {
+        Log.d(
+            "initKlarna", mapOf(
+                "initialized" to true,
+                "ready" to true
+            ).toString()
+        )
+        sendEventToFlutter(
+            "initKlarna", mapOf(
+                "initialized" to true,
+                "ready" to true
+            )
+        )
+        view.authorize(true, null)
+    }
     override fun onAuthorized(
         view: KlarnaPaymentView,
         approved: Boolean,
         authToken: String?,
         finalizedRequired: Boolean?
     ) {
-
-        view.finalize(sessionData = authToken)
+        if(approved){
+            view.finalize(sessionData = authToken)
+        }
     }
 
     override fun onErrorOccurred(
@@ -169,21 +184,7 @@ class KlarnaView(
         )
     }
 
-    override fun onInitialized(view: KlarnaPaymentView) {
-        Log.d(
-            "initKlarna", mapOf(
-                "initialized" to true,
-                "ready" to true
-            ).toString()
-        )
-        sendEventToFlutter(
-            "initKlarna", mapOf(
-                "initialized" to true,
-                "ready" to true
-            )
-        )
-        view.authorize(false, null)
-    }
+
 
     override fun onLoadPaymentReview(
         view: KlarnaPaymentView,
