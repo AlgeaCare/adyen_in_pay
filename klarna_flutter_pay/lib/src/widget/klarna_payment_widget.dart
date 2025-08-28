@@ -95,97 +95,104 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
           ),
         },
         // Loading overlay with circular progress indicator
-        ValueListenableBuilder<bool>(
-          valueListenable: _isLoading,
-          builder: (context, isLoading, child) {
-            return ValueListenableBuilder<bool>(
-              valueListenable: _isKlarnaStarted,
-              builder: (context, isKlarnaStarted, child) {
-                if (isLoading && !isKlarnaStarted) {
-                  return widget.initializationWidget ?? Container(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+        Positioned.fill(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _isLoading,
+            builder: (context, isLoading, child) {
+              return ValueListenableBuilder<bool>(
+                valueListenable: _isKlarnaStarted,
+                builder: (context, isKlarnaStarted, child) {
+                  if (isLoading && !isKlarnaStarted) {
+                    return widget.initializationWidget ??
+                        Container(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  widget.initializationText,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            widget.initializationText,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            );
-          },
+                        );
+                  }
+                  return const SizedBox.shrink();
+                },
+              );
+            },
+          ),
         ),
 
         // Payment processing overlay
-        ValueListenableBuilder<bool>(
-          valueListenable: _isProcessingPayment,
-          builder: (context, isProcessingPayment, child) {
-            if (isProcessingPayment) {
-              return widget.processingWidget ?? Container(
-                color: Colors.white.withValues(alpha: 0.9),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        widget.processingText,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-
-        // Error overlay
-        ValueListenableBuilder<String?>(
-          valueListenable: _errorMessage,
-          builder: (context, errorMessage, child) {
-            if (errorMessage != null) {
-              return Container(
-                color: Colors.white.withValues(alpha: 0.9),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error: $errorMessage',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.red,
-                          fontWeight: FontWeight.w500,
+        Positioned.fill(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _isProcessingPayment,
+            builder: (context, isProcessingPayment, child) {
+              if (isProcessingPayment) {
+                return widget.processingWidget ??
+                    Container(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              widget.processingText,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(onPressed: _retry, child: const Text('Retry')),
-                    ],
+                    );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+        // Error overlay
+        Positioned.fill(
+          child: ValueListenableBuilder<String?>(
+            valueListenable: _errorMessage,
+            builder: (context, errorMessage, child) {
+              if (errorMessage != null) {
+                return Container(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: $errorMessage',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(onPressed: _retry, child: const Text('Retry')),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ],
     );
