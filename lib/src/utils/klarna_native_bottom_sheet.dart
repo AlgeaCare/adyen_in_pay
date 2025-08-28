@@ -36,6 +36,7 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
           onRetry: onRetry,
           environment: environment,
           klarnaPayEnum: klarnaPayEnum,
+          bottomSheetMaxHeightRatio: bottomSheetMaxHeightRatio,
           onPaymentEvent: (String authToken) async {
             try {
               final data = {
@@ -67,7 +68,7 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
     },
     constraints: BoxConstraints(
       maxWidth: MediaQuery.sizeOf(context).width,
-      maxHeight: MediaQuery.sizeOf(context).height * 0.9,
+      maxHeight: MediaQuery.sizeOf(context).height * bottomSheetMaxHeightRatio,
     ),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -86,6 +87,7 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
     required this.onRetry,
     this.environment = KlarnaEnvironment.staging,
     this.klarnaPayEnum = KlarnaPayEnum.sdk,
+    this.bottomSheetMaxHeightRatio = 0.6,
   });
 
   final KlarnaNativeConfiguration klarnaNativeConfiguration;
@@ -93,11 +95,12 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
   final Function(String authToken) onPaymentEvent;
   final KlarnaEnvironment environment;
   final KlarnaPayEnum klarnaPayEnum;
+  final double bottomSheetMaxHeightRatio;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
-      height: MediaQuery.sizeOf(context).height * 0.9,
+      height: MediaQuery.sizeOf(context).height * bottomSheetMaxHeightRatio,
       child: KlarnaPaymentWidget(
         environment: environment,
         clientToken: klarnaNativeConfiguration.clientToken,
