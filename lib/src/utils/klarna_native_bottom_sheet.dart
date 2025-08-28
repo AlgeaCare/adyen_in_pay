@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:adyen_checkout/adyen_checkout.dart' as adyen show PaymentEvent, Finished, Error;
 import 'package:adyen_in_pay/adyen_in_pay.dart' show DetailPaymentResponse, PaymentResultCode;
+import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart'
     show KlarnaNativeConfiguration;
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
   onPaymentDetail,
   required Function() onRetry,
   KlarnaEnvironment environment = KlarnaEnvironment.staging,
+  KlarnaPayEnum klarnaPayEnum = KlarnaPayEnum.sdk,
 }) async {
   final result = await showModalBottomSheet<adyen.PaymentEvent>(
     context: context,
@@ -28,10 +30,11 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
           //   }
           // }
         },
-        child: KlarnaWidgetBottomSheet.native(
+        child: KlarnaWidgetBottomSheet(
           klarnaNativeConfiguration: klarnaNativeConfiguration,
           onRetry: onRetry,
           environment: environment,
+          klarnaPayEnum: klarnaPayEnum,
           onPaymentEvent: (String authToken) async {
             try {
               final data = {
@@ -75,25 +78,20 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
 }
 
 class KlarnaWidgetBottomSheet extends StatelessWidget {
-  const KlarnaWidgetBottomSheet.webview({
+  const KlarnaWidgetBottomSheet({
     super.key,
     required this.klarnaNativeConfiguration,
     required this.onPaymentEvent,
     required this.onRetry,
     this.environment = KlarnaEnvironment.staging,
-  }) : showWebview = true;
-  const KlarnaWidgetBottomSheet.native({
-    super.key,
-    required this.klarnaNativeConfiguration,
-    required this.onPaymentEvent,
-    required this.onRetry,
-    this.environment = KlarnaEnvironment.staging,
-  }) : showWebview = false;
+    this.klarnaPayEnum = KlarnaPayEnum.sdk,
+  });
+
   final KlarnaNativeConfiguration klarnaNativeConfiguration;
   final Function() onRetry;
   final Function(String authToken) onPaymentEvent;
-  final bool showWebview;
   final KlarnaEnvironment environment;
+  final KlarnaPayEnum klarnaPayEnum;
   @override
   Widget build(BuildContext context) {
     return SizedBox(

@@ -140,6 +140,7 @@ class KlarnaView(
                 "ready" to true
             )
         )
+        view.load(null)
         view.authorize(true, null)
     }
     override fun onAuthorized(

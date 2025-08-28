@@ -67,37 +67,40 @@ class _DropInWidgetState extends State<DropInWidget> {
                   if (paymentInformation.value == null) {
                     return const SizedBox.shrink();
                   }
-                  return Table(
-                    columnWidths: const {
-                      0: FlexColumnWidth(1.0),
-                      1: FlexColumnWidth(1.0),
-                    },
-                    children: [
-                      TableRow(
-                        children: [
-                          const Text('firstName'),
-                          Text(paymentInformation.value!.firstName),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          const Text('lastName'),
-                          Text(paymentInformation.value!.lastName),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          const Text('email'),
-                          Text(paymentInformation.value!.email),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          const Text('status'),
-                          Text(paymentInformation.value!.paymentStatus.toString()),
-                        ],
-                      ),
-                    ],
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(1.0),
+                        1: FlexColumnWidth(1.0),
+                      },
+                      children: [
+                        TableRow(
+                          children: [
+                            const Text('firstName'),
+                            Text(paymentInformation.value!.firstName),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Text('lastName'),
+                            Text(paymentInformation.value!.lastName),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Text('email'),
+                            Text(paymentInformation.value!.email),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Text('status'),
+                            Text(paymentInformation.value!.paymentStatus.toString()),
+                          ],
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -139,17 +142,25 @@ class _DropInWidgetState extends State<DropInWidget> {
                                 configurationStatus.value = status;
                               },
                               customPaymentConfigurationWidget: CustomPaymentConfigurationWidget(
-                                processingKlarnaWidget: const Column(
-                                  children: [
-                                    CircularProgressIndicator(),
-                                    Text('Processing Klarna'),
-                                  ],
+                                processingKlarnaWidget: const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      Text('Processing Klarna'),
+                                    ],
+                                  ),
                                 ),
-                                initializationKlarnaWidget: const Column(
-                                  children: [
-                                    CircularProgressIndicator(),
-                                    Text('Initializing Klarna'),
-                                  ],
+                                initializationKlarnaWidget: const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      Text('Initializing Klarna'),
+                                    ],
+                                  ),
                                 ),
                               ),
                               shopperPaymentInformation: ShopperPaymentInformation(
@@ -273,7 +284,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              Text('Pay now ${amount.value! / 1000}€ for ${reference.value!}'),
+                              Text('Pay now ${amount.value! / 100}€ for ${reference.value!}'),
                               if (configurationStatus.value == ConfigurationStatus.started) ...[
                                 const SizedBox.square(
                                   dimension: 16,

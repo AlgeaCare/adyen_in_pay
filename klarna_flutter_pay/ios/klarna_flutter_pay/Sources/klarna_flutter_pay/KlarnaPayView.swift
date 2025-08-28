@@ -54,6 +54,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
                     "ready" : true
                    ]
                )
+        paymentView.load()
         paymentView.authorize(autoFinalize: true) // optionally load payment widget upon initialize
     }
     func klarnaAuthorized(paymentView: KlarnaPaymentView, approved: Bool, authToken: String?, finalizeRequired: Bool) {

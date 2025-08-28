@@ -150,7 +150,10 @@ Future<void> dropInAdvancedMobile({
         final selectedPaymentMethod = data['paymentMethod']['type'];
         final paymentMethodType = data['paymentMethod']['type'];
         if (paymentMethodType.contains('klarna')) {
-          data['paymentMethod'] = {'type': paymentMethodType, 'subtype': 'sdk'};
+          data['paymentMethod'] = {'type': paymentMethodType};
+          if (customPaymentConfigurationWidget?.klarnaPayEnum == KlarnaPayEnum.sdk) {
+            data['paymentMethod'] = {'type': paymentMethodType, 'subtype': 'sdk'};
+          }
         }
         final modifiedData =
             data
@@ -181,7 +184,8 @@ Future<void> dropInAdvancedMobile({
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
           userAgent: defaultTargetPlatform == TargetPlatform.android ? userAgentStr : null,
         );
-        if (result.action?['paymentMethodType']?.contains('klarna') == true) {
+        if (result.action?['paymentMethodType']?.contains('klarna') == true &&
+            customPaymentConfigurationWidget?.klarnaPayEnum != KlarnaPayEnum.redirect) {
           debugPrint("result: ${result.action?.toString()}");
           // setPaymentData(result.action?['paymentData']);
 
