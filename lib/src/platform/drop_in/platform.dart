@@ -1,5 +1,6 @@
 import 'package:adyen_checkout/adyen_checkout.dart' show PaymentResult;
 import 'package:adyen_in_pay/adyen_in_pay.dart' show PaymentMethodResponse;
+import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:payment_client_api/payment_client_api.dart' show AdyenClient, PaymentInformation;
 import 'package:adyen_in_pay/src/models/configuration_status.dart';
 import 'package:adyen_in_pay/src/models/pay_configuration.dart' show AdyenConfiguration;
@@ -18,12 +19,12 @@ void dropInPlatform({
   required Function(PaymentResult payment) onPaymentResult,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentInformation? paymentInformation,
+  CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
   String? webURL,
   PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
-  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) => dropIn(
   context: context,
   client: client,
@@ -38,5 +39,5 @@ void dropInPlatform({
   skipPaymentMethodCallback: skipPaymentMethodCallback,
   onConfigurationStatus: onConfigurationStatus,
   paymentInformation: paymentInformation,
-  topTitleBottomSheetWidget: topTitleBottomSheetWidget,
+  customPaymentConfigurationWidget: customPaymentConfigurationWidget,
 );

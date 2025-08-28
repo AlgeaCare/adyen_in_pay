@@ -138,20 +138,35 @@ class _DropInWidgetState extends State<DropInWidget> {
                               onConfigurationStatus: (status) {
                                 configurationStatus.value = status;
                               },
+                              customPaymentConfigurationWidget: CustomPaymentConfigurationWidget(
+                                processingKlarnaWidget: const Column(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    Text('Processing Klarna'),
+                                  ],
+                                ),
+                                initializationKlarnaWidget: const Column(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    Text('Initializing Klarna'),
+                                  ],
+                                ),
+                              ),
                               shopperPaymentInformation: ShopperPaymentInformation(
-                                  billingAddress: ShopperBillingAddress(
-                                    city: 'Frankfurt',
-                                    street: 'berliner strasse',
-                                    houseNumberOrName: '1',
-                                    country: 'DE',
-                                    postalCode: '60351',
-                                  ),
-                                  countryCode: 'DE',
-                                  invoiceId: reference.value!,
-                                  locale: 'de_DE',
-                                  appleMerchantId: '',
-                                  merchantName: 'BloomwellECOM',
-                                  telephoneNumber: ''),
+                                billingAddress: ShopperBillingAddress(
+                                  city: 'Frankfurt',
+                                  street: 'berliner strasse',
+                                  houseNumberOrName: '1',
+                                  country: 'DE',
+                                  postalCode: '60351',
+                                ),
+                                countryCode: 'DE',
+                                invoiceId: reference.value!,
+                                locale: 'de_DE',
+                                appleMerchantId: '',
+                                merchantName: 'BloomwellECOM',
+                                telephoneNumber: '',
+                              ),
                               onPaymentResult: (payment) {
                                 switch (payment) {
                                   case PaymentAdvancedFinished():

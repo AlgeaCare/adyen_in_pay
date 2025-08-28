@@ -1,4 +1,5 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget;
 
 void dropIn({
@@ -11,9 +12,9 @@ void dropIn({
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   PaymentInformation? paymentInformation,
+  CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
   Widget? widgetChildCloseForWeb,
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
   String? webURL,
-  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) => UnimplementedError();

@@ -12,11 +12,8 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
   required Future<DetailPaymentResponse> Function(Map<String, dynamic> paymentDetailBody)
   onPaymentDetail,
   required Function() onRetry,
-  Widget Function(String url, Function()? onRetry)? topTitleWidget,
   KlarnaEnvironment environment = KlarnaEnvironment.staging,
 }) async {
-  // final Completer<adyen.PaymentEvent> completer = Completer();
-  // final controller
   final result = await showModalBottomSheet<adyen.PaymentEvent>(
     context: context,
     isDismissible: false,
@@ -34,7 +31,6 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
         child: KlarnaWidgetBottomSheet.native(
           klarnaNativeConfiguration: klarnaNativeConfiguration,
           onRetry: onRetry,
-          topTitleWidget: topTitleWidget,
           environment: environment,
           onPaymentEvent: (String authToken) async {
             try {
@@ -84,7 +80,6 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
     required this.klarnaNativeConfiguration,
     required this.onPaymentEvent,
     required this.onRetry,
-    this.topTitleWidget,
     this.environment = KlarnaEnvironment.staging,
   }) : showWebview = true;
   const KlarnaWidgetBottomSheet.native({
@@ -93,12 +88,10 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
     required this.onPaymentEvent,
     required this.onRetry,
     this.environment = KlarnaEnvironment.staging,
-    this.topTitleWidget,
   }) : showWebview = false;
   final KlarnaNativeConfiguration klarnaNativeConfiguration;
   final Function() onRetry;
   final Function(String authToken) onPaymentEvent;
-  final Widget Function(String url, Function()? onRetry)? topTitleWidget;
   final bool showWebview;
   final KlarnaEnvironment environment;
   @override
@@ -110,12 +103,16 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
         environment: environment,
         clientToken: klarnaNativeConfiguration.clientToken,
         returnURL: klarnaNativeConfiguration.redirectUrl,
+        category: klarnaNativeConfiguration.category,
+        processingWidget: klarnaNativeConfiguration.processingWidget,
+        initializationWidget: klarnaNativeConfiguration.initializationWidget,
         onKlarnaFinished: (authToken, approved) async {
           if (authToken == null || !approved || authToken.isEmpty) {
             Navigator.of(context).pop(adyen.Error(errorMessage: "no authtoken"));
+            return;
           }
 
-          await onPaymentEvent(authToken!);
+          await onPaymentEvent(authToken);
         },
         onKlarnaClosed: () {
           Navigator.of(context).pop(adyen.Finished(resultCode: "cancelled"));

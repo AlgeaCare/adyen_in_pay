@@ -127,6 +127,51 @@ sequenceDiagram
     end
 ```
 
+## Klarna Integration Sequence Diagram
+
+```mermaid
+---
+config:
+  look: neo
+  theme: mc
+---
+sequenceDiagram
+  participant App as Flutter App
+  participant Adyen as Adyen API
+  participant Klarna as Klarna Service
+  Note over App, Klarna: Klarna Payment Integration Flow
+  App ->>+ Adyen: POST /payments
+  Note right of App: Payload: {<br/>  amount: {...},<br/>  paymentMethod: {<br/>    type: "klarna"<br/>  },<br/>  returnUrl: "app://klarna",<br/>  merchantAccount: "...",<br/>  reference: "..."<br/>}
+  Adyen ->>- App: Payment Response
+  Note left of Adyen: Payload: {<br/>  resultCode: "RedirectShopper",<br/>  paymentData: "...", action: {type: "sdk",sdkData: {token: "clientToken"}  }}
+  App ->>+ Klarna: Initialize klarna payment
+  Note right of App: Payload: {<br/>  clientToken: "...",<br/>  returnURL: "app://klarna",<br/>  environment: "staging",<br/>  region: "eu",<br/>  category: "klarna"<br/>}
+  Klarna ->> Klarna: Klarna payment proccessing
+  Klarna ->>- App: Authorization Result
+  Note left of Klarna: Event: finishKlarna<br/>Payload: {<br/>  authToken: "...",<br/>  approved: true<br/>}
+  App ->>+ Adyen: POST /payments/details
+  Note right of App: Payload: {<br/>  paymentData: "...",<br/>  details: { token: "authToken" }<br>}
+  Adyen ->>- App: Final Payment Result
+  Note left of Adyen: Payload: {<br/>  resultCode: "Authorised",<br/>  pspReference: "...",<br/>  merchantReference: "..."<br/>}
+  alt Payment Error
+    Klarna ->> App: Error Event
+    Note left of Klarna: Event: errorKlarna<br/>Payload: {<br/>  message: "Error details"<br/>}
+    App ->> Adyen: POST /payments/details
+    Note right of App: Payload: {<br/>  paymentData: "...",<br/>  details: {<br/>    errorCode: "..."<br/>  }<br/>}
+    Adyen ->> App: Error Response
+    Note left of Adyen: Payload: {<br/>  resultCode: "Refused",<br/>  refusalReason: "..."<br/>}
+  end
+  Adyen ->> App: Additional Action
+  Note left of Adyen: Payload: { resultCode: "ChallengeShopper",<br/>  action: {<br/>    type: "redirect",<br/> url: "..." }<br/>}
+  App ->> Klarna: Handle Redirect
+  Note right of App: Event: klarnaRedirect
+  Klarna ->> App: Redirect Complete
+  Note left of Klarna: Event: klarnaEvent<br/>Payload: { params: {  name: "redirect_complete" } }
+  App ->> Adyen: POST /payments/details
+  Note right of App: Payload: {<br/>  paymentData: "...",<br/>  details: { redirectResult: "..." }<br/>}
+
+```
+
 ## Component Details
 
 ### Key Components

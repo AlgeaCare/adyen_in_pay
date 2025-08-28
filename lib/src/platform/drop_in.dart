@@ -18,6 +18,7 @@ class DropInPlatform {
     bool ignoreGooglePay = false,
     String? webURL,
     PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
+    CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
   }) async => dropInPlatform(
     context: context,
     client: client,
@@ -32,6 +33,7 @@ class DropInPlatform {
     paymentInformation: paymentInformation,
     widgetChildCloseForWeb: widgetChildCloseForWeb,
     webURL: webURL,
+    customPaymentConfigurationWidget: customPaymentConfigurationWidget,
   );
 }
 

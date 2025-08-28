@@ -18,6 +18,10 @@ class KlarnaPaymentWidget extends StatefulWidget {
     this.onKlarnaFinished,
     this.onKlarnaEvent,
     this.category = 'klarna',
+    this.initializationText = 'Initializing Klarna Payment...',
+    this.processingText = 'Payment is processing...',
+    this.initializationWidget,
+    this.processingWidget,
   });
 
   final String clientToken;
@@ -31,6 +35,10 @@ class KlarnaPaymentWidget extends StatefulWidget {
   final Function(Map<String, dynamic>)? onKlarnaError;
   final Function(String? authToken, bool approved)? onKlarnaFinished;
   final Function(Map<String, dynamic>)? onKlarnaEvent;
+  final String initializationText;
+  final String processingText;
+  final Widget? initializationWidget;
+  final Widget? processingWidget;
   static const String viewType = 'de.bloomwell/klarna_pay';
 
   @override
@@ -94,19 +102,19 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
               valueListenable: _isKlarnaStarted,
               builder: (context, isKlarnaStarted, child) {
                 if (isLoading && !isKlarnaStarted) {
-                  return Container(
+                  return widget.initializationWidget ?? Container(
                     color: Colors.white.withValues(alpha: 0.9),
-                    child: const Center(
+                    child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(
+                          const CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
-                            'Initializing Klarna Payment...',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            widget.initializationText,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
@@ -124,19 +132,19 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
           valueListenable: _isProcessingPayment,
           builder: (context, isProcessingPayment, child) {
             if (isProcessingPayment) {
-              return Container(
+              return widget.processingWidget ?? Container(
                 color: Colors.white.withValues(alpha: 0.9),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(
+                      const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
-                        'Payment is processing...',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        widget.processingText,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -203,14 +211,16 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
     switch (call.method) {
       case 'initKlarna':
         _isLoading.value = false;
+        _isProcessingPayment.value = true;
         break;
 
       case 'errorKlarna':
         final errorData = call.arguments as Map<String, dynamic>;
         _errorMessage.value = errorData['message'] ?? 'Unknown error occurred';
         _isLoading.value = false;
+        _isProcessingPayment.value = false;
         widget.onKlarnaError?.call(errorData);
-         widget.onKlarnaClosed?.call();
+        widget.onKlarnaClosed?.call();
         break;
 
       case 'finishKlarna':

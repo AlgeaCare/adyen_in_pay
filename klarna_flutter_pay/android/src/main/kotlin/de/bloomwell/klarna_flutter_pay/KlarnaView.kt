@@ -80,10 +80,7 @@ class KlarnaView(
         klarnaViewPayment!!.eventHandler = this
 
         // Configure Klarna payment view
-        klarnaViewPayment!!.region = when(argsMap["region"] as? String) {
-            "EU" -> KlarnaRegion.EU
-            else -> KlarnaRegion.EU
-        }
+        klarnaViewPayment!!.region = KlarnaRegion.EU
         klarnaViewPayment!!.category = argsMap["category"] as? String ?: "klarna"
         klarnaViewPayment!!.environment = when(argsMap["environment"] as? String) {
             "test", "staging" -> KlarnaEnvironment.STAGING
@@ -151,9 +148,17 @@ class KlarnaView(
         authToken: String?,
         finalizedRequired: Boolean?
     ) {
-        if(approved){
-            view.finalize(sessionData = authToken)
-        }
+
+        view.finalize(sessionData = authToken)
+
+        /*else {
+            sendEventToFlutter(
+                "finishKlarna", mapOf(
+                    "approved" to false,
+                    "authToken" to ""
+                )
+            )
+        }*/
     }
 
     override fun onErrorOccurred(

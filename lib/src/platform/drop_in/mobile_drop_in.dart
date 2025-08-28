@@ -1,5 +1,7 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart'
+    show CustomPaymentConfigurationWidget;
 import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
@@ -18,13 +20,13 @@ void dropIn({
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
   PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool ignoreGooglePay = false,
   bool acceptOnlyCard = false,
   String? webURL,
-  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
 }) => dropInAdvancedMobile(
   context: context,
   client: client,
@@ -37,7 +39,7 @@ void dropIn({
   acceptOnlyCard: acceptOnlyCard,
   ignoreGooglePay: ignoreGooglePay,
   paymentInformation: paymentInformation,
-  topTitleBottomSheetWidget: topTitleBottomSheetWidget,
+  customPaymentConfigurationWidget: customPaymentConfigurationWidget,
 );
 
 Future<void> dropInAdvancedMobile({
@@ -52,7 +54,7 @@ Future<void> dropInAdvancedMobile({
   bool ignoreGooglePay = false,
   required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
   PaymentInformation? paymentInformation,
-  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
+  CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
   final ValueNotifier<bool> isKlarnaNotifier = ValueNotifier(false);
@@ -199,8 +201,10 @@ Future<void> dropInAdvancedMobile({
               clientToken: result.action!['sdkData']['client_token'],
               paymentData: result.action!['paymentData'],
               category: result.action!['sdkData']['payment_method_category'],
+              environment: configuration.env,
+              processingWidget: customPaymentConfigurationWidget?.processingKlarnaWidget,
+              initializationWidget: customPaymentConfigurationWidget?.initializationKlarnaWidget,
             ),
-            topTitleWidget: topTitleBottomSheetWidget,
             onRetry: () {
               debugPrint("onRetry called");
               dropInAdvancedMobile(

@@ -24,15 +24,15 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
     
     public func view() -> UIView {
         if(self.paymentView == nil){
+            let categoryKlarna = args["category"] as? String ?? "klarna"
             let returnURL = self.args["returnURL"] as! String
-            self.paymentView = KlarnaPaymentView.init(category: args["category"] as? String ?? "klarna", returnUrl: URL(string: returnURL)!,eventListener: self)
-      
-            // Add as subview
+            self.paymentView = KlarnaPaymentView.init(category: categoryKlarna, returnUrl: URL(string: returnURL)!,eventListener: self)
+            
             self.paymentView!.translatesAutoresizingMaskIntoConstraints = false
-            self.paymentView!.region = KlarnaRegion.eu
+            self.paymentView!.region = .eu
             self.paymentView!.environment = if ((self.args["environment"] as? String ) == "sandbox" || (self.args["environment"] as? String) == "staging" ) { KlarnaEnvironment.staging } else { KlarnaEnvironment.production }
             
-       
+            // Add as subview
             self.frameView.addSubview(paymentView!)
            
             // Create a height constraint that we'll update as its height changes.
@@ -62,13 +62,23 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
             self.authToken = token
             self.isApproved = approved
             paymentView.finalise()
+        }else {
+            self.sendToFlutter(method: "finishKlarna", data: [
+                "authToken": "",
+                "approved": false
+            ])
+
         }
         
        
     }
 
     func klarnaFailed(inPaymentView paymentView: KlarnaPaymentView, withError error: KlarnaPaymentError) {
-        
+        self.sendToFlutter(
+            method: "errorKlarna",data: [
+                "message": error.message,
+                   ]
+               )
     }
     func klarnaLoaded(paymentView: KlarnaPaymentView) {
         

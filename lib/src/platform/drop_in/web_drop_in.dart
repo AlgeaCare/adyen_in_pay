@@ -1,4 +1,5 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
+import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
 import 'package:flutter/widgets.dart';
 import 'package:local_storage_web/local_storage_web.dart';
@@ -18,7 +19,7 @@ void dropIn({
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
   String? webURL,
-  Widget Function(String url, Function()? onRetry)? topTitleBottomSheetWidget,
+  CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
 }) {
   if (webURL == null || webURL.isEmpty) {
     throw Exception('webURL should not be empty or null');
