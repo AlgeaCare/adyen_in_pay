@@ -208,6 +208,8 @@ Future<void> dropInAdvancedMobile({
               environment: configuration.env,
               processingWidget: customPaymentConfigurationWidget?.processingKlarnaWidget,
               initializationWidget: customPaymentConfigurationWidget?.initializationKlarnaWidget,
+              bottomSheetMaxHeightRatio:
+                  customPaymentConfigurationWidget?.bottomSheetMaxHeightRatio ?? 0.6,
             ),
             onRetry: () {
               debugPrint("onRetry called");

@@ -15,12 +15,13 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
   required Function() onRetry,
   KlarnaEnvironment environment = KlarnaEnvironment.staging,
   KlarnaPayEnum klarnaPayEnum = KlarnaPayEnum.sdk,
+  double bottomSheetMaxHeightRatio = 0.6,
 }) async {
   final result = await showModalBottomSheet<adyen.PaymentEvent>(
     context: context,
     isDismissible: false,
     isScrollControlled: true,
-    scrollControlDisabledMaxHeightRatio: 0.9,
+    scrollControlDisabledMaxHeightRatio: bottomSheetMaxHeightRatio,
     builder: (context) {
       return PopScope(
         onPopInvokedWithResult: (isPop, result) {

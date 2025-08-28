@@ -8,6 +8,7 @@ class KlarnaNativeConfiguration {
   final String environment; 
   final Widget? initializationWidget;
   final Widget? processingWidget;
+  final double bottomSheetMaxHeightRatio;
   const KlarnaNativeConfiguration({
     required this.redirectUrl,
     required this.clientToken,
@@ -16,5 +17,6 @@ class KlarnaNativeConfiguration {
     required this.environment,
     this.initializationWidget,
     this.processingWidget,
+    this.bottomSheetMaxHeightRatio = 0.6,
   });
 }
