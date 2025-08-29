@@ -64,10 +64,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
             self.isApproved = approved
             paymentView.finalise()
         }else {
-            self.sendToFlutter(method: "finishKlarna", data: [
-                "authToken": "",
-                "approved": false
-            ])
+            self.sendToFlutter(method: "closeKlarna", data: [])
 
         }
         
@@ -75,6 +72,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
     }
 
     func klarnaFailed(inPaymentView paymentView: KlarnaPaymentView, withError error: KlarnaPaymentError) {
+        print("\(error.message)")
         self.sendToFlutter(
             method: "errorKlarna",data: [
                 "message": error.message,
@@ -96,6 +94,7 @@ class KlarnaPayView:NSObject, FlutterPlatformView, KlarnaPaymentEventListener {
     func klarnaReauthorized(paymentView: KlarnaPaymentView, approved: Bool, authToken: String?) {
         
     }
+    
     
     func sendToFlutter(method:String, data:Any?) {
         methodChannel.invokeMethod(method, arguments: data)

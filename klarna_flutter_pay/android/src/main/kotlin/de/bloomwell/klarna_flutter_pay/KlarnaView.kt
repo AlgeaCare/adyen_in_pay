@@ -141,7 +141,7 @@ class KlarnaView(
             )
         )
         view.load(null)
-        view.authorize(true, null)
+
     }
     override fun onAuthorized(
         view: KlarnaPaymentView,
@@ -182,12 +182,16 @@ class KlarnaView(
         authToken: String?
     ) {
         Log.d("authToken", authToken ?: "")
-        sendEventToFlutter(
-            "finishKlarna", mapOf(
-                "approved" to approved,
-                "authToken" to authToken
-            )
-        )
+        when{
+            !approved && authToken.isNullOrEmpty() ->sendEventToFlutter("closeKlarna",null)
+             else ->  sendEventToFlutter(
+                 "finishKlarna", mapOf(
+                     "approved" to approved,
+                     "authToken" to authToken
+                 )
+             )
+        }
+
     }
 
 
@@ -199,6 +203,7 @@ class KlarnaView(
     }
 
     override fun onLoaded(view: KlarnaPaymentView) {
+        view.authorize(true, null)
     }
 
     override fun onReauthorized(

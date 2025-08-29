@@ -229,7 +229,9 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
         widget.onKlarnaError?.call(errorData);
         widget.onKlarnaClosed?.call();
         break;
-
+      case 'closeKlarna':
+        widget.onKlarnaClosed?.call();
+        break;
       case 'finishKlarna':
         _isProcessingPayment.value = true;
         final finishData = Map<String, dynamic>.from(call.arguments);
