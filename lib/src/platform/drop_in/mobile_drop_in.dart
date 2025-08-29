@@ -120,21 +120,18 @@ Future<void> dropInAdvancedMobile({
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
-      merchantAccount:
-          paymentMethods.googlePayConfiguration?["merchantId"] ??
-          configuration.adyenKeysConfiguration.googleMerchantId,
+      merchantAccount: configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
       allowedCardNetworks: paymentMethods.googlePayBrandsConfiguration,
-      merchantInfo: MerchantInfo(
-        merchantName:
-            paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
-            configuration.adyenKeysConfiguration.merchantName,
-        merchantId:
-            configuration
-                .adyenKeysConfiguration
-                .googleMerchantId, // paymentMethods.googlePayConfiguration?["merchantId"],
-      ),
+      // merchantInfo: MerchantInfo(
+      //   merchantName:
+      //       paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
+      //       configuration.adyenKeysConfiguration.merchantName,
+      //   merchantId:
+      //       paymentMethods
+      //           .googlePayConfiguration?["merchantId"], //configuration.adyenKeysConfiguration.googleMerchantId, // ,
+      // ),
     ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
