@@ -14,19 +14,17 @@ class PaymentMethodResponse {
   }
   Map<String, dynamic> onlyCards() {
     return {
-      "paymentMethods": [
-        paymentMethods.firstWhere((e) => e.type == 'scheme').toAllMap(),
-      ],
+      "paymentMethods": [paymentMethods.firstWhere((e) => e.type == 'scheme').toAllMap()],
     };
   }
 
-  Map<String, String>? get applePayConfiguration => paymentMethods
-      .firstWhereOrNull((e) => e.type.toLowerCase() == 'applepay')
-      ?.configuration;
+  Map<String, String>? get applePayConfiguration =>
+      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'applepay')?.configuration;
 
-  Map<String, String>? get googlePayConfiguration => paymentMethods
-      .firstWhereOrNull((e) => e.type.toLowerCase() == 'googlepay')
-      ?.configuration;
+  Map<String, String>? get googlePayConfiguration =>
+      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'googlepay')?.configuration;
+  List<String>? get googlePayBrandsConfiguration =>
+      paymentMethods.firstWhereOrNull((e) => e.type.toLowerCase() == 'googlepay')?.brand;
 
   List<String> onlyCardBrands() {
     return <String>[
@@ -90,11 +88,7 @@ class PaymentMethodResponse {
 
   Map<String, dynamic> toJson({bool ignoreGooglePay = false}) => {
     'paymentMethods': paymentMethods
-        .where(
-          (e) =>
-              e.type != 'multibanco' &&
-              (ignoreGooglePay ? e.type != 'googlepay' : true),
-        )
+        .where((e) => e.type != 'multibanco' && (ignoreGooglePay ? e.type != 'googlepay' : true))
         .map((e) => e.toJson())
         .toList(),
   };
@@ -106,12 +100,7 @@ class PaymentMethodConfig {
   final List<String>? brand;
   final Map<String, String>? configuration;
 
-  PaymentMethodConfig({
-    required this.type,
-    required this.name,
-    this.brand,
-    this.configuration,
-  });
+  PaymentMethodConfig({required this.type, required this.name, this.brand, this.configuration});
 
   factory PaymentMethodConfig.fromJson(Map<String, dynamic> json) {
     return PaymentMethodConfig(
@@ -121,9 +110,7 @@ class PaymentMethodConfig {
           ? (json['brands'] as List).map((e) => e.toString()).toList()
           : null,
       configuration: json['configuration'] is Map
-          ? (json['configuration'] as Map).map(
-              (key, value) => MapEntry(key, value.toString()),
-            )
+          ? (json['configuration'] as Map).map((key, value) => MapEntry(key, value.toString()))
           : null,
     );
   }

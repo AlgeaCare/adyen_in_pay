@@ -121,11 +121,11 @@ Future<void> dropInAdvancedMobile({
     ),
     googlePayConfiguration: GooglePayConfiguration(
       merchantAccount:
-          //paymentMethods.googlePayConfiguration?["merchantId"] ??
+          paymentMethods.googlePayConfiguration?["merchantId"] ??
           configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
-
+      allowedCardNetworks: paymentMethods.googlePayBrandsConfiguration,
       merchantInfo: MerchantInfo(
         merchantName:
             paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
