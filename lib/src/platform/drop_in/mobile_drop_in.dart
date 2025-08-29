@@ -126,12 +126,15 @@ Future<void> dropInAdvancedMobile({
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
 
-      // merchantInfo: MerchantInfo(
-      //   merchantName:
-      //       paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
-      //       configuration.adyenKeysConfiguration.merchantName,
-      //   //merchantId: paymentMethods.googlePayConfiguration?["merchantId"],
-      // ),
+      merchantInfo: MerchantInfo(
+        merchantName:
+            paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
+            configuration.adyenKeysConfiguration.merchantName,
+        merchantId:
+            configuration
+                .adyenKeysConfiguration
+                .googleMerchantId, // paymentMethods.googlePayConfiguration?["merchantId"],
+      ),
     ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
