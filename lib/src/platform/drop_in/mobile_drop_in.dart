@@ -120,9 +120,7 @@ Future<void> dropInAdvancedMobile({
       allowOnboarding: true,
     ),
     googlePayConfiguration: GooglePayConfiguration(
-      merchantAccount:
-          paymentMethods.googlePayConfiguration?["merchantId"] ??
-          configuration.adyenKeysConfiguration.googleMerchantId,
+      merchantAccount: configuration.adyenKeysConfiguration.googleMerchantId,
       googlePayEnvironment:
           configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
       allowedCardNetworks: paymentMethods.googlePayBrandsConfiguration,
