@@ -7,6 +7,7 @@ class CustomPaymentConfigurationWidget {
   Widget? initializationKlarnaWidget;
   KlarnaPayEnum klarnaPayEnum;
   double bottomSheetMaxHeightRatio;
+  
   CustomPaymentConfigurationWidget({
     this.processingKlarnaWidget,
     this.initializationKlarnaWidget,

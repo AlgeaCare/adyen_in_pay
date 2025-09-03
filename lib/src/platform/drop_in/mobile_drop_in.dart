@@ -1,7 +1,5 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart'
-    show CustomPaymentConfigurationWidget;
 import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
@@ -119,22 +117,6 @@ Future<void> dropInAdvancedMobile({
       ),
       allowOnboarding: true,
     ),
-    // googlePayConfiguration: GooglePayConfiguration(
-    //   merchantAccount:
-    //       paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
-    //       configuration.adyenKeysConfiguration.googleMerchantId,
-    //   googlePayEnvironment:
-    //       configuration.env == 'test' ? GooglePayEnvironment.test : GooglePayEnvironment.production,
-    //   allowedCardNetworks: paymentMethods.googlePayBrandsConfiguration,
-    //   merchantInfo: MerchantInfo(
-    //     merchantName:
-    //         paymentMethods.googlePayConfiguration?["getwayMerchantId"] ??
-    //         configuration.adyenKeysConfiguration.merchantName,
-    //     merchantId:
-    //         paymentMethods.googlePayConfiguration?["merchantId"] ??
-    //         configuration.adyenKeysConfiguration.googleMerchantId, // ,
-    //   ),
-    // ),
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
@@ -252,8 +234,10 @@ Future<void> dropInAdvancedMobile({
             case Error():
               onPaymentResult(PaymentError(reason: resultKlarna.errorMessage));
           }
-        } else if (result.action?['paymentMethodType']?.contains('paybybank') == true &&
-            result.actionType == 'redirect') {
+        } else if ((result.action?['paymentMethodType']?.contains('paybybank') == true &&
+                result.actionType == 'redirect') ||
+            (result.action?['paymentMethodType']?.contains('klarna') == true &&
+                customPaymentConfigurationWidget?.klarnaPayEnum == KlarnaPayEnum.redirect)) {
           isKlarnaNotifier.value = true;
           await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
