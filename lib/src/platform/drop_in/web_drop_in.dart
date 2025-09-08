@@ -56,6 +56,7 @@ Future<void> dropInAdvancedWeb({
     Uri.parse(webURL),
     mode: LaunchMode.externalApplication,
     browserConfiguration: const BrowserConfiguration(showTitle: true),
+    webOnlyWindowName: '_self',
   );
   // return showDialog(
   //   context: context,
