@@ -1,5 +1,4 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
 import 'package:flutter/widgets.dart';
 import 'package:local_storage_web/local_storage_web.dart';
@@ -53,7 +52,11 @@ Future<void> dropInAdvancedWeb({
   platformListenToState('pay-$reference-result', (Map input) {
     onPaymentResult(PaymentAdvancedFinished(resultCode: resultCodeFromString(input['resultCode'])));
   });
-  await launchUrl(Uri.parse(webURL));
+  await launchUrl(
+    Uri.parse(webURL),
+    mode: LaunchMode.externalApplication,
+    browserConfiguration: const BrowserConfiguration(showTitle: true),
+  );
   // return showDialog(
   //   context: context,
   //   builder: (context) {
