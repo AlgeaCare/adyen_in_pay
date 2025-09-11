@@ -1,5 +1,6 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:local_storage_web/local_storage_web.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,7 +57,7 @@ Future<void> dropInAdvancedWeb({
     Uri.parse(webURL),
     mode: LaunchMode.externalApplication,
     browserConfiguration: const BrowserConfiguration(showTitle: true),
-    webOnlyWindowName: '_self',
+    webOnlyWindowName: defaultTargetPlatform == TargetPlatform.iOS ? '_self' : null,
   );
   // return showDialog(
   //   context: context,
