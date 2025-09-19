@@ -1,6 +1,7 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay_example/src/app_env.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 
 class DropInWidget extends StatefulWidget {
@@ -118,6 +119,14 @@ class _DropInWidgetState extends State<DropInWidget> {
                             if (!context.mounted) {
                               return;
                             }
+                            final returnURL = switch (defaultTargetPlatform) {
+                              TargetPlatform.android =>
+                                'adyencheckout://com.example.adyen_in_pay_example/adyenPayment',
+                              TargetPlatform.iOS =>
+                                'com.mydomain.adyencheckout://com.example.adyenExample',
+                              _ =>
+                                'https://app.staging.bloomwell.de/payment_status?merchantReference=${reference.value}',
+                            };
                             DropInPlatform.dropInAdvancedFlowPlatform(
                               context: context,
                               webURL:
@@ -135,13 +144,14 @@ class _DropInWidgetState extends State<DropInWidget> {
                                   googleMerchantId: 'BCR2DN7TRDA45NTJ',
                                 ),
                                 env: 'test',
-                                redirectURL:
-                                    'https://app.staging.bloomwell.de/payment_status?merchantReference=${reference.value}',
+                                redirectURL: returnURL,
+                                //'https://app.staging.bloomwell.de/payment_status?merchantReference=${reference.value}',
                               ),
                               onConfigurationStatus: (status) {
                                 configurationStatus.value = status;
                               },
                               customPaymentConfigurationWidget: CustomPaymentConfigurationWidget(
+                                klarnaPayEnum: KlarnaPayEnum.redirect,
                                 processingKlarnaWidget: const Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,

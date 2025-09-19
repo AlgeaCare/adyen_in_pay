@@ -169,7 +169,8 @@ Future<void> dropInAdvancedMobile({
           userAgent: defaultTargetPlatform == TargetPlatform.android ? userAgentStr : null,
         );
         if (result.action?['paymentMethodType']?.contains('klarna') == true &&
-            customPaymentConfigurationWidget?.klarnaPayEnum != KlarnaPayEnum.redirect) {
+            customPaymentConfigurationWidget?.klarnaPayEnum != KlarnaPayEnum.redirect &&
+            customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
           debugPrint("result: ${result.action?.toString()}");
           // setPaymentData(result.action?['paymentData']);
 
@@ -237,7 +238,8 @@ Future<void> dropInAdvancedMobile({
         } else if ((result.action?['paymentMethodType']?.contains('paybybank') == true &&
                 result.actionType == 'redirect') ||
             (result.action?['paymentMethodType']?.contains('klarna') == true &&
-                customPaymentConfigurationWidget?.klarnaPayEnum == KlarnaPayEnum.redirect)) {
+                    customPaymentConfigurationWidget?.klarnaPayEnum == KlarnaPayEnum.redirect) &&
+                customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
           isKlarnaNotifier.value = true;
           await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
@@ -251,7 +253,8 @@ Future<void> dropInAdvancedMobile({
         }
 
         if (result.actionType == 'threeDS2' ||
-            // result.actionType == 'redirect' ||
+            (result.actionType == 'redirect' &&
+                customPaymentConfigurationWidget?.defaultKlarnaAction != false) ||
             result.actionType == 'qrCode' ||
             result.actionType == 'await' ||
             result.actionType == 'sdk') {
