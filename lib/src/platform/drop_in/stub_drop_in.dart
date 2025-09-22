@@ -1,5 +1,4 @@
 import 'package:adyen_in_pay/adyen_in_pay.dart';
-import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:flutter/material.dart' show BuildContext, Widget;
 
 void dropIn({
@@ -18,3 +17,5 @@ void dropIn({
   bool ignoreGooglePay = false,
   String? webURL,
 }) => UnimplementedError();
+
+Future<void> closeAdyenDropIn() => throw UnimplementedError();

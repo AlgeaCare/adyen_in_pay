@@ -79,3 +79,5 @@ Future<void> dropInAdvancedWeb({
   //   },
   // );
 }
+
+Future<void> closeAdyenDropIn() async {}
