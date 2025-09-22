@@ -35,6 +35,7 @@ class DropInPlatform {
     webURL: webURL,
     customPaymentConfigurationWidget: customPaymentConfigurationWidget,
   );
+  static Future<void> dropInAdvancedFlowPlatformClose() => dropInPlatformClose();
 }
 
 String? get paymentData => DropInPlatform._paymentData;
