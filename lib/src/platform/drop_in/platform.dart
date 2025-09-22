@@ -41,4 +41,4 @@ void dropInPlatform({
   paymentInformation: paymentInformation,
   customPaymentConfigurationWidget: customPaymentConfigurationWidget,
 );
-void dropInPlatformClose() => closeAdyenDropIn();
+Future<void> dropInPlatformClose() => closeAdyenDropIn();
