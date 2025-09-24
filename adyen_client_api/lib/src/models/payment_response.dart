@@ -1,17 +1,20 @@
 import 'package:payment_client_api/src/models/session_response.dart';
 
 enum PaymentResultCode {
-  authorised,
-  refused,
-  redirectShopper,
-  identifyShopper,
-  challengeShopper,
-  pending,
-  received,
-  presentToShopper,
-  cancelled,
-  error,
-  paid;
+  authorised('Authorised'),
+  refused('Refused'),
+  redirectShopper('RedirectShopper'),
+  identifyShopper('IdentifyShopper'),
+  challengeShopper('ChallengeShopper'),
+  pending('Pending'),
+  received('Received'),
+  presentToShopper('PresentToShopper'),
+  cancelled('Cancelled'),
+  error('Error'),
+  paid('Paid');
+
+  const PaymentResultCode(this.label);
+  final String label;
 
   factory PaymentResultCode.fromString(String value) {
     return PaymentResultCode.values.firstWhere(

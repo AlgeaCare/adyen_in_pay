@@ -264,9 +264,9 @@ Future<void> dropInAdvancedMobile({
         if (result.resultCode == PaymentResultCode.authorised ||
             result.resultCode == PaymentResultCode.received ||
             result.resultCode == PaymentResultCode.paid) {
-          return Finished(resultCode: result.resultCode.toString());
+          return Finished(resultCode: result.resultCode.label);
         }
-        return Error(errorMessage: result.resultCode.toString());
+        return Error(errorMessage: result.resultCode.label);
       },
       onAdditionalDetails: (paymentResult) async {
         final data = <String, dynamic>{};
@@ -278,9 +278,9 @@ Future<void> dropInAdvancedMobile({
             result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
             result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
             result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
-          return Finished(resultCode: '201');
+          return Finished(resultCode: result.resultCode);
         }
-        return Error(errorMessage: result.resultCode.toString());
+        return Error(errorMessage: result.resultCode);
       },
     ),
   );
@@ -293,4 +293,5 @@ Future<void> dropInAdvancedMobile({
 
   return Future.delayed(const Duration(seconds: 1));
 }
+
 Future<void> closeAdyenDropIn() => AdyenCheckout.advanced.stopDropIn();

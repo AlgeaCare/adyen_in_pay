@@ -115,8 +115,7 @@ void main() {
 
         dioAdapter.onPost(
           '/make-payment',
-          data: paymentInformation.toPaymentDataJson()
-            ..addAll(paymentRequest.toJson()),
+          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
           (server) => server.reply(
             200,
             mockResponse,
@@ -125,10 +124,7 @@ void main() {
           ),
         );
 
-        final response = await adyenClient.makePayment(
-          paymentInformation,
-          paymentRequest.toJson(),
-        );
+        final response = await adyenClient.makePayment(paymentInformation, paymentRequest.toJson());
 
         expect(response, isA<PaymentResponse>());
         expect(response.resultCode, equals(PaymentResultCode.authorised));
@@ -175,8 +171,7 @@ void main() {
         );
         dioAdapter.onPost(
           '/make-payment',
-          data: paymentInformation.toPaymentDataJson()
-            ..addAll(paymentRequest.toJson()),
+          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
           (server) => server.reply(
             500,
             {'message': 'Server Error'},
@@ -186,10 +181,7 @@ void main() {
         );
 
         expect(
-          () => adyenClient.makePayment(
-            paymentInformation,
-            paymentRequest.toJson(),
-          ),
+          () => adyenClient.makePayment(paymentInformation, paymentRequest.toJson()),
           throwsException,
         );
       });
@@ -205,6 +197,18 @@ void main() {
     expect(paymentResponse.amount?.value, 1000);
     expect(paymentResponse.amount?.currency, 'EUR');
     expect(paymentResponse.merchantReference, equals('A32814019647000'));
+  });
+  test('test parse apple payment response 3', () async {
+    final paymentResponse = PaymentResponse.fromJson(mockResponse3);
+    expect(paymentResponse, isA<PaymentResponse>());
+    expect(paymentResponse.resultCode, PaymentResultCode.authorised);
+    expect(paymentResponse.resultCode.label, PaymentResultCode.authorised.label);
+    expect(paymentResponse.pspReference, equals('C8T2BNG6NVTV7VV5'));
+    expect(paymentResponse.amount, isA<SessionAmount>());
+    expect(paymentResponse.amount?.value, isA<int>());
+    expect(paymentResponse.amount?.value, 1995);
+    expect(paymentResponse.amount?.currency, 'EUR');
+    expect(paymentResponse.merchantReference, equals('A10549107469739'));
   });
 }
 
@@ -226,5 +230,18 @@ final mockResponse2 = {
   "merchantReference": "A32814019647000",
   "paymentMethod": {"brand": "visa_applepay", "type": "applepay"},
   "pspReference": "WGXGLBM9SRW6VLG3",
+  "resultCode": "Authorised",
+};
+
+final mockResponse3 = {
+  "additionalData": {
+    "paymentMethod": "mc_applepay",
+    "networkTxReference": "Z0CEOTKJ00924",
+    "isCardCommercial": "unknown",
+  },
+  "amount": {"currency": "EUR", "value": 1995},
+  "merchantReference": "A10549107469739",
+  "paymentMethod": {"brand": "mc_applepay", "type": "applepay"},
+  "pspReference": "C8T2BNG6NVTV7VV5",
   "resultCode": "Authorised",
 };
