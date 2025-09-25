@@ -13,6 +13,7 @@ class PaymentInformation {
   final String? invoiceUrl;
   final String zid;
   final String? hsId;
+  final String? preferredMethod;
   final List<AdyenBasket> baskets;
   final int amountDue;
   final PaymentProvider provider;
@@ -41,6 +42,7 @@ class PaymentInformation {
     this.invoiceUrl,
     required this.zid,
     this.hsId,
+    this.preferredMethod,
     required this.baskets,
     required this.amountDue,
     required this.provider,
@@ -111,6 +113,7 @@ class PaymentInformation {
       invoiceUrl: json['invoice_url'],
       zid: json['zid'],
       hsId: json['hs_id'],
+      preferredMethod: json['preferred_method'],
       amountDue: json['amount_due'],
       provider: PaymentProvider.values.firstWhere(
         (e) => e.label == json['provider'],
@@ -149,6 +152,7 @@ class PaymentInformation {
       'invoice_url': invoiceUrl,
       'zid': zid,
       'hs_id': hsId,
+      'preferred_method': preferredMethod,
       'amount_due': amountDue,
       'provider': provider,
       'created_at': createdAt,
@@ -197,6 +201,7 @@ class PaymentInformation {
         other.invoiceUrl == invoiceUrl &&
         other.zid == zid &&
         other.hsId == hsId &&
+        other.preferredMethod == preferredMethod &&
         other.amountDue == amountDue &&
         other.provider == provider &&
         _listEquals(other.baskets, baskets) &&
@@ -226,6 +231,7 @@ class PaymentInformation {
       invoiceUrl,
       zid,
       hsId,
+      preferredMethod,
       amountDue,
       provider,
       Object.hashAll(baskets),
