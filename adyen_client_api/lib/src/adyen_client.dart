@@ -153,12 +153,12 @@ class AdyenClient {
 
   Future<PatchPaymentResponse> updatePreferredMethod(
     String paymentId,
-    String preferredPayment,
+    String preferredMethod,
   ) async {
     try {
       final response = await dio.patch<Map<String, dynamic>>(
         '/$paymentId/preferred-method',
-        data: {'preferredPayment': preferredPayment},
+        data: {'preferredMethod': preferredMethod},
       );
 
       if (response.statusCode == 200 && response.data != null) {
