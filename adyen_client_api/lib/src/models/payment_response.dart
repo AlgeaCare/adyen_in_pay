@@ -37,10 +37,17 @@ class DetailPaymentResponse {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'resultCode': resultCode,
-      if (pspReference != null) 'pspReference': pspReference,
-    };
+    return {'resultCode': resultCode, if (pspReference != null) 'pspReference': pspReference};
+  }
+}
+
+class PatchPaymentResponse {
+  final bool success;
+
+  PatchPaymentResponse({required this.success});
+
+  factory PatchPaymentResponse.fromJson(Map<String, dynamic> json) {
+    return PatchPaymentResponse(success: json['success'] as bool);
   }
 }
 

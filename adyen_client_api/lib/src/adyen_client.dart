@@ -150,4 +150,26 @@ class AdyenClient {
       throw Exception('Error processing payment: $e,$trace');
     }
   }
+
+  Future<PatchPaymentResponse> updatePreferredMethod(
+    String paymentId,
+    String preferredPayment,
+  ) async {
+    try {
+      final response = await dio.patch<Map<String, dynamic>>(
+        '/$paymentId/preferred-method',
+        data: {'preferredPayment': preferredPayment},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return PatchPaymentResponse.fromJson(response.data!);
+      } else {
+        throw Exception('Failed to process payment: ${response.statusCode}');
+      }
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
+      throw Exception('Error processing payment: $e,$trace');
+    }
+  }
 }
