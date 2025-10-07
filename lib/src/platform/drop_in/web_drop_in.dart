@@ -59,25 +59,6 @@ Future<void> dropInAdvancedWeb({
     browserConfiguration: const BrowserConfiguration(showTitle: true),
     webOnlyWindowName: defaultTargetPlatform == TargetPlatform.iOS ? '_self' : null,
   );
-  // return showDialog(
-  //   context: context,
-  //   builder: (context) {
-  //     return SizedBox(
-  //       width: MediaQuery.sizeOf(context).width,
-  //       height: MediaQuery.sizeOf(context).height,
-  //       child: DropInWebWidget(
-  //         client: client,
-  //         amount: amount,
-  //         reference: reference,
-  //         configuration: configuration,
-  //         onPaymentResult: onPaymentResult,
-  //         acceptOnlyCard: acceptOnlyCard,
-  //         widgetChildCloseForWeb: widgetChildCloseForWeb,
-  //         sizeWeb: sizeWeb,
-  //       ),
-  //     );
-  //   },
-  // );
 }
 
 Future<void> closeAdyenDropIn() async {}
