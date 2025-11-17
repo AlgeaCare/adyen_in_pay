@@ -121,7 +121,7 @@ class _DropInWidgetState extends State<DropInWidget> {
                             }
                             final returnURL = switch (defaultTargetPlatform) {
                               TargetPlatform.android =>
-                                'adyencheckout://com.example.adyen_in_pay_example/adyenPayment',
+                                'adyencheckout://com.example.adyen_in_pay_example',
                               TargetPlatform.iOS =>
                                 'com.mydomain.adyencheckout://com.example.adyenExample',
                               _ =>
@@ -336,7 +336,9 @@ class _ConfigurationInputState extends State<ConfigurationInputWidget> {
   final _baseUrlController =
       TextEditingController(text: 'https://api.payments.staging.bloomwell.de/v1');
   final _invoiceIdController = TextEditingController(text: 'A06733043421394');
-  final _tokenController = TextEditingController(text: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlhXSGlYLXpzSWcwYW5KTzFwc1VpWSJ9.eyJodHRwczovL2dydWVuZWJyaXNlLmRlL2VtYWlsIjoic2FiaW5hLmxhdXRoK3N0ZzE0QGJsb29td2VsbC5kZSIsImh0dHBzOi8vZ3J1ZW5lYnJpc2UuZGUvZmlyc3RfbmFtZSI6IlNhYmluYSIsImh0dHBzOi8vZ3J1ZW5lYnJpc2UuZGUvbGFzdF9uYW1lIjoiVmllcnplaG4iLCJodHRwczovL2xvZ2luLmFsZ2VhY2FyZS5jb20vemlkIjoiWjQ5MTk1OTg0ODI1MjE3IiwiaXNzIjoiaHR0cHM6Ly9hbGdlYWNhcmUtc3RhZ2luZy5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjgxMjA5NDQ5MWI4MjIzNGZmOWRiNGM3IiwiYXVkIjpbImh0dHBzOi8vYWxnZWFjYXJlLXN0YWdpbmcuZXUuYXV0aDAuY29tL2FwaS92Mi8iLCJodHRwczovL2FsZ2VhY2FyZS1zdGFnaW5nLmV1LmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTg3MDMyNTgsImV4cCI6MTc1ODg3NjA1OCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCByZWFkOmN1cnJlbnRfdXNlciB1cGRhdGU6Y3VycmVudF91c2VyX21ldGFkYXRhIGRlbGV0ZTpjdXJyZW50X3VzZXJfbWV0YWRhdGEgY3JlYXRlOmN1cnJlbnRfdXNlcl9tZXRhZGF0YSBjcmVhdGU6Y3VycmVudF91c2VyX2RldmljZV9jcmVkZW50aWFscyBkZWxldGU6Y3VycmVudF91c2VyX2RldmljZV9jcmVkZW50aWFscyB1cGRhdGU6Y3VycmVudF91c2VyX2lkZW50aXRpZXMgb2ZmbGluZV9hY2Nlc3MiLCJndHkiOiJwYXNzd29yZCIsImF6cCI6Ik54Nkk0d2FLYWF3WUl2WWI2czl3cExyZGpFTGdkcmtFIn0.ZS60k9jZg7kbsE9gM1Okyr5Nx1u2uNoqaNTc-Xf0qXI_wIb45meJa2rR3p8v1_LIcHPvFyx0e28mCumnOIT0LEvGdwtzezCJNcnsN5MdwC8GiB3lTSFRup7m9iF-XAEPliBJZGbrq1zsj45j0cCAG5W1rSjxfI4uwcNLYaKChCg7DQdVtCY-nRPy4eQYG2KcY3bHoOFQPBEhkHafvR9OoOMheWOs6W-1Zjx7azJKQFBdswumd5R8fL6ZzYVKZM3F3jkpdvr7c7Ivbnaq2cW5RC1ia_qQzTBfHyhy-PZ8-Jr-WmO4fnEpk7osmaAjLunPdsXsFDjzbTia71r4h-mEkA');
+  final _tokenController = TextEditingController(
+      text:
+          'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlhXSGlYLXpzSWcwYW5KTzFwc1VpWSJ9.eyJodHRwczovL2dydWVuZWJyaXNlLmRlL2VtYWlsIjoic2FiaW5hLmxhdXRoK3N0ZzE0QGJsb29td2VsbC5kZSIsImh0dHBzOi8vZ3J1ZW5lYnJpc2UuZGUvZmlyc3RfbmFtZSI6IlNhYmluYSIsImh0dHBzOi8vZ3J1ZW5lYnJpc2UuZGUvbGFzdF9uYW1lIjoiVmllcnplaG4iLCJodHRwczovL2xvZ2luLmFsZ2VhY2FyZS5jb20vemlkIjoiWjQ5MTk1OTg0ODI1MjE3IiwiaXNzIjoiaHR0cHM6Ly9hbGdlYWNhcmUtc3RhZ2luZy5ldS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjgxMjA5NDQ5MWI4MjIzNGZmOWRiNGM3IiwiYXVkIjpbImh0dHBzOi8vYWxnZWFjYXJlLXN0YWdpbmcuZXUuYXV0aDAuY29tL2FwaS92Mi8iLCJodHRwczovL2FsZ2VhY2FyZS1zdGFnaW5nLmV1LmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTg3MDMyNTgsImV4cCI6MTc1ODg3NjA1OCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCByZWFkOmN1cnJlbnRfdXNlciB1cGRhdGU6Y3VycmVudF91c2VyX21ldGFkYXRhIGRlbGV0ZTpjdXJyZW50X3VzZXJfbWV0YWRhdGEgY3JlYXRlOmN1cnJlbnRfdXNlcl9tZXRhZGF0YSBjcmVhdGU6Y3VycmVudF91c2VyX2RldmljZV9jcmVkZW50aWFscyBkZWxldGU6Y3VycmVudF91c2VyX2RldmljZV9jcmVkZW50aWFscyB1cGRhdGU6Y3VycmVudF91c2VyX2lkZW50aXRpZXMgb2ZmbGluZV9hY2Nlc3MiLCJndHkiOiJwYXNzd29yZCIsImF6cCI6Ik54Nkk0d2FLYWF3WUl2WWI2czl3cExyZGpFTGdkcmtFIn0.ZS60k9jZg7kbsE9gM1Okyr5Nx1u2uNoqaNTc-Xf0qXI_wIb45meJa2rR3p8v1_LIcHPvFyx0e28mCumnOIT0LEvGdwtzezCJNcnsN5MdwC8GiB3lTSFRup7m9iF-XAEPliBJZGbrq1zsj45j0cCAG5W1rSjxfI4uwcNLYaKChCg7DQdVtCY-nRPy4eQYG2KcY3bHoOFQPBEhkHafvR9OoOMheWOs6W-1Zjx7azJKQFBdswumd5R8fL6ZzYVKZM3F3jkpdvr7c7Ivbnaq2cW5RC1ia_qQzTBfHyhy-PZ8-Jr-WmO4fnEpk7osmaAjLunPdsXsFDjzbTia71r4h-mEkA');
 
   @override
   void dispose() {
@@ -527,20 +529,22 @@ class _LoadInformationState extends State<LoadInformation> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      height: 200,
-      child: Dialog(
-        child: FutureBuilder(
-          future: future,
-          builder: (context, snapshot) {
-            return const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          },
+    return Center(
+      child: SizedBox(
+        width: 200,
+        height: 200,
+        child: Dialog(
+          child: FutureBuilder(
+            future: future,
+            builder: (context, snapshot) {
+              return const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

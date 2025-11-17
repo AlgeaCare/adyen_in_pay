@@ -25,7 +25,11 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
       ),
-      home: const Home(),
+      routes: {
+        '/adyenPayment': (context) => const Home(),
+      },
+      initialRoute: '/adyenPayment',
+      // home: const Home(),
     );
   }
 }
@@ -78,12 +82,9 @@ class _HomeState extends State<Home> {
                       extended: expandedSideBar,
                       elevation: 12,
                       groupAlignment: expandedSideBar ? -1 : null,
-                      labelType:
-                          expandedSideBar ? null : NavigationRailLabelType.none,
+                      labelType: expandedSideBar ? null : NavigationRailLabelType.none,
                       leading: Align(
-                        alignment: expandedSideBar
-                            ? Alignment.topLeft
-                            : Alignment.topCenter,
+                        alignment: expandedSideBar ? Alignment.topLeft : Alignment.topCenter,
                         child: IconButton(
                           onPressed: () {
                             setState(() {
@@ -111,8 +112,7 @@ class _HomeState extends State<Home> {
                       onDestinationSelected: (value) {
                         drawerKey.currentState?.openEndDrawer();
                         pageController.animateToPage(value,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut);
+                            duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                       },
                     ),
                   ),
@@ -121,8 +121,7 @@ class _HomeState extends State<Home> {
               )
             : pageView;
       }),
-      drawer: MediaQuery.sizeOf(context).width > 600 &&
-              MediaQuery.sizeOf(context).width < 850
+      drawer: MediaQuery.sizeOf(context).width > 600 && MediaQuery.sizeOf(context).width < 850
           ? SizedBox(
               width: 200,
               child: NavigationRail(
@@ -142,8 +141,7 @@ class _HomeState extends State<Home> {
                 onDestinationSelected: (value) {
                   drawerKey.currentState?.openEndDrawer();
                   pageController.animateToPage(value,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut);
+                      duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                 },
               ),
             )
@@ -154,8 +152,7 @@ class _HomeState extends State<Home> {
               currentIndex: currentPage,
               onTap: (value) {
                 pageController.animateToPage(value,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut);
+                    duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
               },
               items: const [
                 BottomNavigationBarItem(

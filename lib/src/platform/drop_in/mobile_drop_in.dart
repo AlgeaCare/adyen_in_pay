@@ -59,7 +59,7 @@ Future<void> dropInAdvancedMobile({
   final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
   var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
-  String userAgentStr = 'Bloomwell/7.4.1 (Android 15; SM-A546B; a54x; arm64-v8a)';
+  String userAgentStr = 'Bloomwell/8.0.0 (Android 15; SM-A546B; a54x; arm64-v8a)';
   try {
     userAgentStr = await userAgent();
 
@@ -215,7 +215,7 @@ Future<void> dropInAdvancedMobile({
               // data.putIfAbsent('paymentData', () => paymentData);
               data["provider"] = paymentDetailbody;
               data["payment"] = {'invoiceId': reference};
-              return await client.makeDetailPayment(data);
+              return client.makeDetailPayment(data);
             },
           );
           switch (resultKlarna) {
