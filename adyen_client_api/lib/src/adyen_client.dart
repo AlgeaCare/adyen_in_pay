@@ -1,4 +1,5 @@
 import 'package:payment_client_api/src/models/common.dart';
+import 'package:payment_client_api/src/models/cost_coverage_response.dart';
 import 'package:payment_client_api/src/models/payments_page_response.dart';
 import 'package:payment_client_api/src/models/payment_information.dart';
 import 'package:payment_client_api/src/models/payment_response.dart';
@@ -170,6 +171,28 @@ class AdyenClient {
       debugPrint(trace.toString());
       debugPrint(e.toString());
       throw Exception('Error processing payment: $e,$trace');
+    }
+  }
+
+  Future<CostCoverageResponse> applyCostCoverage({
+    required String invoiceId,
+    required String costCoverageCode,
+  }) async {
+    try {
+      final response = await dio.post<Map<String, dynamic>>(
+        '/apply-cost-coverage',
+        data: {'invoice_id': invoiceId, 'cost_coverage_code': costCoverageCode},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return CostCoverageResponse.fromJson(response.data!);
+      } else {
+        throw Exception('Failed to apply cost coverage: ${response.statusCode}');
+      }
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
+      throw Exception('Error applying cost coverage: $e');
     }
   }
 }

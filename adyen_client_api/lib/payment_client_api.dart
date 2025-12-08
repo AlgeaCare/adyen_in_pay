@@ -13,3 +13,4 @@ export 'src/models/payment_provider.dart';
 export 'src/models/voucher_basket_item_type.dart';
 export 'src/models/common.dart';
 export 'src/models/transaction.dart';
+export 'src/models/cost_coverage_response.dart';
