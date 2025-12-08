@@ -37,19 +37,47 @@ AdyenPayWidget(
 )
 ```
 
-### 2. Adyen Client API Package
+### 2. Payment Client API Package
 
 A dedicated package for handling API communications with Adyen's payment services.
 
 **Features:**
-- Session management
-- Payment method handling
-- Secure API communication
+- Payment method retrieval
+- Payment processing and 3DS handling
+- Voucher code application
+- Cost coverage (insurance) support
+- Payment history with pagination
+- Preferred payment method management
 
 **Installation:**
 ```yaml
 dependencies:
-  adyen_client_api: ^latest_version
+  payment_client_api:
+    git:
+      url: https://github.com/AlgeaCare/adyen_in_pay.git
+      path: adyen_client_api
+```
+
+**Basic Usage:**
+```dart
+import 'package:payment_client_api/payment_client_api.dart';
+
+final client = AdyenClient(baseUrl: 'https://your-api.com');
+
+// Get payment info
+final info = await client.paymentInformation(invoiceId: 'INV-123');
+
+// Apply cost coverage
+final coverage = await client.applyCostCoverage(
+  invoiceId: 'INV-123',
+  costCoverageCode: 'INS-456',
+);
+
+// Apply voucher
+final voucher = await client.applyVoucher(
+  invoiceId: 'INV-123',
+  voucherCode: 'DISCOUNT20',
+);
 ```
 
 ### 3. Adyen Web Flutter Package
