@@ -34,6 +34,8 @@ mixin _$Transaction {
   String? get method => throw _privateConstructorUsedError;
   String? get pspNumber => throw _privateConstructorUsedError;
   String? get capturePspNumber => throw _privateConstructorUsedError;
+  int? get discountAmountCents => throw _privateConstructorUsedError;
+  int? get finalAmountCents => throw _privateConstructorUsedError;
   int get basketId => throw _privateConstructorUsedError;
   int? get transferId => throw _privateConstructorUsedError;
   int? get transactionId => throw _privateConstructorUsedError;
@@ -69,6 +71,8 @@ abstract class $TransactionCopyWith<$Res> {
     String? method,
     String? pspNumber,
     String? capturePspNumber,
+    int? discountAmountCents,
+    int? finalAmountCents,
     int basketId,
     int? transferId,
     int? transactionId,
@@ -103,6 +107,8 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
     Object? method = freezed,
     Object? pspNumber = freezed,
     Object? capturePspNumber = freezed,
+    Object? discountAmountCents = freezed,
+    Object? finalAmountCents = freezed,
     Object? basketId = null,
     Object? transferId = freezed,
     Object? transactionId = freezed,
@@ -161,6 +167,14 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
                 ? _value.capturePspNumber
                 : capturePspNumber // ignore: cast_nullable_to_non_nullable
                       as String?,
+            discountAmountCents: freezed == discountAmountCents
+                ? _value.discountAmountCents
+                : discountAmountCents // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            finalAmountCents: freezed == finalAmountCents
+                ? _value.finalAmountCents
+                : finalAmountCents // ignore: cast_nullable_to_non_nullable
+                      as int?,
             basketId: null == basketId
                 ? _value.basketId
                 : basketId // ignore: cast_nullable_to_non_nullable
@@ -202,6 +216,8 @@ abstract class _$$TransactionImplCopyWith<$Res>
     String? method,
     String? pspNumber,
     String? capturePspNumber,
+    int? discountAmountCents,
+    int? finalAmountCents,
     int basketId,
     int? transferId,
     int? transactionId,
@@ -235,6 +251,8 @@ class __$$TransactionImplCopyWithImpl<$Res>
     Object? method = freezed,
     Object? pspNumber = freezed,
     Object? capturePspNumber = freezed,
+    Object? discountAmountCents = freezed,
+    Object? finalAmountCents = freezed,
     Object? basketId = null,
     Object? transferId = freezed,
     Object? transactionId = freezed,
@@ -293,6 +311,14 @@ class __$$TransactionImplCopyWithImpl<$Res>
             ? _value.capturePspNumber
             : capturePspNumber // ignore: cast_nullable_to_non_nullable
                   as String?,
+        discountAmountCents: freezed == discountAmountCents
+            ? _value.discountAmountCents
+            : discountAmountCents // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        finalAmountCents: freezed == finalAmountCents
+            ? _value.finalAmountCents
+            : finalAmountCents // ignore: cast_nullable_to_non_nullable
+                  as int?,
         basketId: null == basketId
             ? _value.basketId
             : basketId // ignore: cast_nullable_to_non_nullable
@@ -328,6 +354,8 @@ class _$TransactionImpl extends _Transaction {
     this.method,
     this.pspNumber,
     this.capturePspNumber,
+    this.discountAmountCents,
+    this.finalAmountCents,
     required this.basketId,
     this.transferId,
     this.transactionId,
@@ -363,6 +391,10 @@ class _$TransactionImpl extends _Transaction {
   @override
   final String? capturePspNumber;
   @override
+  final int? discountAmountCents;
+  @override
+  final int? finalAmountCents;
+  @override
   final int basketId;
   @override
   final int? transferId;
@@ -371,7 +403,7 @@ class _$TransactionImpl extends _Transaction {
 
   @override
   String toString() {
-    return 'Transaction(id: $id, pspStatus: $pspStatus, createdAt: $createdAt, updatedAt: $updatedAt, paymentInvoiceId: $paymentInvoiceId, amount: $amount, refundAmount: $refundAmount, status: $status, transactionDate: $transactionDate, type: $type, method: $method, pspNumber: $pspNumber, capturePspNumber: $capturePspNumber, basketId: $basketId, transferId: $transferId, transactionId: $transactionId)';
+    return 'Transaction(id: $id, pspStatus: $pspStatus, createdAt: $createdAt, updatedAt: $updatedAt, paymentInvoiceId: $paymentInvoiceId, amount: $amount, refundAmount: $refundAmount, status: $status, transactionDate: $transactionDate, type: $type, method: $method, pspNumber: $pspNumber, capturePspNumber: $capturePspNumber, discountAmountCents: $discountAmountCents, finalAmountCents: $finalAmountCents, basketId: $basketId, transferId: $transferId, transactionId: $transactionId)';
   }
 
   @override
@@ -400,6 +432,10 @@ class _$TransactionImpl extends _Transaction {
                 other.pspNumber == pspNumber) &&
             (identical(other.capturePspNumber, capturePspNumber) ||
                 other.capturePspNumber == capturePspNumber) &&
+            (identical(other.discountAmountCents, discountAmountCents) ||
+                other.discountAmountCents == discountAmountCents) &&
+            (identical(other.finalAmountCents, finalAmountCents) ||
+                other.finalAmountCents == finalAmountCents) &&
             (identical(other.basketId, basketId) ||
                 other.basketId == basketId) &&
             (identical(other.transferId, transferId) ||
@@ -425,6 +461,8 @@ class _$TransactionImpl extends _Transaction {
     method,
     pspNumber,
     capturePspNumber,
+    discountAmountCents,
+    finalAmountCents,
     basketId,
     transferId,
     transactionId,
@@ -459,6 +497,8 @@ abstract class _Transaction extends Transaction {
     final String? method,
     final String? pspNumber,
     final String? capturePspNumber,
+    final int? discountAmountCents,
+    final int? finalAmountCents,
     required final int basketId,
     final int? transferId,
     final int? transactionId,
@@ -494,6 +534,10 @@ abstract class _Transaction extends Transaction {
   String? get pspNumber;
   @override
   String? get capturePspNumber;
+  @override
+  int? get discountAmountCents;
+  @override
+  int? get finalAmountCents;
   @override
   int get basketId;
   @override

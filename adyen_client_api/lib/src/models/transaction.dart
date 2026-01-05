@@ -23,6 +23,8 @@ class Transaction with _$Transaction {
     String? method,
     String? pspNumber,
     String? capturePspNumber,
+    int? discountAmountCents,
+    int? finalAmountCents,
     required int basketId,
     int? transferId,
     int? transactionId,
@@ -36,4 +38,6 @@ class Transaction with _$Transaction {
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>
       _$TransactionFromJson(json);
+
+   bool get isCostCoverage => type == 'cost_coverage';   
 }

@@ -10,79 +10,108 @@ void main() {
 
         expect(response.applied, isTrue);
         expect(response.amount, equals(5000));
-        expect(response.transaction, isA<CostCoverageTransaction>());
+        expect(response.paymentInformation, isA<PaymentInformation>());
       });
 
-      test('parses transaction fields correctly', () {
+      test('parses payment information fields correctly', () {
         final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
-        final transaction = response.transaction;
+        final payment = response.paymentInformation;
 
-        expect(transaction.id, equals(12345));
-        expect(transaction.paymentInvoiceId, equals('A93106816983249'));
-        expect(transaction.amount, equals(5000));
-        expect(transaction.status, equals('completed'));
-        expect(transaction.transactionDate, equals('2025-12-08T10:30:00.000Z'));
-        expect(transaction.type, equals('cost_coverage'));
-        expect(transaction.method, isNull);
-        expect(transaction.pspNumber, equals('NA'));
-        expect(transaction.costCoverageCode, equals('INS-12345'));
-        expect(transaction.basketId, equals(789));
-        expect(transaction.transferId, isNull);
+        expect(payment.invoiceId, equals('A93106816983249'));
+        expect(payment.email, equals('test@example.com'));
+        expect(payment.firstName, equals('John'));
+        expect(payment.lastName, equals('Doe'));
+        expect(payment.amountDue, equals(5000));
+        expect(payment.zid, equals('Z123'));
+        expect(payment.productType, equals('prescription'));
       });
 
-      test('parses intendedSubMerchantShares correctly', () {
+      test('parses transactions correctly', () {
         final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
-        final shares = response.transaction.intendedSubMerchantShares;
+        final transactions = response.paymentInformation.transactions;
 
-        expect(shares, isNotNull);
-        expect(shares!.length, equals(2));
+        expect(transactions, isNotNull);
+        expect(transactions.length, equals(1));
 
-        expect(shares[0].id, equals(1));
-        expect(shares[0].amount, equals(1500));
-        expect(shares[0].subMerchantResourceId, equals('BW-123'));
-        expect(shares[0].subMerchant?.type, equals('bloom'));
-
-        expect(shares[1].id, equals(2));
-        expect(shares[1].amount, equals(8500));
-        expect(shares[1].subMerchantResourceId, equals('PHM-456'));
-        expect(shares[1].subMerchant?.type, equals('pharmacy'));
+        expect(transactions[0].id, equals(12345));
+        expect(transactions[0].amount, equals(5000));
+        expect(transactions[0].refundAmount, equals(0));
+        expect(transactions[0].status, equals('completed'));
+        expect(transactions[0].type, equals('cost_coverage'));
+        expect(transactions[0].paymentInvoiceId, equals('A93106816983249'));
+        expect(transactions[0].basketId, equals(789));
+        expect(transactions[0].transactionDate, equals('2025-12-08T10:30:00.000Z'));
       });
 
-      test('parses appliedSubMerchantShares correctly', () {
+      test('parses cost coverage transaction fields correctly', () {
         final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
-        final shares = response.transaction.appliedSubMerchantShares;
+        final transaction = response.paymentInformation.transactions[0];
 
-        expect(shares, isNotNull);
-        expect(shares!.length, equals(2));
-
-        expect(shares[0].id, equals(3));
-        expect(shares[0].amount, equals(0));
-        expect(shares[0].subMerchantResourceId, equals('BW-123'));
-
-        expect(shares[1].id, equals(4));
-        expect(shares[1].amount, equals(0));
-        expect(shares[1].subMerchantResourceId, equals('PHM-456'));
+        expect(transaction.discountAmountCents, equals(100));
+        expect(transaction.finalAmountCents, equals(1000));
+        expect(transaction.isCostCoverage, isTrue);
       });
 
-      test('handles null sub merchant shares', () {
+      test('verifies transaction is linked to basket and invoice', () {
+        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final transaction = response.paymentInformation.transactions[0];
+        final basket = response.paymentInformation.baskets[0];
+
+        expect(transaction.basketId, equals(basket.id));
+        expect(transaction.paymentInvoiceId, equals(response.paymentInformation.invoiceId));
+        expect(basket.invoiceId, equals(response.paymentInformation.invoiceId));
+      });
+
+      test('verifies payment status after cost coverage', () {
+        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final payment = response.paymentInformation;
+
+        expect(payment.paymentStatus, equals(AdyenPaymentStatus.paid));
+        expect(response.applied, isTrue);
+        expect(payment.transactions.isNotEmpty, isTrue);
+        expect(payment.transactions.first.isCostCoverage, isTrue);
+      });
+
+      test('parses baskets correctly', () {
+        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final baskets = response.paymentInformation.baskets;
+
+        expect(baskets, isNotNull);
+        expect(baskets.length, equals(1));
+
+        expect(baskets[0].id, equals(789));
+        expect(baskets[0].amountDue, equals(5000));
+        expect(baskets[0].invoiceId, equals('A93106816983249'));
+      });
+
+      test('handles empty transactions and baskets', () {
         final json = {
-          'applied': true,
-          'amount': 1000,
-          'transaction': {
-            'id': 1,
-            'payment_invoice_id': 'INV-001',
-            'amount': 1000,
-            'status': 'completed',
-            'transaction_date': '2025-12-08T10:30:00.000Z',
-            'type': 'cost_coverage',
-            'basket_id': 100,
+          'applied': false,
+          'amount': 0,
+          'payment': {
+            'invoice_id': 'INV-001',
+            'email': 'test@example.com',
+            'first_name': 'Jane',
+            'last_name': 'Smith',
+            'payment_status': 'pending',
+            'product_type': 'prescription',
+            'zid': 'Z456',
+            'amount_due': 1000,
+            'provider': 'adyen',
+            'created_at': '2025-12-08T10:30:00.000Z',
+            'meta_data': '{}',
+            'updated_at': '2025-12-08T10:30:00.000Z',
+            'is_five_gram': false,
+            'reverse_transfers': false,
+            'product_types': ['prescription'],
+            'baskets': [],
           },
         };
 
         final response = CostCoverageResponse.fromJson(json);
 
-        expect(response.transaction.intendedSubMerchantShares, isNull);
-        expect(response.transaction.appliedSubMerchantShares, isNull);
+        expect(response.paymentInformation.transactions, isEmpty);
+        expect(response.paymentInformation.baskets, isEmpty);
       });
     });
 
@@ -93,7 +122,7 @@ void main() {
 
         expect(copy.applied, isFalse);
         expect(copy.amount, equals(response.amount));
-        expect(copy.transaction, equals(response.transaction));
+        expect(copy.paymentInformation, equals(response.paymentInformation));
       });
 
       test('creates copy with updated amount field', () {
@@ -133,70 +162,6 @@ void main() {
     });
   });
 
-  group('SubMerchantShare', () {
-    test('fromJson parses correctly', () {
-      final json = {
-        'id': 1,
-        'amount': 1500,
-        'sub_merchant_resource_id': 'BW-123',
-        'subMerchant': {'type': 'bloom'},
-      };
-
-      final share = SubMerchantShare.fromJson(json);
-
-      expect(share.id, equals(1));
-      expect(share.amount, equals(1500));
-      expect(share.subMerchantResourceId, equals('BW-123'));
-      expect(share.subMerchant?.type, equals('bloom'));
-    });
-
-    test('fromJson handles null subMerchant', () {
-      final json = {'id': 1, 'amount': 1500, 'sub_merchant_resource_id': 'BW-123'};
-
-      final share = SubMerchantShare.fromJson(json);
-
-      expect(share.subMerchant, isNull);
-    });
-
-    test('copyWith creates updated copy', () {
-      const share = SubMerchantShare(
-        id: 1,
-        amount: 1500,
-        subMerchantResourceId: 'BW-123',
-      );
-      final copy = share.copyWith(amount: 2000);
-
-      expect(copy.id, equals(1));
-      expect(copy.amount, equals(2000));
-      expect(copy.subMerchantResourceId, equals('BW-123'));
-    });
-  });
-
-  group('SubMerchant', () {
-    test('fromJson parses correctly', () {
-      final json = {'type': 'pharmacy'};
-      final subMerchant = SubMerchant.fromJson(json);
-
-      expect(subMerchant.type, equals('pharmacy'));
-    });
-
-    test('toJson serializes correctly', () {
-      const subMerchant = SubMerchant(type: 'bloom');
-      final json = subMerchant.toJson();
-
-      expect(json, equals({'type': 'bloom'}));
-    });
-
-    test('equality works correctly', () {
-      const subMerchant1 = SubMerchant(type: 'bloom');
-      const subMerchant2 = SubMerchant(type: 'bloom');
-      const subMerchant3 = SubMerchant(type: 'pharmacy');
-
-      expect(subMerchant1, equals(subMerchant2));
-      expect(subMerchant1, isNot(equals(subMerchant3)));
-    });
-  });
-
   group('AdyenClient.applyCostCoverage', () {
     late AdyenClient adyenClient;
     late DioAdapter dioAdapter;
@@ -223,7 +188,30 @@ void main() {
       expect(response, isA<CostCoverageResponse>());
       expect(response.applied, isTrue);
       expect(response.amount, equals(5000));
-      expect(response.transaction.id, equals(12345));
+      expect(response.paymentInformation.invoiceId, equals('A93106816983249'));
+    });
+
+    test('verifies complete payment information after successful cost coverage', () async {
+      dioAdapter.onPost(
+        '/apply-cost-coverage',
+        data: {'invoice_id': 'A93106816983249', 'cost_coverage_code': 'INS-12345'},
+        (server) => server.reply(200, mockCostCoverageResponse),
+      );
+
+      final response = await adyenClient.applyCostCoverage(
+        invoiceId: 'A93106816983249',
+        costCoverageCode: 'INS-12345',
+      );
+
+      final payment = response.paymentInformation;
+      expect(payment.invoiceId, equals('A93106816983249'));
+      expect(payment.paymentStatus, equals(AdyenPaymentStatus.paid));
+      expect(payment.amountDue, equals(5000));
+      expect(payment.transactions.isNotEmpty, isTrue);
+      expect(payment.transactions.first.isCostCoverage, isTrue);
+      expect(payment.transactions.first.amount, equals(response.amount));
+      expect(payment.baskets.isNotEmpty, isTrue);
+      expect(payment.baskets.first.amountDue, equals(response.amount));
     });
 
     test('throws exception when request fails', () {
@@ -263,44 +251,57 @@ void main() {
 final mockCostCoverageResponse = {
   'applied': true,
   'amount': 5000,
-  'transaction': {
-    'id': 12345,
-    'payment_invoice_id': 'A93106816983249',
-    'amount': 5000,
-    'status': 'completed',
-    'transaction_date': '2025-12-08T10:30:00.000Z',
-    'type': 'cost_coverage',
-    'method': null,
-    'psp_number': 'NA',
-    'cost_coverage_code': 'INS-12345',
-    'basket_id': 789,
-    'transfer_id': null,
-    'intendedSubMerchantShares': [
+  'payment': {
+    'invoice_id': 'A93106816983249',
+    'email': 'test@example.com',
+    'first_name': 'John',
+    'last_name': 'Doe',
+    'payment_status': 'paid',
+    'product_type': 'prescription',
+    'zid': 'Z123',
+    'amount_due': 5000,
+    'provider': 'adyen',
+    'created_at': '2025-12-08T10:30:00.000Z',
+    'meta_data': '{}',
+    'updated_at': '2025-12-08T10:30:00.000Z',
+    'is_five_gram': false,
+    'reverse_transfers': false,
+    'product_types': ['prescription'],
+    'baskets': [
       {
-        'id': 1,
-        'amount': 1500,
-        'sub_merchant_resource_id': 'BW-123',
-        'subMerchant': {'type': 'bloom'},
-      },
-      {
-        'id': 2,
-        'amount': 8500,
-        'sub_merchant_resource_id': 'PHM-456',
-        'subMerchant': {'type': 'pharmacy'},
+        'id': 789,
+        'order_id': null,
+        'replaces_basket': false,
+        'amount_due': 5000,
+        'created_at': '2025-12-08T10:30:00.000Z',
+        'updated_at': '2025-12-08T10:30:00.000Z',
+        'invoice_id': 'A93106816983249',
+        'amount_total_discount': 0,
+        'amount_total_gross': 5000,
+        'title': 'Prescription',
+        'sub_title': 'Cost Coverage',
+        'active': true,
+        'items': [],
       },
     ],
-    'appliedSubMerchantShares': [
+    'transactions': [
       {
-        'id': 3,
-        'amount': 0,
-        'sub_merchant_resource_id': 'BW-123',
-        'subMerchant': {'type': 'bloom'},
-      },
-      {
-        'id': 4,
-        'amount': 0,
-        'sub_merchant_resource_id': 'PHM-456',
-        'subMerchant': {'type': 'pharmacy'},
+        'id': 12345,
+        'created_at': '2025-12-08T10:30:00.000Z',
+        'updated_at': '2025-12-08T10:30:00.000Z',
+        'payment_invoice_id': 'A93106816983249',
+        'amount': 5000,
+        'refund_amount': 0,
+        'status': 'completed',
+        'transaction_date': '2025-12-08T10:30:00.000Z',
+        'type': 'cost_coverage',
+        'cost_coverage_code': 'INS-12345',
+        'discount_amount_cents': 100,
+        'final_amount_cents': 1000,
+        'method': null,
+        'psp_number': 'NA',
+        'basket_id': 789,
+        'transfer_id': null,
       },
     ],
   },
