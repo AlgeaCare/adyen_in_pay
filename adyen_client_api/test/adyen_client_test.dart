@@ -6,14 +6,14 @@ void main() {
   late AdyenClient adyenClient;
   late DioAdapter dioAdapter;
 
-  const baseUrl = 'https://test.api.adyen.com';
+  const baseUrl = 'http://localhost:8080';
 
   setUp(() {
     adyenClient = AdyenClient(baseUrl: baseUrl);
     dioAdapter = DioAdapter(dio: adyenClient.dio);
 
     dioAdapter.onGet(
-      '$baseUrl/startSession',
+      '$baseUrl/payments/startSession',
       (server) => server.reply(
         200,
         {'message': 'Success!'},
@@ -37,6 +37,7 @@ void main() {
         };
         dioAdapter.onPost(
           '/methods',
+          data: {},
           (server) => server.reply(
             200,
             mockResponse,
@@ -45,7 +46,7 @@ void main() {
           ),
         );
 
-        final response = await adyenClient.getPaymentMethods();
+        final response = await adyenClient.getPaymentMethods(data: {});
 
         expect(response, isA<PaymentMethodResponse>());
         expect(response.paymentMethods.length, equals(1));
@@ -55,6 +56,7 @@ void main() {
       test('throws exception when request fails', () {
         dioAdapter.onPost(
           '/methods',
+          data: {},
           (server) => server.reply(
             500,
             {'message': 'Server Error'},
@@ -62,7 +64,7 @@ void main() {
             delay: const Duration(seconds: 1),
           ),
         );
-        expect(() => adyenClient.getPaymentMethods(), throwsException);
+        expect(() => adyenClient.getPaymentMethods(data: {}), throwsException);
       });
     });
 
@@ -112,10 +114,16 @@ void main() {
           productTypes: ['test-product-type'],
           transactions: [],
         );
+        final extraData = paymentRequest.toJson();
+        extraData['browserInfo'] = {'userAgent': 'test-user-agent'};
 
+        final dataRequest = paymentInformation.toPaymentDataJson()..addAll(extraData);
         dioAdapter.onPost(
           '/make-payment',
-          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
+          data: {
+            'payment': {'invoiceId': paymentInformation.invoiceId},
+            'provider': dataRequest,
+          },
           (server) => server.reply(
             200,
             mockResponse,
@@ -124,7 +132,11 @@ void main() {
           ),
         );
 
-        final response = await adyenClient.makePayment(paymentInformation, paymentRequest.toJson());
+        final response = await adyenClient.makePayment(
+          paymentInformation,
+          paymentRequest.toJson(),
+          userAgent: 'test-user-agent',
+        );
 
         expect(response, isA<PaymentResponse>());
         expect(response.resultCode, equals(PaymentResultCode.authorised));

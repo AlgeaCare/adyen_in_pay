@@ -19,9 +19,9 @@ class AdyenClient {
     //  required this.apiKey,
   }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
-  Future<PaymentMethodResponse> getPaymentMethods({Map<String, dynamic>? data}) async {
+  Future<PaymentMethodResponse> getPaymentMethods({required Map<String, dynamic> data}) async {
     try {
-      final response = await dio.post<Map<String, dynamic>>('/methods', data: data!);
+      final response = await dio.post<Map<String, dynamic>>('/methods', data: data);
 
       if (response.statusCode == 200 && response.data != null) {
         return PaymentMethodResponse.fromJson(response.data!);
@@ -125,8 +125,6 @@ class AdyenClient {
         throw Exception('Failed to process payment: ${response.statusCode}');
       }
     } catch (e, trace) {
-      debugPrint(trace.toString());
-      debugPrint(e.toString());
       throw Exception('Error processing payment: $e,$trace');
     }
   }
