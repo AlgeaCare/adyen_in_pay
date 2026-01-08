@@ -34,9 +34,9 @@ mixin _$Transaction {
   String? get method => throw _privateConstructorUsedError;
   String? get pspNumber => throw _privateConstructorUsedError;
   String? get capturePspNumber => throw _privateConstructorUsedError;
-  int? get discountAmountCents => throw _privateConstructorUsedError;
-  int? get finalAmountCents => throw _privateConstructorUsedError;
   int get basketId => throw _privateConstructorUsedError;
+  CostCoverageTransaction? get costCoverage =>
+      throw _privateConstructorUsedError;
   int? get transferId => throw _privateConstructorUsedError;
   int? get transactionId => throw _privateConstructorUsedError;
 
@@ -71,12 +71,13 @@ abstract class $TransactionCopyWith<$Res> {
     String? method,
     String? pspNumber,
     String? capturePspNumber,
-    int? discountAmountCents,
-    int? finalAmountCents,
     int basketId,
+    CostCoverageTransaction? costCoverage,
     int? transferId,
     int? transactionId,
   });
+
+  $CostCoverageTransactionCopyWith<$Res>? get costCoverage;
 }
 
 /// @nodoc
@@ -107,9 +108,8 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
     Object? method = freezed,
     Object? pspNumber = freezed,
     Object? capturePspNumber = freezed,
-    Object? discountAmountCents = freezed,
-    Object? finalAmountCents = freezed,
     Object? basketId = null,
+    Object? costCoverage = freezed,
     Object? transferId = freezed,
     Object? transactionId = freezed,
   }) {
@@ -167,18 +167,14 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
                 ? _value.capturePspNumber
                 : capturePspNumber // ignore: cast_nullable_to_non_nullable
                       as String?,
-            discountAmountCents: freezed == discountAmountCents
-                ? _value.discountAmountCents
-                : discountAmountCents // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            finalAmountCents: freezed == finalAmountCents
-                ? _value.finalAmountCents
-                : finalAmountCents // ignore: cast_nullable_to_non_nullable
-                      as int?,
             basketId: null == basketId
                 ? _value.basketId
                 : basketId // ignore: cast_nullable_to_non_nullable
                       as int,
+            costCoverage: freezed == costCoverage
+                ? _value.costCoverage
+                : costCoverage // ignore: cast_nullable_to_non_nullable
+                      as CostCoverageTransaction?,
             transferId: freezed == transferId
                 ? _value.transferId
                 : transferId // ignore: cast_nullable_to_non_nullable
@@ -190,6 +186,22 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of Transaction
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CostCoverageTransactionCopyWith<$Res>? get costCoverage {
+    if (_value.costCoverage == null) {
+      return null;
+    }
+
+    return $CostCoverageTransactionCopyWith<$Res>(_value.costCoverage!, (
+      value,
+    ) {
+      return _then(_value.copyWith(costCoverage: value) as $Val);
+    });
   }
 }
 
@@ -216,12 +228,14 @@ abstract class _$$TransactionImplCopyWith<$Res>
     String? method,
     String? pspNumber,
     String? capturePspNumber,
-    int? discountAmountCents,
-    int? finalAmountCents,
     int basketId,
+    CostCoverageTransaction? costCoverage,
     int? transferId,
     int? transactionId,
   });
+
+  @override
+  $CostCoverageTransactionCopyWith<$Res>? get costCoverage;
 }
 
 /// @nodoc
@@ -251,9 +265,8 @@ class __$$TransactionImplCopyWithImpl<$Res>
     Object? method = freezed,
     Object? pspNumber = freezed,
     Object? capturePspNumber = freezed,
-    Object? discountAmountCents = freezed,
-    Object? finalAmountCents = freezed,
     Object? basketId = null,
+    Object? costCoverage = freezed,
     Object? transferId = freezed,
     Object? transactionId = freezed,
   }) {
@@ -311,18 +324,14 @@ class __$$TransactionImplCopyWithImpl<$Res>
             ? _value.capturePspNumber
             : capturePspNumber // ignore: cast_nullable_to_non_nullable
                   as String?,
-        discountAmountCents: freezed == discountAmountCents
-            ? _value.discountAmountCents
-            : discountAmountCents // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        finalAmountCents: freezed == finalAmountCents
-            ? _value.finalAmountCents
-            : finalAmountCents // ignore: cast_nullable_to_non_nullable
-                  as int?,
         basketId: null == basketId
             ? _value.basketId
             : basketId // ignore: cast_nullable_to_non_nullable
                   as int,
+        costCoverage: freezed == costCoverage
+            ? _value.costCoverage
+            : costCoverage // ignore: cast_nullable_to_non_nullable
+                  as CostCoverageTransaction?,
         transferId: freezed == transferId
             ? _value.transferId
             : transferId // ignore: cast_nullable_to_non_nullable
@@ -354,9 +363,8 @@ class _$TransactionImpl extends _Transaction {
     this.method,
     this.pspNumber,
     this.capturePspNumber,
-    this.discountAmountCents,
-    this.finalAmountCents,
     required this.basketId,
+    this.costCoverage,
     this.transferId,
     this.transactionId,
   }) : super._();
@@ -391,11 +399,9 @@ class _$TransactionImpl extends _Transaction {
   @override
   final String? capturePspNumber;
   @override
-  final int? discountAmountCents;
-  @override
-  final int? finalAmountCents;
-  @override
   final int basketId;
+  @override
+  final CostCoverageTransaction? costCoverage;
   @override
   final int? transferId;
   @override
@@ -403,7 +409,7 @@ class _$TransactionImpl extends _Transaction {
 
   @override
   String toString() {
-    return 'Transaction(id: $id, pspStatus: $pspStatus, createdAt: $createdAt, updatedAt: $updatedAt, paymentInvoiceId: $paymentInvoiceId, amount: $amount, refundAmount: $refundAmount, status: $status, transactionDate: $transactionDate, type: $type, method: $method, pspNumber: $pspNumber, capturePspNumber: $capturePspNumber, discountAmountCents: $discountAmountCents, finalAmountCents: $finalAmountCents, basketId: $basketId, transferId: $transferId, transactionId: $transactionId)';
+    return 'Transaction(id: $id, pspStatus: $pspStatus, createdAt: $createdAt, updatedAt: $updatedAt, paymentInvoiceId: $paymentInvoiceId, amount: $amount, refundAmount: $refundAmount, status: $status, transactionDate: $transactionDate, type: $type, method: $method, pspNumber: $pspNumber, capturePspNumber: $capturePspNumber, basketId: $basketId, costCoverage: $costCoverage, transferId: $transferId, transactionId: $transactionId)';
   }
 
   @override
@@ -432,12 +438,10 @@ class _$TransactionImpl extends _Transaction {
                 other.pspNumber == pspNumber) &&
             (identical(other.capturePspNumber, capturePspNumber) ||
                 other.capturePspNumber == capturePspNumber) &&
-            (identical(other.discountAmountCents, discountAmountCents) ||
-                other.discountAmountCents == discountAmountCents) &&
-            (identical(other.finalAmountCents, finalAmountCents) ||
-                other.finalAmountCents == finalAmountCents) &&
             (identical(other.basketId, basketId) ||
                 other.basketId == basketId) &&
+            (identical(other.costCoverage, costCoverage) ||
+                other.costCoverage == costCoverage) &&
             (identical(other.transferId, transferId) ||
                 other.transferId == transferId) &&
             (identical(other.transactionId, transactionId) ||
@@ -461,9 +465,8 @@ class _$TransactionImpl extends _Transaction {
     method,
     pspNumber,
     capturePspNumber,
-    discountAmountCents,
-    finalAmountCents,
     basketId,
+    costCoverage,
     transferId,
     transactionId,
   );
@@ -497,9 +500,8 @@ abstract class _Transaction extends Transaction {
     final String? method,
     final String? pspNumber,
     final String? capturePspNumber,
-    final int? discountAmountCents,
-    final int? finalAmountCents,
     required final int basketId,
+    final CostCoverageTransaction? costCoverage,
     final int? transferId,
     final int? transactionId,
   }) = _$TransactionImpl;
@@ -535,11 +537,9 @@ abstract class _Transaction extends Transaction {
   @override
   String? get capturePspNumber;
   @override
-  int? get discountAmountCents;
-  @override
-  int? get finalAmountCents;
-  @override
   int get basketId;
+  @override
+  CostCoverageTransaction? get costCoverage;
   @override
   int? get transferId;
   @override
@@ -551,4 +551,229 @@ abstract class _Transaction extends Transaction {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TransactionImplCopyWith<_$TransactionImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+CostCoverageTransaction _$CostCoverageTransactionFromJson(
+  Map<String, dynamic> json,
+) {
+  return _CostCoverageTransaction.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CostCoverageTransaction {
+  @JsonKey(name: 'amount')
+  int get discountAmount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'code')
+  String get code => throw _privateConstructorUsedError;
+  @JsonKey(name: 'status')
+  String get status => throw _privateConstructorUsedError;
+
+  /// Serializes this CostCoverageTransaction to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of CostCoverageTransaction
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $CostCoverageTransactionCopyWith<CostCoverageTransaction> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CostCoverageTransactionCopyWith<$Res> {
+  factory $CostCoverageTransactionCopyWith(
+    CostCoverageTransaction value,
+    $Res Function(CostCoverageTransaction) then,
+  ) = _$CostCoverageTransactionCopyWithImpl<$Res, CostCoverageTransaction>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'amount') int discountAmount,
+    @JsonKey(name: 'code') String code,
+    @JsonKey(name: 'status') String status,
+  });
+}
+
+/// @nodoc
+class _$CostCoverageTransactionCopyWithImpl<
+  $Res,
+  $Val extends CostCoverageTransaction
+>
+    implements $CostCoverageTransactionCopyWith<$Res> {
+  _$CostCoverageTransactionCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of CostCoverageTransaction
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? discountAmount = null,
+    Object? code = null,
+    Object? status = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            discountAmount: null == discountAmount
+                ? _value.discountAmount
+                : discountAmount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            code: null == code
+                ? _value.code
+                : code // ignore: cast_nullable_to_non_nullable
+                      as String,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$CostCoverageTransactionImplCopyWith<$Res>
+    implements $CostCoverageTransactionCopyWith<$Res> {
+  factory _$$CostCoverageTransactionImplCopyWith(
+    _$CostCoverageTransactionImpl value,
+    $Res Function(_$CostCoverageTransactionImpl) then,
+  ) = __$$CostCoverageTransactionImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'amount') int discountAmount,
+    @JsonKey(name: 'code') String code,
+    @JsonKey(name: 'status') String status,
+  });
+}
+
+/// @nodoc
+class __$$CostCoverageTransactionImplCopyWithImpl<$Res>
+    extends
+        _$CostCoverageTransactionCopyWithImpl<
+          $Res,
+          _$CostCoverageTransactionImpl
+        >
+    implements _$$CostCoverageTransactionImplCopyWith<$Res> {
+  __$$CostCoverageTransactionImplCopyWithImpl(
+    _$CostCoverageTransactionImpl _value,
+    $Res Function(_$CostCoverageTransactionImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of CostCoverageTransaction
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? discountAmount = null,
+    Object? code = null,
+    Object? status = null,
+  }) {
+    return _then(
+      _$CostCoverageTransactionImpl(
+        discountAmount: null == discountAmount
+            ? _value.discountAmount
+            : discountAmount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        code: null == code
+            ? _value.code
+            : code // ignore: cast_nullable_to_non_nullable
+                  as String,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$CostCoverageTransactionImpl implements _CostCoverageTransaction {
+  _$CostCoverageTransactionImpl({
+    @JsonKey(name: 'amount') required this.discountAmount,
+    @JsonKey(name: 'code') required this.code,
+    @JsonKey(name: 'status') required this.status,
+  });
+
+  factory _$CostCoverageTransactionImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CostCoverageTransactionImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'amount')
+  final int discountAmount;
+  @override
+  @JsonKey(name: 'code')
+  final String code;
+  @override
+  @JsonKey(name: 'status')
+  final String status;
+
+  @override
+  String toString() {
+    return 'CostCoverageTransaction(discountAmount: $discountAmount, code: $code, status: $status)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CostCoverageTransactionImpl &&
+            (identical(other.discountAmount, discountAmount) ||
+                other.discountAmount == discountAmount) &&
+            (identical(other.code, code) || other.code == code) &&
+            (identical(other.status, status) || other.status == status));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, discountAmount, code, status);
+
+  /// Create a copy of CostCoverageTransaction
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CostCoverageTransactionImplCopyWith<_$CostCoverageTransactionImpl>
+  get copyWith =>
+      __$$CostCoverageTransactionImplCopyWithImpl<
+        _$CostCoverageTransactionImpl
+      >(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$CostCoverageTransactionImplToJson(this);
+  }
+}
+
+abstract class _CostCoverageTransaction implements CostCoverageTransaction {
+  factory _CostCoverageTransaction({
+    @JsonKey(name: 'amount') required final int discountAmount,
+    @JsonKey(name: 'code') required final String code,
+    @JsonKey(name: 'status') required final String status,
+  }) = _$CostCoverageTransactionImpl;
+
+  factory _CostCoverageTransaction.fromJson(Map<String, dynamic> json) =
+      _$CostCoverageTransactionImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'amount')
+  int get discountAmount;
+  @override
+  @JsonKey(name: 'code')
+  String get code;
+  @override
+  @JsonKey(name: 'status')
+  String get status;
+
+  /// Create a copy of CostCoverageTransaction
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$CostCoverageTransactionImplCopyWith<_$CostCoverageTransactionImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }

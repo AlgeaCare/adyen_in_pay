@@ -9,7 +9,7 @@ void main() {
         final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
 
         expect(response.applied, isTrue);
-        expect(response.amount, equals(5000));
+        expect(response.amount, equals(4900));
         expect(response.paymentInformation, isA<PaymentInformation>());
       });
 
@@ -21,7 +21,7 @@ void main() {
         expect(payment.email, equals('test@example.com'));
         expect(payment.firstName, equals('John'));
         expect(payment.lastName, equals('Doe'));
-        expect(payment.amountDue, equals(5000));
+        expect(payment.amountDue, equals(4900));
         expect(payment.zid, equals('Z123'));
         expect(payment.productType, equals('prescription'));
       });
@@ -34,7 +34,7 @@ void main() {
         expect(transactions.length, equals(1));
 
         expect(transactions[0].id, equals(12345));
-        expect(transactions[0].amount, equals(5000));
+        expect(transactions[0].amount, equals(4900));
         expect(transactions[0].refundAmount, equals(0));
         expect(transactions[0].status, equals('completed'));
         expect(transactions[0].type, equals('cost_coverage'));
@@ -46,10 +46,11 @@ void main() {
       test('parses cost coverage transaction fields correctly', () {
         final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
         final transaction = response.paymentInformation.transactions[0];
-
-        expect(transaction.discountAmountCents, equals(100));
-        expect(transaction.finalAmountCents, equals(1000));
-        expect(transaction.isCostCoverage, isTrue);
+        final hasCostCoverage = response.paymentInformation.hasCostCoverage;
+        expect(hasCostCoverage, isTrue);
+        expect(transaction.costCoverage, isNotNull);
+        expect(transaction.costCoverage!.code, equals('INS-12345'));
+        expect(transaction.costCoverage!.status, equals('completed'));
       });
 
       test('verifies transaction is linked to basket and invoice', () {
@@ -80,7 +81,7 @@ void main() {
         expect(baskets.length, equals(1));
 
         expect(baskets[0].id, equals(789));
-        expect(baskets[0].amountDue, equals(5000));
+        expect(baskets[0].amountDue, equals(4900));
         expect(baskets[0].invoiceId, equals('A93106816983249'));
       });
 
@@ -157,7 +158,7 @@ void main() {
 
         expect(response.toString(), contains('CostCoverageResponse'));
         expect(response.toString(), contains('applied: true'));
-        expect(response.toString(), contains('amount: 5000'));
+        expect(response.toString(), contains('amount: 4900'));
       });
     });
   });
@@ -187,7 +188,7 @@ void main() {
 
       expect(response, isA<CostCoverageResponse>());
       expect(response.applied, isTrue);
-      expect(response.amount, equals(5000));
+      expect(response.amount, equals(4900));
       expect(response.paymentInformation.invoiceId, equals('A93106816983249'));
     });
 
@@ -206,7 +207,7 @@ void main() {
       final payment = response.paymentInformation;
       expect(payment.invoiceId, equals('A93106816983249'));
       expect(payment.paymentStatus, equals(AdyenPaymentStatus.paid));
-      expect(payment.amountDue, equals(5000));
+      expect(payment.amountDue, equals(4900));
       expect(payment.transactions.isNotEmpty, isTrue);
       expect(payment.transactions.first.isCostCoverage, isTrue);
       expect(payment.transactions.first.amount, equals(response.amount));
@@ -250,7 +251,7 @@ void main() {
 
 final mockCostCoverageResponse = {
   'applied': true,
-  'amount': 5000,
+  'amount': 4900,
   'payment': {
     'invoice_id': 'A93106816983249',
     'email': 'test@example.com',
@@ -259,7 +260,7 @@ final mockCostCoverageResponse = {
     'payment_status': 'paid',
     'product_type': 'prescription',
     'zid': 'Z123',
-    'amount_due': 5000,
+    'amount_due': 4900,
     'provider': 'adyen',
     'created_at': '2025-12-08T10:30:00.000Z',
     'meta_data': '{}',
@@ -272,12 +273,12 @@ final mockCostCoverageResponse = {
         'id': 789,
         'order_id': null,
         'replaces_basket': false,
-        'amount_due': 5000,
+        'amount_due': 4900,
         'created_at': '2025-12-08T10:30:00.000Z',
         'updated_at': '2025-12-08T10:30:00.000Z',
         'invoice_id': 'A93106816983249',
         'amount_total_discount': 0,
-        'amount_total_gross': 5000,
+        'amount_total_gross': 4900,
         'title': 'Prescription',
         'sub_title': 'Cost Coverage',
         'active': true,
@@ -290,18 +291,28 @@ final mockCostCoverageResponse = {
         'created_at': '2025-12-08T10:30:00.000Z',
         'updated_at': '2025-12-08T10:30:00.000Z',
         'payment_invoice_id': 'A93106816983249',
-        'amount': 5000,
+        'amount': 4900,
         'refund_amount': 0,
         'status': 'completed',
         'transaction_date': '2025-12-08T10:30:00.000Z',
         'type': 'cost_coverage',
-        'cost_coverage_code': 'INS-12345',
-        'discount_amount_cents': 100,
-        'final_amount_cents': 1000,
+        // 'cost_coverage_code': 'INS-12345',
+        // 'discount_amount_cents': 100,
+        // 'final_amount_cents': 1000,
         'method': null,
         'psp_number': 'NA',
         'basket_id': 789,
         'transfer_id': null,
+        'cost_coverage': {
+          "id": 8,
+          "createdAt": "2026-01-08T10:10:50.851Z",
+          "updatedAt": "2026-01-08T10:10:50.851Z",
+          "code": "INS-12345",
+          "amount": 100,
+          "status": "completed",
+          "invoice_id": "A43102150947240",
+          "basket_id": 4,
+        },
       },
     ],
   },

@@ -87,6 +87,27 @@ class PaymentInformation {
 
   AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
 
+  bool get hasCostCoverage =>
+      transactions.firstWhereOrNull(
+        (transaction) =>
+            transaction.type == 'cost_coverage' &&
+            transaction.costCoverage != null &&
+            transaction.costCoverage?.status == 'completed',
+      ) !=
+      null;
+  (int, String)? get costCoverageAmount {
+    final transaction = transactions.firstWhere(
+      (transaction) =>
+          transaction.type == 'cost_coverage' &&
+          transaction.costCoverage != null &&
+          transaction.costCoverage!.status == 'completed',
+    );
+    if (hasCostCoverage) {
+      return null;
+    }
+    return (transaction.costCoverage!.discountAmount, transaction.costCoverage!.code);
+  }
+
   Transaction? get latestTransaction =>
       transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
 

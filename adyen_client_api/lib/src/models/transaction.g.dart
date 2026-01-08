@@ -21,9 +21,12 @@ _$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
       method: json['method'] as String?,
       pspNumber: json['psp_number'] as String?,
       capturePspNumber: json['capture_psp_number'] as String?,
-      discountAmountCents: (json['discount_amount_cents'] as num?)?.toInt(),
-      finalAmountCents: (json['final_amount_cents'] as num?)?.toInt(),
       basketId: (json['basket_id'] as num).toInt(),
+      costCoverage: json['cost_coverage'] == null
+          ? null
+          : CostCoverageTransaction.fromJson(
+              json['cost_coverage'] as Map<String, dynamic>,
+            ),
       transferId: (json['transfer_id'] as num?)?.toInt(),
       transactionId: (json['transaction_id'] as num?)?.toInt(),
     );
@@ -43,9 +46,24 @@ Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
       'method': instance.method,
       'psp_number': instance.pspNumber,
       'capture_psp_number': instance.capturePspNumber,
-      'discount_amount_cents': instance.discountAmountCents,
-      'final_amount_cents': instance.finalAmountCents,
       'basket_id': instance.basketId,
+      'cost_coverage': instance.costCoverage,
       'transfer_id': instance.transferId,
       'transaction_id': instance.transactionId,
     };
+
+_$CostCoverageTransactionImpl _$$CostCoverageTransactionImplFromJson(
+  Map<String, dynamic> json,
+) => _$CostCoverageTransactionImpl(
+  discountAmount: (json['amount'] as num).toInt(),
+  code: json['code'] as String,
+  status: json['status'] as String,
+);
+
+Map<String, dynamic> _$$CostCoverageTransactionImplToJson(
+  _$CostCoverageTransactionImpl instance,
+) => <String, dynamic>{
+  'amount': instance.discountAmount,
+  'code': instance.code,
+  'status': instance.status,
+};

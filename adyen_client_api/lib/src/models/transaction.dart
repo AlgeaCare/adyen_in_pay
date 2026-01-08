@@ -23,21 +23,28 @@ class Transaction with _$Transaction {
     String? method,
     String? pspNumber,
     String? capturePspNumber,
-    int? discountAmountCents,
-    int? finalAmountCents,
     required int basketId,
+    CostCoverageTransaction? costCoverage,
     int? transferId,
     int? transactionId,
   }) = _Transaction;
 
+  factory Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
   bool get hasPspNumber =>
       pspNumber != null &&
       pspNumber!.isNotEmpty &&
       pspNumber!.toLowerCase() != 'na' &&
       pspNumber!.toLowerCase() != 'unknown';
+  bool get isCostCoverage => type == 'cost_coverage';
+}
 
-  factory Transaction.fromJson(Map<String, dynamic> json) =>
-      _$TransactionFromJson(json);
-
-   bool get isCostCoverage => type == 'cost_coverage';   
+@freezed
+class CostCoverageTransaction with _$CostCoverageTransaction {
+  factory CostCoverageTransaction({
+    @JsonKey(name: 'amount') required int discountAmount,
+    @JsonKey(name: 'code') required String code,
+    @JsonKey(name: 'status') required String status,
+  }) = _CostCoverageTransaction;
+  factory CostCoverageTransaction.fromJson(Map<String, dynamic> json) =>
+      _$CostCoverageTransactionFromJson(json);
 }
