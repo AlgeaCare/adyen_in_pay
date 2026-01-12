@@ -86,29 +86,23 @@ class PaymentInformation {
   bool get isAdyen => provider == PaymentProvider.adyen;
 
   AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
-
+  List<Transaction> get _costCoverageTransactions => transactions
+      .where((t) => t.type == 'cost_coverage' && t.costCoverage != null)
+      .sorted((a, b) => a.createdAt.compareTo(b.createdAt));
   bool get hasCostCoverage {
-    final costCoverageTransactions = transactions
-        .where((t) => t.type == 'cost_coverage' && t.costCoverage != null)
-        .sorted((a, b) => a.createdAt.compareTo(b.createdAt));
+    if (_costCoverageTransactions.isEmpty) return false;
+    final latestTransaction = _costCoverageTransactions.last;
 
-    if (costCoverageTransactions.isEmpty) return false;
-
-    final latestTransaction = costCoverageTransactions.last;
     return latestTransaction.costCoverage?.status == 'completed';
   }
 
-  (int, String)? get costCoverageAmount {
-    final transaction = transactions.firstWhere(
-      (transaction) =>
-          transaction.type == 'cost_coverage' &&
-          transaction.costCoverage != null &&
-          transaction.costCoverage!.status == 'completed',
-    );
-    if (hasCostCoverage) {
+  (int amount, String code)? get costCoverageAmount {
+    if (_costCoverageTransactions.isEmpty) return null;
+    final latestTransaction = _costCoverageTransactions.last;
+    if (!hasCostCoverage) {
       return null;
     }
-    return (transaction.costCoverage!.discountAmount, transaction.costCoverage!.code);
+    return (latestTransaction.costCoverage!.discountAmount, latestTransaction.costCoverage!.code);
   }
 
   Transaction? get latestTransaction =>
