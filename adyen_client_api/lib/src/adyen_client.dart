@@ -193,4 +193,29 @@ class AdyenClient {
       throw Exception('Error applying cost coverage: $e');
     }
   }
+
+  Future<PaymentInformation> removeCostCoverage({
+    required String invoiceId,
+  }) async {
+    try {
+      final response = await dio.post<Map<String, dynamic>>(
+        '/remove-cost-coverage',
+        data: {
+          'invoice_id': invoiceId,
+        },
+      );
+
+      if (response.statusCode == 200 &&
+          response.data != null &&
+          response.data!['removed'] == true) {
+        return PaymentInformation.fromJson(response.data!['payment']);
+      } else {
+        throw Exception('Failed to remove cost coverage: ${response.statusCode}');
+      }
+    } catch (e, trace) {
+      debugPrint(trace.toString());
+      debugPrint(e.toString());
+      throw Exception('Error removing cost coverage: $e');
+    }
+  }
 }
