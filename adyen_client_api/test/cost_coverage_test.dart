@@ -247,7 +247,300 @@ void main() {
       );
     });
   });
+
+  group('AdyenClient.removeCostCoverage', () {
+    late AdyenClient adyenClient;
+    late DioAdapter dioAdapter;
+
+    const baseUrl = 'https://test.api.adyen.com';
+
+    setUp(() {
+      adyenClient = AdyenClient(baseUrl: baseUrl);
+      dioAdapter = DioAdapter(dio: adyenClient.dio);
+    });
+
+    test('returns PaymentInformation when successfully removed', () async {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'A93106816983249'},
+        (server) => server.reply(200, mockRemoveCostCoverageResponse),
+      );
+
+      final response = await adyenClient.removeCostCoverage(
+        invoiceId: 'A93106816983249',
+      );
+
+      expect(response, isA<PaymentInformation>());
+      expect(response.invoiceId, equals('A93106816983249'));
+      expect(response.paymentStatus, equals(AdyenPaymentStatus.pending));
+      expect(response.amountDue, equals(4900));
+    });
+
+    test('verifies payment information after cost coverage removal', () async {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'A93106816983249'},
+        (server) => server.reply(200, mockRemoveCostCoverageResponse),
+      );
+
+      final response = await adyenClient.removeCostCoverage(
+        invoiceId: 'A93106816983249',
+      );
+
+      expect(response.transactions.isNotEmpty, isTrue);
+      expect(response.transactions.length, equals(2));
+      expect(response.transactions.first.costCoverage?.status, equals('completed'));
+      expect(response.transactions.last.costCoverage?.status, equals('replaced'));
+      expect(response.hasCostCoverage, isFalse);
+      expect(response.baskets.isNotEmpty, isTrue);
+      expect(response.baskets.first.amountDue, equals(4900));
+    });
+
+    test('throws exception when removed field is false', () {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'A93106816983249'},
+        (server) => server.reply(200, {
+          'removed': false,
+          'payment': mockPaymentInformationJson,
+        }),
+      );
+
+      expect(
+        () => adyenClient.removeCostCoverage(
+          invoiceId: 'A93106816983249',
+        ),
+        throwsException,
+      );
+    });
+
+    test('throws exception when removed field is missing', () {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'A93106816983249'},
+        (server) => server.reply(200, {
+          'payment': mockPaymentInformationJson,
+        }),
+      );
+
+      expect(
+        () => adyenClient.removeCostCoverage(
+          invoiceId: 'A93106816983249',
+        ),
+        throwsException,
+      );
+    });
+
+    test('throws exception when request fails with 400', () {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'invalid-invoice'},
+        (server) => server.reply(400, {'message': 'Invalid invoice ID'}),
+      );
+
+      expect(
+        () => adyenClient.removeCostCoverage(
+          invoiceId: 'invalid-invoice',
+        ),
+        throwsException,
+      );
+    });
+
+    test('throws exception on server error', () {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'A93106816983249'},
+        (server) => server.reply(500, {'message': 'Internal Server Error'}),
+      );
+
+      expect(
+        () => adyenClient.removeCostCoverage(
+          invoiceId: 'A93106816983249',
+        ),
+        throwsException,
+      );
+    });
+
+    test('throws exception when response data is null', () {
+      dioAdapter.onPost(
+        '/remove-cost-coverage',
+        data: {'invoice_id': 'A93106816983249'},
+        (server) => server.reply(200, null),
+      );
+
+      expect(
+        () => adyenClient.removeCostCoverage(
+          invoiceId: 'A93106816983249',
+        ),
+        throwsException,
+      );
+    });
+  });
+
+  group('PaymentInformation.hasCostCoverage', () {
+    test('returns true when only completed cost coverage transaction exists', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': [mockCompletedCostCoverageTransaction],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isTrue);
+    });
+
+    test('returns false when only replaced cost coverage transaction exists', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': [mockReplacedCostCoverageTransaction],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isFalse);
+    });
+
+    test('returns false when completed then replaced (latest is replaced)', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': [
+          mockCompletedCostCoverageTransaction,
+          mockReplacedCostCoverageTransaction,
+        ],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isFalse);
+    });
+
+    test('returns true when completed then replaced then completed (latest is completed)', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': [
+          mockCompletedCostCoverageTransaction,
+          mockReplacedCostCoverageTransaction,
+          mockSecondCompletedCostCoverageTransaction,
+        ],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isTrue);
+    });
+
+    test('returns false when no transactions exist', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': <Map<String, dynamic>>[],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isFalse);
+    });
+
+    test('returns false when transactions exist but none are cost_coverage type', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': [mockNonCostCoverageTransaction],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isFalse);
+    });
+
+    test('returns false when cost_coverage transaction has no costCoverage object', () {
+      final paymentInfo = PaymentInformation.fromJson({
+        ...mockBasePaymentJson,
+        'transactions': [mockCostCoverageTransactionWithoutCostCoverageObject],
+      });
+
+      expect(paymentInfo.hasCostCoverage, isFalse);
+    });
+  });
 }
+
+final mockPaymentInformationJson = {
+  'invoice_id': 'A93106816983249',
+  'email': 'test@example.com',
+  'first_name': 'John',
+  'last_name': 'Doe',
+  'payment_status': 'pending',
+  'product_type': 'prescription',
+  'zid': 'Z123',
+  'amount_due': 4900,
+  'provider': 'adyen',
+  'created_at': '2025-12-08T10:30:00.000Z',
+  'meta_data': '{}',
+  'updated_at': '2025-12-08T10:30:00.000Z',
+  'is_five_gram': false,
+  'reverse_transfers': false,
+  'product_types': ['prescription'],
+  'baskets': [
+    {
+      'id': 789,
+      'order_id': null,
+      'replaces_basket': false,
+      'amount_due': 4900,
+      'created_at': '2025-12-08T10:30:00.000Z',
+      'updated_at': '2025-12-08T10:30:00.000Z',
+      'invoice_id': 'A93106816983249',
+      'amount_total_discount': 0,
+      'amount_total_gross': 4900,
+      'title': 'Prescription',
+      'sub_title': 'Pending Payment',
+      'active': true,
+      'items': [],
+    },
+  ],
+  'transactions': [
+    {
+      'id': 12345,
+      'created_at': '2025-12-08T10:30:00.000Z',
+      'updated_at': '2025-12-08T10:30:00.000Z',
+      'payment_invoice_id': 'A93106816983249',
+      'amount': 4900,
+      'refund_amount': 0,
+      'status': 'completed',
+      'transaction_date': '2025-12-08T10:30:00.000Z',
+      'type': 'cost_coverage',
+      'method': null,
+      'psp_number': 'NA',
+      'basket_id': 789,
+      'transfer_id': null,
+      'cost_coverage': {
+        'id': 8,
+        'createdAt': '2026-01-08T10:10:50.851Z',
+        'updatedAt': '2026-01-08T10:10:50.851Z',
+        'code': 'INS-12345',
+        'amount': 4900,
+        'status': 'completed',
+        'invoice_id': 'A93106816983249',
+        'basket_id': 789,
+      },
+    },
+    {
+      'id': 12346,
+      'created_at': '2025-12-08T11:30:00.000Z',
+      'updated_at': '2025-12-08T11:30:00.000Z',
+      'payment_invoice_id': 'A93106816983249',
+      'amount': 4900,
+      'refund_amount': 0,
+      'status': 'replaced',
+      'transaction_date': '2025-12-08T11:30:00.000Z',
+      'type': 'cost_coverage',
+      'method': null,
+      'psp_number': 'NA',
+      'basket_id': 789,
+      'transfer_id': null,
+      'cost_coverage': {
+        'id': 9,
+        'createdAt': '2026-01-08T11:10:50.851Z',
+        'updatedAt': '2026-01-08T11:10:50.851Z',
+        'code': 'INS-12345',
+        'amount': 4900,
+        'status': 'replaced',
+        'invoice_id': 'A93106816983249',
+        'basket_id': 789,
+      },
+    },
+  ],
+};
+
+final mockRemoveCostCoverageResponse = {
+  'removed': true,
+  'payment': mockPaymentInformationJson,
+};
 
 final mockCostCoverageResponse = {
   'applied': true,
@@ -316,4 +609,150 @@ final mockCostCoverageResponse = {
       },
     ],
   },
+};
+
+final mockBasePaymentJson = {
+  'invoice_id': 'A93106816983249',
+  'email': 'test@example.com',
+  'first_name': 'John',
+  'last_name': 'Doe',
+  'payment_status': 'pending',
+  'product_type': 'prescription',
+  'zid': 'Z123',
+  'amount_due': 4900,
+  'provider': 'adyen',
+  'created_at': '2025-12-08T10:30:00.000Z',
+  'meta_data': '{}',
+  'updated_at': '2025-12-08T10:30:00.000Z',
+  'is_five_gram': false,
+  'reverse_transfers': false,
+  'product_types': ['prescription'],
+  'baskets': [
+    {
+      'id': 789,
+      'order_id': null,
+      'replaces_basket': false,
+      'amount_due': 4900,
+      'created_at': '2025-12-08T10:30:00.000Z',
+      'updated_at': '2025-12-08T10:30:00.000Z',
+      'invoice_id': 'A93106816983249',
+      'amount_total_discount': 0,
+      'amount_total_gross': 4900,
+      'title': 'Prescription',
+      'sub_title': 'Pending Payment',
+      'active': true,
+      'items': [],
+    },
+  ],
+};
+
+final mockCompletedCostCoverageTransaction = {
+  'id': 12345,
+  'created_at': '2025-12-08T10:30:00.000Z',
+  'updated_at': '2025-12-08T10:30:00.000Z',
+  'payment_invoice_id': 'A93106816983249',
+  'amount': 4900,
+  'refund_amount': 0,
+  'status': 'completed',
+  'transaction_date': '2025-12-08T10:30:00.000Z',
+  'type': 'cost_coverage',
+  'method': null,
+  'psp_number': 'NA',
+  'basket_id': 789,
+  'transfer_id': null,
+  'cost_coverage': {
+    'id': 8,
+    'createdAt': '2026-01-08T10:10:50.851Z',
+    'updatedAt': '2026-01-08T10:10:50.851Z',
+    'code': 'INS-12345',
+    'amount': 4900,
+    'status': 'completed',
+    'invoice_id': 'A93106816983249',
+    'basket_id': 789,
+  },
+};
+
+final mockReplacedCostCoverageTransaction = {
+  'id': 12346,
+  'created_at': '2025-12-08T11:30:00.000Z',
+  'updated_at': '2025-12-08T11:30:00.000Z',
+  'payment_invoice_id': 'A93106816983249',
+  'amount': 4900,
+  'refund_amount': 0,
+  'status': 'replaced',
+  'transaction_date': '2025-12-08T11:30:00.000Z',
+  'type': 'cost_coverage',
+  'method': null,
+  'psp_number': 'NA',
+  'basket_id': 789,
+  'transfer_id': null,
+  'cost_coverage': {
+    'id': 9,
+    'createdAt': '2026-01-08T11:10:50.851Z',
+    'updatedAt': '2026-01-08T11:10:50.851Z',
+    'code': 'INS-12345',
+    'amount': 4900,
+    'status': 'replaced',
+    'invoice_id': 'A93106816983249',
+    'basket_id': 789,
+  },
+};
+
+final mockSecondCompletedCostCoverageTransaction = {
+  'id': 12347,
+  'created_at': '2025-12-08T12:30:00.000Z',
+  'updated_at': '2025-12-08T12:30:00.000Z',
+  'payment_invoice_id': 'A93106816983249',
+  'amount': 4900,
+  'refund_amount': 0,
+  'status': 'completed',
+  'transaction_date': '2025-12-08T12:30:00.000Z',
+  'type': 'cost_coverage',
+  'method': null,
+  'psp_number': 'NA',
+  'basket_id': 789,
+  'transfer_id': null,
+  'cost_coverage': {
+    'id': 10,
+    'createdAt': '2026-01-08T12:10:50.851Z',
+    'updatedAt': '2026-01-08T12:10:50.851Z',
+    'code': 'INS-67890',
+    'amount': 4900,
+    'status': 'completed',
+    'invoice_id': 'A93106816983249',
+    'basket_id': 789,
+  },
+};
+
+final mockNonCostCoverageTransaction = {
+  'id': 12348,
+  'created_at': '2025-12-08T10:30:00.000Z',
+  'updated_at': '2025-12-08T10:30:00.000Z',
+  'payment_invoice_id': 'A93106816983249',
+  'amount': 4900,
+  'refund_amount': 0,
+  'status': 'completed',
+  'transaction_date': '2025-12-08T10:30:00.000Z',
+  'type': 'payment',
+  'method': 'card',
+  'psp_number': 'PSP123',
+  'basket_id': 789,
+  'transfer_id': null,
+};
+
+final mockCostCoverageTransactionWithoutCostCoverageObject = {
+  'id': 12349,
+  'created_at': '2025-12-08T10:30:00.000Z',
+  'updated_at': '2025-12-08T10:30:00.000Z',
+  'payment_invoice_id': 'A93106816983249',
+  'amount': 4900,
+  'refund_amount': 0,
+  'status': 'completed',
+  'transaction_date': '2025-12-08T10:30:00.000Z',
+  'type': 'cost_coverage',
+  'method': null,
+  'psp_number': 'NA',
+  'basket_id': 789,
+  'transfer_id': null,
+  'cost_coverage': null,
 };
