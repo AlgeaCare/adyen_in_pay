@@ -96,13 +96,16 @@ class PaymentInformation {
     return latestTransaction.costCoverage?.status == 'completed';
   }
 
-  (int amount, String code)? get costCoverageAmount {
+  ({int discountAmount, String code})? get costCoverageAmount {
     if (_costCoverageTransactions.isEmpty) return null;
     final latestTransaction = _costCoverageTransactions.last;
     if (!hasCostCoverage) {
       return null;
     }
-    return (latestTransaction.costCoverage!.discountAmount, latestTransaction.costCoverage!.code);
+    return (
+      discountAmount: latestTransaction.costCoverage!.discountAmount,
+      code: latestTransaction.costCoverage!.code,
+    );
   }
 
   Transaction? get latestTransaction =>
