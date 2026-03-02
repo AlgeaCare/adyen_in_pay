@@ -24,6 +24,7 @@ class Transaction with _$Transaction {
     String? pspNumber,
     String? capturePspNumber,
     required int basketId,
+    @JsonKey(name: 'costCoverage')
     CostCoverageTransaction? costCoverage,
     int? transferId,
     int? transactionId,
