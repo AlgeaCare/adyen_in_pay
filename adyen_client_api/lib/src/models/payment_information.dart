@@ -93,7 +93,21 @@ class PaymentInformation {
     if (_costCoverageTransactions.isEmpty) return false;
     final latestTransaction = _costCoverageTransactions.last;
 
+    return latestTransaction.costCoverage?.status != 'pending';
+  }
+
+  bool get isCostCoveragedApplied {
+    if (_costCoverageTransactions.isEmpty) return false;
+    final latestTransaction = _costCoverageTransactions.last;
+
     return latestTransaction.costCoverage?.status == 'completed';
+  }
+
+  bool get isCostCoveragedCanceled {
+    if (_costCoverageTransactions.isEmpty) return false;
+    final latestTransaction = _costCoverageTransactions.last;
+
+    return latestTransaction.costCoverage?.status == 'replaced';
   }
 
   ({int discountAmount, String code})? get costCoverageAmount {
