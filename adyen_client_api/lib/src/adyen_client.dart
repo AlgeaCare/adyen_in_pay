@@ -179,7 +179,7 @@ class AdyenClient {
     try {
       final response = await dio.post<Map<String, dynamic>>(
         '/apply-cost-coverage',
-        data: {'invoice_id': invoiceId, 'cost_coverage_code': costCoverageCode},
+        data: {'invoiceId': invoiceId, 'costCoverageCode': costCoverageCode},
       );
 
       if (response.statusCode == 200 && response.data != null) {
