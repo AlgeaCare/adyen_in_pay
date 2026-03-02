@@ -22,10 +22,10 @@ _$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
       pspNumber: json['psp_number'] as String?,
       capturePspNumber: json['capture_psp_number'] as String?,
       basketId: (json['basket_id'] as num).toInt(),
-      costCoverage: json['cost_coverage'] == null
+      costCoverage: json['costCoverage'] == null
           ? null
           : CostCoverageTransaction.fromJson(
-              json['cost_coverage'] as Map<String, dynamic>,
+              json['costCoverage'] as Map<String, dynamic>,
             ),
       transferId: (json['transfer_id'] as num?)?.toInt(),
       transactionId: (json['transaction_id'] as num?)?.toInt(),
@@ -47,7 +47,7 @@ Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
       'psp_number': instance.pspNumber,
       'capture_psp_number': instance.capturePspNumber,
       'basket_id': instance.basketId,
-      'cost_coverage': instance.costCoverage,
+      'costCoverage': instance.costCoverage,
       'transfer_id': instance.transferId,
       'transaction_id': instance.transactionId,
     };

@@ -35,6 +35,7 @@ mixin _$Transaction {
   String? get pspNumber => throw _privateConstructorUsedError;
   String? get capturePspNumber => throw _privateConstructorUsedError;
   int get basketId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'costCoverage')
   CostCoverageTransaction? get costCoverage =>
       throw _privateConstructorUsedError;
   int? get transferId => throw _privateConstructorUsedError;
@@ -72,7 +73,7 @@ abstract class $TransactionCopyWith<$Res> {
     String? pspNumber,
     String? capturePspNumber,
     int basketId,
-    CostCoverageTransaction? costCoverage,
+    @JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage,
     int? transferId,
     int? transactionId,
   });
@@ -229,7 +230,7 @@ abstract class _$$TransactionImplCopyWith<$Res>
     String? pspNumber,
     String? capturePspNumber,
     int basketId,
-    CostCoverageTransaction? costCoverage,
+    @JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage,
     int? transferId,
     int? transactionId,
   });
@@ -364,7 +365,7 @@ class _$TransactionImpl extends _Transaction {
     this.pspNumber,
     this.capturePspNumber,
     required this.basketId,
-    this.costCoverage,
+    @JsonKey(name: 'costCoverage') this.costCoverage,
     this.transferId,
     this.transactionId,
   }) : super._();
@@ -401,6 +402,7 @@ class _$TransactionImpl extends _Transaction {
   @override
   final int basketId;
   @override
+  @JsonKey(name: 'costCoverage')
   final CostCoverageTransaction? costCoverage;
   @override
   final int? transferId;
@@ -501,7 +503,7 @@ abstract class _Transaction extends Transaction {
     final String? pspNumber,
     final String? capturePspNumber,
     required final int basketId,
-    final CostCoverageTransaction? costCoverage,
+    @JsonKey(name: 'costCoverage') final CostCoverageTransaction? costCoverage,
     final int? transferId,
     final int? transactionId,
   }) = _$TransactionImpl;
@@ -539,6 +541,7 @@ abstract class _Transaction extends Transaction {
   @override
   int get basketId;
   @override
+  @JsonKey(name: 'costCoverage')
   CostCoverageTransaction? get costCoverage;
   @override
   int? get transferId;
