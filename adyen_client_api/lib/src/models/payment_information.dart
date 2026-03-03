@@ -93,7 +93,7 @@ class PaymentInformation {
     if (_costCoverageTransactions.isEmpty) return false;
     final latestTransaction = _costCoverageTransactions.last;
 
-    return latestTransaction.costCoverage?.status != 'pending';
+    return latestTransaction.costCoverage?.status != 'replaced';
   }
 
   bool get isCostCoveragedApplied {
