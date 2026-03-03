@@ -125,7 +125,9 @@ class PaymentInformation {
   Transaction? get latestTransaction =>
       transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
 
-  factory PaymentInformation.fromJson(Map<String, dynamic> json) {
+  factory PaymentInformation.fromJson(Map<String, dynamic> json,{
+    int? amountDue,
+  }) {
     return PaymentInformation(
       invoiceId: json['invoice_id'],
       email: json['email'],
@@ -149,7 +151,7 @@ class PaymentInformation {
       zid: json['zid'],
       hsId: json['hs_id'],
       preferredMethod: json['preferred_method'],
-      amountDue: json['amount_due'],
+      amountDue: amountDue ?? json['amount_due'],
       provider: PaymentProvider.values.firstWhere(
         (e) => e.label == json['provider'],
         orElse: () => PaymentProvider.adyen,

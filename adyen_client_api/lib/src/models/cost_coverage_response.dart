@@ -15,7 +15,10 @@ class CostCoverageResponse {
     return CostCoverageResponse(
       applied: json['applied'] as bool,
       amount: json['amount'] as int,
-      paymentInformation: PaymentInformation.fromJson(json['payment'] as Map<String, dynamic>),
+      paymentInformation: PaymentInformation.fromJson(
+        json['payment'] as Map<String, dynamic>,
+        amountDue: json['amount_due']
+      ),
     );
   }
 
