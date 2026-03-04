@@ -27,7 +27,7 @@ _$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
           : CostCoverageTransaction.fromJson(
               json['costCoverage'] as Map<String, dynamic>,
             ),
-      transferId: (json['transfer_id'] as num?)?.toInt(),
+      transferId: json['transfer_id'] as String?,
       transactionId: (json['transaction_id'] as num?)?.toInt(),
     );
 

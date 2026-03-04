@@ -38,7 +38,7 @@ mixin _$Transaction {
   @JsonKey(name: 'costCoverage')
   CostCoverageTransaction? get costCoverage =>
       throw _privateConstructorUsedError;
-  int? get transferId => throw _privateConstructorUsedError;
+  String? get transferId => throw _privateConstructorUsedError;
   int? get transactionId => throw _privateConstructorUsedError;
 
   /// Serializes this Transaction to a JSON map.
@@ -74,7 +74,7 @@ abstract class $TransactionCopyWith<$Res> {
     String? capturePspNumber,
     int basketId,
     @JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage,
-    int? transferId,
+    String? transferId,
     int? transactionId,
   });
 
@@ -179,7 +179,7 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
             transferId: freezed == transferId
                 ? _value.transferId
                 : transferId // ignore: cast_nullable_to_non_nullable
-                      as int?,
+                      as String?,
             transactionId: freezed == transactionId
                 ? _value.transactionId
                 : transactionId // ignore: cast_nullable_to_non_nullable
@@ -231,7 +231,7 @@ abstract class _$$TransactionImplCopyWith<$Res>
     String? capturePspNumber,
     int basketId,
     @JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage,
-    int? transferId,
+    String? transferId,
     int? transactionId,
   });
 
@@ -336,7 +336,7 @@ class __$$TransactionImplCopyWithImpl<$Res>
         transferId: freezed == transferId
             ? _value.transferId
             : transferId // ignore: cast_nullable_to_non_nullable
-                  as int?,
+                  as String?,
         transactionId: freezed == transactionId
             ? _value.transactionId
             : transactionId // ignore: cast_nullable_to_non_nullable
@@ -405,7 +405,7 @@ class _$TransactionImpl extends _Transaction {
   @JsonKey(name: 'costCoverage')
   final CostCoverageTransaction? costCoverage;
   @override
-  final int? transferId;
+  final String? transferId;
   @override
   final int? transactionId;
 
@@ -504,7 +504,7 @@ abstract class _Transaction extends Transaction {
     final String? capturePspNumber,
     required final int basketId,
     @JsonKey(name: 'costCoverage') final CostCoverageTransaction? costCoverage,
-    final int? transferId,
+    final String? transferId,
     final int? transactionId,
   }) = _$TransactionImpl;
   _Transaction._() : super._();
@@ -544,7 +544,7 @@ abstract class _Transaction extends Transaction {
   @JsonKey(name: 'costCoverage')
   CostCoverageTransaction? get costCoverage;
   @override
-  int? get transferId;
+  String? get transferId;
   @override
   int? get transactionId;
 

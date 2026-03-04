@@ -26,7 +26,7 @@ class Transaction with _$Transaction {
     required int basketId,
     @JsonKey(name: 'costCoverage')
     CostCoverageTransaction? costCoverage,
-    int? transferId,
+    String? transferId,
     int? transactionId,
   }) = _Transaction;
 
