@@ -17,7 +17,7 @@ class CostCoverageResponse {
       amount: json['amount'] as int,
       paymentInformation: PaymentInformation.fromJson(
         json['payment'] as Map<String, dynamic>,
-        amountDue: json['amount_due']
+        amountDue: json['amount_due'],
       ),
     );
   }
