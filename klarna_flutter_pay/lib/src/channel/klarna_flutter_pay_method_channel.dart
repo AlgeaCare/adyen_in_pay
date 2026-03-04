@@ -6,7 +6,8 @@ import '../interface/klarna_flutter_pay_platform_interface.dart';
 /// An implementation of [KlarnaFlutterPayPlatform] that uses method channels.
 class MethodChannelKlarnaFlutterPay extends KlarnaFlutterPayPlatform {
   /// The method channel used to interact with the native platform.
-  MethodChannelKlarnaFlutterPay(super.channelName) : methodChannel = MethodChannel(channelName);
+  MethodChannelKlarnaFlutterPay(super.channelName)
+    : methodChannel = MethodChannel(channelName);
 
   @visibleForTesting
   final MethodChannel methodChannel;
@@ -21,14 +22,15 @@ class MethodChannelKlarnaFlutterPay extends KlarnaFlutterPayPlatform {
     Map<String, dynamic>? additionalArgs,
   }) async {
     try {
-      final result = await methodChannel.invokeMethod<bool>('initializePayment', {
-        'clientToken': clientToken,
-        'returnURL': returnURL,
-        'environment': environment,
-        'region': region,
-        'loggingLevel': loggingLevel,
-        ...?additionalArgs,
-      });
+      final result = await methodChannel
+          .invokeMethod<bool>('initializePayment', {
+            'clientToken': clientToken,
+            'returnURL': returnURL,
+            'environment': environment,
+            'region': region,
+            'loggingLevel': loggingLevel,
+            ...?additionalArgs,
+          });
       return result ?? false;
     } catch (e) {
       return false;
@@ -46,7 +48,10 @@ class MethodChannelKlarnaFlutterPay extends KlarnaFlutterPayPlatform {
   }
 
   @override
-  Future<bool> authorize({bool autoFinalize = true, String? sessionData}) async {
+  Future<bool> authorize({
+    bool autoFinalize = true,
+    String? sessionData,
+  }) async {
     try {
       final result = await methodChannel.invokeMethod<bool>('authorize', {
         'autoFinalize': autoFinalize,

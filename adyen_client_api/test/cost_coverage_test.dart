@@ -6,7 +6,9 @@ void main() {
   group('CostCoverageResponse', () {
     group('fromJson', () {
       test('parses full response correctly', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
 
         expect(response.applied, isTrue);
         expect(response.amount, equals(4900));
@@ -14,7 +16,9 @@ void main() {
       });
 
       test('parses payment information fields correctly', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final payment = response.paymentInformation;
 
         expect(payment.invoiceId, equals('A93106816983249'));
@@ -27,7 +31,9 @@ void main() {
       });
 
       test('parses transactions correctly', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final transactions = response.paymentInformation.transactions;
 
         expect(transactions, isNotNull);
@@ -40,11 +46,16 @@ void main() {
         expect(transactions[0].type, equals('cost_coverage'));
         expect(transactions[0].paymentInvoiceId, equals('A93106816983249'));
         expect(transactions[0].basketId, equals(789));
-        expect(transactions[0].transactionDate, equals('2025-12-08T10:30:00.000Z'));
+        expect(
+          transactions[0].transactionDate,
+          equals('2025-12-08T10:30:00.000Z'),
+        );
       });
 
       test('parses cost coverage transaction fields correctly', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final transaction = response.paymentInformation.transactions[0];
         final hasCostCoverage = response.paymentInformation.hasCostCoverage;
         expect(hasCostCoverage, isTrue);
@@ -54,17 +65,24 @@ void main() {
       });
 
       test('verifies transaction is linked to basket and invoice', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final transaction = response.paymentInformation.transactions[0];
         final basket = response.paymentInformation.baskets[0];
 
         expect(transaction.basketId, equals(basket.id));
-        expect(transaction.paymentInvoiceId, equals(response.paymentInformation.invoiceId));
+        expect(
+          transaction.paymentInvoiceId,
+          equals(response.paymentInformation.invoiceId),
+        );
         expect(basket.invoiceId, equals(response.paymentInformation.invoiceId));
       });
 
       test('verifies payment status after cost coverage', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final payment = response.paymentInformation;
 
         expect(payment.paymentStatus, equals(AdyenPaymentStatus.paid));
@@ -74,7 +92,9 @@ void main() {
       });
 
       test('parses baskets correctly', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final baskets = response.paymentInformation.baskets;
 
         expect(baskets, isNotNull);
@@ -118,7 +138,9 @@ void main() {
 
     group('copyWith', () {
       test('creates copy with updated applied field', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final copy = response.copyWith(applied: false);
 
         expect(copy.applied, isFalse);
@@ -127,7 +149,9 @@ void main() {
       });
 
       test('creates copy with updated amount field', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final copy = response.copyWith(amount: 9999);
 
         expect(copy.applied, equals(response.applied));
@@ -137,15 +161,21 @@ void main() {
 
     group('equality', () {
       test('two responses with same data are equal', () {
-        final response1 = CostCoverageResponse.fromJson(mockCostCoverageResponse);
-        final response2 = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response1 = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
+        final response2 = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
 
         expect(response1, equals(response2));
         expect(response1.hashCode, equals(response2.hashCode));
       });
 
       test('two responses with different data are not equal', () {
-        final response1 = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response1 = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
         final response2 = response1.copyWith(amount: 9999);
 
         expect(response1, isNot(equals(response2)));
@@ -154,7 +184,9 @@ void main() {
 
     group('toString', () {
       test('returns readable string representation', () {
-        final response = CostCoverageResponse.fromJson(mockCostCoverageResponse);
+        final response = CostCoverageResponse.fromJson(
+          mockCostCoverageResponse,
+        );
 
         expect(response.toString(), contains('CostCoverageResponse'));
         expect(response.toString(), contains('applied: true'));
@@ -177,7 +209,10 @@ void main() {
     test('returns CostCoverageResponse when successful', () async {
       dioAdapter.onPost(
         '/apply-cost-coverage',
-        data: {'invoice_id': 'A93106816983249', 'cost_coverage_code': 'INS-12345'},
+        data: {
+          'invoiceId': 'A93106816983249',
+          'costCoverageCode': 'INS-12345',
+        },
         (server) => server.reply(200, mockCostCoverageResponse),
       );
 
@@ -192,34 +227,44 @@ void main() {
       expect(response.paymentInformation.invoiceId, equals('A93106816983249'));
     });
 
-    test('verifies complete payment information after successful cost coverage', () async {
-      dioAdapter.onPost(
-        '/apply-cost-coverage',
-        data: {'invoice_id': 'A93106816983249', 'cost_coverage_code': 'INS-12345'},
-        (server) => server.reply(200, mockCostCoverageResponse),
-      );
+    test(
+      'verifies complete payment information after successful cost coverage',
+      () async {
+        dioAdapter.onPost(
+          '/apply-cost-coverage',
+          data: {
+            'invoiceId': 'A93106816983249',
+            'costCoverageCode': 'INS-12345',
+          },
+          (server) => server.reply(200, mockCostCoverageResponse),
+        );
 
-      final response = await adyenClient.applyCostCoverage(
-        invoiceId: 'A93106816983249',
-        costCoverageCode: 'INS-12345',
-      );
+        final response = await adyenClient.applyCostCoverage(
+          invoiceId: 'A93106816983249',
+          costCoverageCode: 'INS-12345',
+        );
 
-      final payment = response.paymentInformation;
-      expect(payment.invoiceId, equals('A93106816983249'));
-      expect(payment.paymentStatus, equals(AdyenPaymentStatus.paid));
-      expect(payment.amountDue, equals(4900));
-      expect(payment.transactions.isNotEmpty, isTrue);
-      expect(payment.transactions.first.isCostCoverage, isTrue);
-      expect(payment.transactions.first.amount, equals(response.amount));
-      expect(payment.baskets.isNotEmpty, isTrue);
-      expect(payment.baskets.first.amountDue, equals(response.amount));
-    });
+        final payment = response.paymentInformation;
+        expect(payment.invoiceId, equals('A93106816983249'));
+        expect(payment.paymentStatus, equals(AdyenPaymentStatus.paid));
+        expect(payment.amountDue, equals(4900));
+        expect(payment.transactions.isNotEmpty, isTrue);
+        expect(payment.transactions.first.isCostCoverage, isTrue);
+        expect(payment.transactions.first.amount, equals(response.amount));
+        expect(payment.baskets.isNotEmpty, isTrue);
+        expect(payment.baskets.first.amountDue, equals(response.amount));
+      },
+    );
 
     test('throws exception when request fails', () {
       dioAdapter.onPost(
         '/apply-cost-coverage',
-        data: {'invoice_id': 'invalid-invoice', 'cost_coverage_code': 'INVALID'},
-        (server) => server.reply(400, {'message': 'Invalid cost coverage code'}),
+        data: {
+          'invoice_id': 'invalid-invoice',
+          'cost_coverage_code': 'INVALID',
+        },
+        (server) =>
+            server.reply(400, {'message': 'Invalid cost coverage code'}),
       );
 
       expect(
@@ -234,7 +279,10 @@ void main() {
     test('throws exception on server error', () {
       dioAdapter.onPost(
         '/apply-cost-coverage',
-        data: {'invoice_id': 'A93106816983249', 'cost_coverage_code': 'INS-12345'},
+        data: {
+          'invoice_id': 'A93106816983249',
+          'cost_coverage_code': 'INS-12345',
+        },
         (server) => server.reply(500, {'message': 'Internal Server Error'}),
       );
 
@@ -289,8 +337,14 @@ void main() {
 
       expect(response.transactions.isNotEmpty, isTrue);
       expect(response.transactions.length, equals(2));
-      expect(response.transactions.first.costCoverage?.status, equals('completed'));
-      expect(response.transactions.last.costCoverage?.status, equals('replaced'));
+      expect(
+        response.transactions.first.costCoverage?.status,
+        equals('completed'),
+      );
+      expect(
+        response.transactions.last.costCoverage?.status,
+        equals('replaced'),
+      );
       expect(response.hasCostCoverage, isFalse);
       expect(response.baskets.isNotEmpty, isTrue);
       expect(response.baskets.first.amountDue, equals(4900));
@@ -378,23 +432,29 @@ void main() {
   });
 
   group('PaymentInformation.hasCostCoverage', () {
-    test('returns true when only completed cost coverage transaction exists', () {
-      final paymentInfo = PaymentInformation.fromJson({
-        ...mockBasePaymentJson,
-        'transactions': [mockCompletedCostCoverageTransaction],
-      });
+    test(
+      'returns true when only completed cost coverage transaction exists',
+      () {
+        final paymentInfo = PaymentInformation.fromJson({
+          ...mockBasePaymentJson,
+          'transactions': [mockCompletedCostCoverageTransaction],
+        });
 
-      expect(paymentInfo.hasCostCoverage, isTrue);
-    });
+        expect(paymentInfo.hasCostCoverage, isTrue);
+      },
+    );
 
-    test('returns false when only replaced cost coverage transaction exists', () {
-      final paymentInfo = PaymentInformation.fromJson({
-        ...mockBasePaymentJson,
-        'transactions': [mockReplacedCostCoverageTransaction],
-      });
+    test(
+      'returns false when only replaced cost coverage transaction exists',
+      () {
+        final paymentInfo = PaymentInformation.fromJson({
+          ...mockBasePaymentJson,
+          'transactions': [mockReplacedCostCoverageTransaction],
+        });
 
-      expect(paymentInfo.hasCostCoverage, isFalse);
-    });
+        expect(paymentInfo.hasCostCoverage, isFalse);
+      },
+    );
 
     test('returns false when completed then replaced (latest is replaced)', () {
       final paymentInfo = PaymentInformation.fromJson({
@@ -408,18 +468,21 @@ void main() {
       expect(paymentInfo.hasCostCoverage, isFalse);
     });
 
-    test('returns true when completed then replaced then completed (latest is completed)', () {
-      final paymentInfo = PaymentInformation.fromJson({
-        ...mockBasePaymentJson,
-        'transactions': [
-          mockCompletedCostCoverageTransaction,
-          mockReplacedCostCoverageTransaction,
-          mockSecondCompletedCostCoverageTransaction,
-        ],
-      });
+    test(
+      'returns true when completed then replaced then completed (latest is completed)',
+      () {
+        final paymentInfo = PaymentInformation.fromJson({
+          ...mockBasePaymentJson,
+          'transactions': [
+            mockCompletedCostCoverageTransaction,
+            mockReplacedCostCoverageTransaction,
+            mockSecondCompletedCostCoverageTransaction,
+          ],
+        });
 
-      expect(paymentInfo.hasCostCoverage, isTrue);
-    });
+        expect(paymentInfo.hasCostCoverage, isTrue);
+      },
+    );
 
     test('returns false when no transactions exist', () {
       final paymentInfo = PaymentInformation.fromJson({
@@ -430,22 +493,73 @@ void main() {
       expect(paymentInfo.hasCostCoverage, isFalse);
     });
 
-    test('returns false when transactions exist but none are cost_coverage type', () {
-      final paymentInfo = PaymentInformation.fromJson({
-        ...mockBasePaymentJson,
-        'transactions': [mockNonCostCoverageTransaction],
-      });
+    test(
+      'returns false when transactions exist but none are cost_coverage type',
+      () {
+        final paymentInfo = PaymentInformation.fromJson({
+          ...mockBasePaymentJson,
+          'transactions': [mockNonCostCoverageTransaction],
+        });
 
-      expect(paymentInfo.hasCostCoverage, isFalse);
-    });
+        expect(paymentInfo.hasCostCoverage, isFalse);
+      },
+    );
 
-    test('returns false when cost_coverage transaction has no costCoverage object', () {
-      final paymentInfo = PaymentInformation.fromJson({
-        ...mockBasePaymentJson,
-        'transactions': [mockCostCoverageTransactionWithoutCostCoverageObject],
-      });
+    test(
+      'returns false when cost_coverage transaction has no costCoverage object',
+      () {
+        final paymentInfo = PaymentInformation.fromJson({
+          ...mockBasePaymentJson,
+          'transactions': [
+            mockCostCoverageTransactionWithoutCostCoverageObject,
+          ],
+        });
 
-      expect(paymentInfo.hasCostCoverage, isFalse);
+        expect(paymentInfo.hasCostCoverage, isFalse);
+      },
+    );
+  });
+
+  group('PaymentInformation.fromJson payload compatibility', () {
+    test(
+      'parses payload without product_types and with snake_case cost_coverage',
+      () {
+        final paymentInfo = PaymentInformation.fromJson(
+          mockAppliedCostCoverageResponse['payment'] as Map<String, dynamic>,
+        );
+
+        expect(paymentInfo.invoiceId, equals('A08380190590506'));
+        expect(paymentInfo.productType, equals('pharmacy_order'));
+        expect(paymentInfo.productTypes, equals(['pharmacy_order']));
+        expect(paymentInfo.amountDue, equals(12980));
+        expect(paymentInfo.transactions.length, equals(3));
+        expect(paymentInfo.hasCostCoverage, isTrue);
+
+        final costCoverageTransaction = paymentInfo.transactions.firstWhere(
+          (transaction) => transaction.type == 'cost_coverage',
+        );
+        expect(costCoverageTransaction.costCoverage, isNotNull);
+        expect(costCoverageTransaction.costCoverage!.code, equals('CC_10'));
+        expect(
+          costCoverageTransaction.costCoverage!.discountAmount,
+          equals(1000),
+        );
+
+        final costCoverageAmount = paymentInfo.costCoverageAmount;
+        expect(costCoverageAmount, isNotNull);
+        expect(costCoverageAmount!.discountAmount, equals(1000));
+        expect(costCoverageAmount.code, equals('CC_10'));
+      },
+    );
+
+    test('keeps amount due from top-level cost coverage response', () {
+      final response = CostCoverageResponse.fromJson(
+        mockAppliedCostCoverageResponse,
+      );
+
+      expect(response.applied, isTrue);
+      expect(response.amount, equals(1000));
+      expect(response.paymentInformation.amountDue, equals(12980));
     });
   });
 }
@@ -545,6 +659,7 @@ final mockRemoveCostCoverageResponse = {
 final mockCostCoverageResponse = {
   'applied': true,
   'amount': 4900,
+  'amount_due': 4900,
   'payment': {
     'invoice_id': 'A93106816983249',
     'email': 'test@example.com',
@@ -553,7 +668,6 @@ final mockCostCoverageResponse = {
     'payment_status': 'paid',
     'product_type': 'prescription',
     'zid': 'Z123',
-    'amount_due': 4900,
     'provider': 'adyen',
     'created_at': '2025-12-08T10:30:00.000Z',
     'meta_data': '{}',
@@ -755,4 +869,177 @@ final mockCostCoverageTransactionWithoutCostCoverageObject = {
   'basket_id': 789,
   'transfer_id': null,
   'cost_coverage': null,
+};
+
+final mockAppliedCostCoverageResponse = {
+  'applied': true,
+  'amount': 1000,
+  'amount_due': 12980,
+  'payment': {
+    'invoice_id': 'A08380190590506',
+    'provider': 'adyen',
+    'email': 'sabina.lauth+stg11@bloomwell.de',
+    'first_name': 'Sabina',
+    'last_name': 'elf',
+    'payment_status': 'pending',
+    'completed_at': null,
+    'completed_at_first': null,
+    'product_type': 'pharmacy_order',
+    'zid': 'Z16269763975460',
+    'meta_data': '{}',
+    'warnings': null,
+    'hs_id': '413922335975',
+    'comment': null,
+    'reminder_date': null,
+    'next_reminder': null,
+    'preferred_method': 'online',
+    'ignored_items': null,
+    'created_at': '2026-03-04T12:56:29.863Z',
+    'updated_at': '2026-03-04T13:00:14.504Z',
+    'payment_id': null,
+    'voucher_code': null,
+    'invoice_url': null,
+    'is_five_gram': false,
+    'reverse_transfers': true,
+    'adyen_ignore_fixed_share': false,
+    'adyen_no_payment_just_share': false,
+    'has_active_chargeback': false,
+    'chargeback_status': null,
+    'chargeback_reason': null,
+    'chargeback_created_at': null,
+    'has_dispute': false,
+    'dispute_created_at': null,
+    'pause_chargeback_reminder': false,
+    'is_adjustment': false,
+    'amount_due': 12980,
+    'baskets': [
+      {
+        'id': 15,
+        'invoice_id': 'A08380190590506',
+        'amount_total_discount': 0,
+        'amount_total_gross': 13980,
+        'title': 'Pharmacy Order',
+        'sub_title': '1918745020532613120/A-RIDXUSJYUB',
+        'product_type': 'pharmacy_order',
+        'resource_id': '413922335975',
+        'order_id': '1918745020532613120',
+        'sub_merchant_resource_id': '1844870509653671936',
+        'active': true,
+        'replaces_basket': false,
+        'amount_due': 13980,
+        'created_at': '2026-03-04T12:56:29.863Z',
+        'updated_at': '2026-03-04T12:56:30.170Z',
+        'telephone_consultation': false,
+        'prescription_created': false,
+        'cancellation_fee': false,
+        'appointment_noshow': false,
+        'items': [
+          {
+            'id': 29,
+            'basket_id': 15,
+            'basket_item_reference_id': '1852418248145739776',
+            'quantity': 20,
+            'amount_discount': 0,
+            'amount_gross': 13980,
+            'amount_per_unit': 699,
+            'amount_net': 13980,
+            'title': 'Green Bliss OG',
+            'sub_title': 'White Lemon X Marakabei Local',
+            'type': '',
+            'image_url': '',
+            'created_at': '0001-01-01T00:00:00.000Z',
+            'updated_at': '0001-01-01T00:00:00.000Z',
+          },
+          {
+            'id': 30,
+            'basket_id': 15,
+            'basket_item_reference_id': 'shippingFee',
+            'quantity': 1,
+            'amount_discount': 0,
+            'amount_gross': 0,
+            'amount_per_unit': 0,
+            'amount_net': 0,
+            'title': 'DHL',
+            'sub_title': '',
+            'type': '',
+            'image_url': '',
+            'created_at': '0001-01-01T00:00:00.000Z',
+            'updated_at': '0001-01-01T00:00:00.000Z',
+          },
+        ],
+      },
+    ],
+    'transactions': [
+      {
+        'id': 23,
+        'psp_status': null,
+        'created_at': '2026-03-04T13:01:21.247Z',
+        'updated_at': '2026-03-04T13:01:21.247Z',
+        'payment_invoice_id': 'A08380190590506',
+        'amount': 12980,
+        'refund_amount': 0,
+        'status': 'initiated',
+        'transaction_date': '2026-03-04T13:01:21.246Z',
+        'type': 'payment',
+        'method': null,
+        'psp_number': 'NA',
+        'capture_psp_number': null,
+        'dispute_metadata': null,
+        'basket_id': 15,
+        'transfer_id': null,
+        'transaction_id': 17,
+        'cost_coverage_id': null,
+      },
+      {
+        'id': 22,
+        'psp_status': null,
+        'created_at': '2026-03-04T13:01:21.247Z',
+        'updated_at': '2026-03-04T13:01:21.247Z',
+        'payment_invoice_id': 'A08380190590506',
+        'amount': 1000,
+        'refund_amount': 0,
+        'status': 'pending',
+        'transaction_date': '2026-03-04T13:01:21.246Z',
+        'type': 'cost_coverage',
+        'method': null,
+        'psp_number': 'NA',
+        'capture_psp_number': null,
+        'dispute_metadata': null,
+        'basket_id': 15,
+        'transfer_id': null,
+        'transaction_id': null,
+        'cost_coverage_id': 4,
+        'cost_coverage': {
+          'id': 4,
+          'createdAt': '2026-03-04T13:01:21.247Z',
+          'updatedAt': '2026-03-04T13:01:21.247Z',
+          'code': 'CC_10',
+          'amount': 1000,
+          'status': 'pending',
+          'invoice_id': 'A08380190590506',
+          'basket_id': 15,
+        },
+      },
+      {
+        'id': 17,
+        'psp_status': null,
+        'created_at': '2026-03-04T12:56:29.901Z',
+        'updated_at': '2026-03-04T13:01:21.247Z',
+        'payment_invoice_id': 'A08380190590506',
+        'amount': 13980,
+        'refund_amount': 0,
+        'status': 'replaced',
+        'transaction_date': '2026-03-04T12:56:29.893Z',
+        'type': 'payment',
+        'method': null,
+        'psp_number': 'NA',
+        'capture_psp_number': null,
+        'dispute_metadata': null,
+        'basket_id': 15,
+        'transfer_id': null,
+        'transaction_id': null,
+        'cost_coverage_id': null,
+      },
+    ],
+  },
 };

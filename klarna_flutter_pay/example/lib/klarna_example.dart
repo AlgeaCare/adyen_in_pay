@@ -9,7 +9,8 @@ class KlarnaExample extends StatefulWidget {
 }
 
 class _KlarnaExampleState extends State<KlarnaExample> {
-  final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
   String _status = 'Ready to initialize Klarna';
   bool _isKlarnaStarted = false;
 
@@ -23,19 +24,22 @@ class _KlarnaExampleState extends State<KlarnaExample> {
     );
   }
 
- 
   void _onKlarnaError(Map<String, dynamic> error) {
     setState(() {
       _status = 'Error: ${error['message'] ?? 'Unknown error'}';
     });
-    _showMessage('Klarna error: ${error['message'] ?? 'Unknown error'}', isError: true);
+    _showMessage(
+      'Klarna error: ${error['message'] ?? 'Unknown error'}',
+      isError: true,
+    );
   }
 
   void _onKlarnaFinished(String? authToken, bool approved) {
     setState(() {
       _status = 'Payment ${approved ? 'approved' : 'declined'}';
       if (approved && authToken != null) {
-        _status += '\nAuth Token: ${authToken.substring(0, 20)}...'; // Show first 20 chars
+        _status +=
+            '\nAuth Token: ${authToken.substring(0, 20)}...'; // Show first 20 chars
       }
     });
 
@@ -78,7 +82,10 @@ class _KlarnaExampleState extends State<KlarnaExample> {
                 children: [
                   Text(
                     'Status: $_status',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -92,7 +99,9 @@ class _KlarnaExampleState extends State<KlarnaExample> {
                       Text(
                         _isKlarnaStarted ? 'Klarna Ready' : 'Initializing...',
                         style: TextStyle(
-                          color: _isKlarnaStarted ? Colors.green : Colors.orange,
+                          color: _isKlarnaStarted
+                              ? Colors.green
+                              : Colors.orange,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -105,10 +114,12 @@ class _KlarnaExampleState extends State<KlarnaExample> {
             // Klarna Payment Widget
             Expanded(
               child: KlarnaPaymentWidget(
-                clientToken: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiZjJiZTZiZDAtNDI2Yy02NDA0LTg1Y2UtYzhkODFhODc1MTU5IiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZGUiLCJwdXJjaGFzZV9jb3VudHJ5IjoiREUiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiQWR5ZW4iLCJzZXNzaW9uX3R5cGUiOiJQQVlNRU5UUyIsImNsaWVudF9ldmVudF9iYXNlX3VybCI6Imh0dHBzOi8vZXUucGxheWdyb3VuZC5rbGFybmFldnQuY29tIiwic2NoZW1lIjp0cnVlLCJleHBlcmltZW50cyI6W3sibmFtZSI6ImtwYy1vc20td2lkZ2V0IiwidmFyaWF0ZSI6InYxIn0seyJuYW1lIjoia3BjLWFiZSIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifSx7Im5hbWUiOiJrcGMtcHNlbC00NDI5IiwidmFyaWF0ZSI6ImEifSx7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1zdGF0aWMtd2lkZ2V0IiwidmFyaWF0ZSI6ImluZGV4IiwicGFyYW1ldGVycyI6eyJkeW5hbWljIjoidHJ1ZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1zZGstZmxvdyIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXdlYnZpZXctZmxvdyIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifV0sInJlZ2lvbiI6ImV1Iiwib3JkZXJfYW1vdW50IjoxNTc3Niwib2ZmZXJpbmdfb3B0cyI6Miwib28iOiJkMCIsInZlcnNpb24iOiJ2MS4xMC4wLTE1OTAtZzNlYmMzOTA3In0.c8ekc8fyevwTyjgQeighybi_7U145cPwSIyEJK_nSODdFC-T8FaDfxMX83R05Coao-NTiGFMueILbIiIIm78XgzNhCVCXDh78ECEShg8bDldOff2imhE0stv0h4rC6-4h8iLT7ajpt0XneWWqWhezy24OHuVZunOdoMHohW1qx8xyV8HCrIpzQspWSQI6eq02TRkCA6pJLLYViyMgyUVGuwyHC7YuQpeYFFpsOw7tlsMVIISAfcOtEGzd3ZVXUb5eK0oOhkheDhRhty0ILNWugpxCWvaBh0bKzA6OrRGe3kzSNePobinFC-P-tKamAk_o2qsS7qqQxs5NHuAwYvfdg', // Replace with actual client token
+                clientToken:
+                    'eyJhbGciOiJSUzI1NiIsImtpZCI6IjgyMzA1ZWJjLWI4MTEtMzYzNy1hYTRjLTY2ZWNhMTg3NGYzZCJ9.eyJzZXNzaW9uX2lkIjoiZjJiZTZiZDAtNDI2Yy02NDA0LTg1Y2UtYzhkODFhODc1MTU5IiwiYmFzZV91cmwiOiJodHRwczovL2pzLnBsYXlncm91bmQua2xhcm5hLmNvbS9ldS9rcCIsImRlc2lnbiI6ImtsYXJuYSIsImxhbmd1YWdlIjoiZGUiLCJwdXJjaGFzZV9jb3VudHJ5IjoiREUiLCJlbnZpcm9ubWVudCI6InBsYXlncm91bmQiLCJtZXJjaGFudF9uYW1lIjoiQWR5ZW4iLCJzZXNzaW9uX3R5cGUiOiJQQVlNRU5UUyIsImNsaWVudF9ldmVudF9iYXNlX3VybCI6Imh0dHBzOi8vZXUucGxheWdyb3VuZC5rbGFybmFldnQuY29tIiwic2NoZW1lIjp0cnVlLCJleHBlcmltZW50cyI6W3sibmFtZSI6ImtwYy1vc20td2lkZ2V0IiwidmFyaWF0ZSI6InYxIn0seyJuYW1lIjoia3BjLWFiZSIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifSx7Im5hbWUiOiJrcGMtcHNlbC00NDI5IiwidmFyaWF0ZSI6ImEifSx7Im5hbWUiOiJrcC1jbGllbnQtb25lLXB1cmNoYXNlLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3BjLTFrLXNlcnZpY2UiLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1zdGF0aWMtd2lkZ2V0IiwidmFyaWF0ZSI6ImluZGV4IiwicGFyYW1ldGVycyI6eyJkeW5hbWljIjoidHJ1ZSJ9fSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLWZsb3ciLCJ2YXJpYXRlIjoidmFyaWF0ZS0xIn0seyJuYW1lIjoia3AtY2xpZW50LXV0b3BpYS1zZGstZmxvdyIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifSx7Im5hbWUiOiJrcC1jbGllbnQtdXRvcGlhLXdlYnZpZXctZmxvdyIsInZhcmlhdGUiOiJ2YXJpYXRlLTEifV0sInJlZ2lvbiI6ImV1Iiwib3JkZXJfYW1vdW50IjoxNTc3Niwib2ZmZXJpbmdfb3B0cyI6Miwib28iOiJkMCIsInZlcnNpb24iOiJ2MS4xMC4wLTE1OTAtZzNlYmMzOTA3In0.c8ekc8fyevwTyjgQeighybi_7U145cPwSIyEJK_nSODdFC-T8FaDfxMX83R05Coao-NTiGFMueILbIiIIm78XgzNhCVCXDh78ECEShg8bDldOff2imhE0stv0h4rC6-4h8iLT7ajpt0XneWWqWhezy24OHuVZunOdoMHohW1qx8xyV8HCrIpzQspWSQI6eq02TRkCA6pJLLYViyMgyUVGuwyHC7YuQpeYFFpsOw7tlsMVIISAfcOtEGzd3ZVXUb5eK0oOhkheDhRhty0ILNWugpxCWvaBh0bKzA6OrRGe3kzSNePobinFC-P-tKamAk_o2qsS7qqQxs5NHuAwYvfdg', // Replace with actual client token
                 category: 'pay_now',
                 returnURL: 'https://app.staging.bloomwell.de',
-                environment: KlarnaEnvironment.staging, // Use 'production' for live payments
+                environment: KlarnaEnvironment
+                    .staging, // Use 'production' for live payments
                 region: KlarnaRegion.eu, // or 'US', 'OC'
                 loggingLevel: 'verbose',
                 onKlarnaError: _onKlarnaError,

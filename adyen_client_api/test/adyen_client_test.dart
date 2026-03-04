@@ -117,7 +117,8 @@ void main() {
         final extraData = paymentRequest.toJson();
         extraData['browserInfo'] = {'userAgent': 'test-user-agent'};
 
-        final dataRequest = paymentInformation.toPaymentDataJson()..addAll(extraData);
+        final dataRequest = paymentInformation.toPaymentDataJson()
+          ..addAll(extraData);
         dioAdapter.onPost(
           '/make-payment',
           data: {
@@ -183,7 +184,8 @@ void main() {
         );
         dioAdapter.onPost(
           '/make-payment',
-          data: paymentInformation.toPaymentDataJson()..addAll(paymentRequest.toJson()),
+          data: paymentInformation.toPaymentDataJson()
+            ..addAll(paymentRequest.toJson()),
           (server) => server.reply(
             500,
             {'message': 'Server Error'},
@@ -193,7 +195,10 @@ void main() {
         );
 
         expect(
-          () => adyenClient.makePayment(paymentInformation, paymentRequest.toJson()),
+          () => adyenClient.makePayment(
+            paymentInformation,
+            paymentRequest.toJson(),
+          ),
           throwsException,
         );
       });
@@ -214,7 +219,10 @@ void main() {
     final paymentResponse = PaymentResponse.fromJson(mockResponse3);
     expect(paymentResponse, isA<PaymentResponse>());
     expect(paymentResponse.resultCode, PaymentResultCode.authorised);
-    expect(paymentResponse.resultCode.label, PaymentResultCode.authorised.label);
+    expect(
+      paymentResponse.resultCode.label,
+      PaymentResultCode.authorised.label,
+    );
     expect(paymentResponse.pspReference, equals('C8T2BNG6NVTV7VV5'));
     expect(paymentResponse.amount, isA<SessionAmount>());
     expect(paymentResponse.amount?.value, isA<int>());

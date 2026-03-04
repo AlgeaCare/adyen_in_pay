@@ -1,12 +1,16 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart';
-import 'package:adyen_in_pay/src/platform/drop_in.dart' show paymentData, setPaymentData;
+import 'package:adyen_in_pay/src/platform/drop_in.dart'
+    show paymentData, setPaymentData;
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
-import 'package:adyen_in_pay/src/utils/klarna_native_bottom_sheet.dart' show showKlarnaBottomSheet;
+import 'package:adyen_in_pay/src/utils/klarna_native_bottom_sheet.dart'
+    show showKlarnaBottomSheet;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show BuildContext, Widget, TargetPlatform;
-import 'package:klarna_flutter_pay/klarna_flutter_pay.dart' show KlarnaEnvironment;
+import 'package:flutter/material.dart'
+    show BuildContext, Widget, TargetPlatform;
+import 'package:klarna_flutter_pay/klarna_flutter_pay.dart'
+    show KlarnaEnvironment;
 import 'package:ua_client_hints/ua_client_hints.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,9 +21,11 @@ void dropIn({
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
-  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus)
+  onConfigurationStatus,
   CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
-  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
+  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)?
+  skipPaymentMethodCallback,
   PaymentInformation? paymentInformation,
   Widget? widgetChildCloseForWeb,
   bool ignoreGooglePay = false,
@@ -47,19 +53,23 @@ Future<void> dropInAdvancedMobile({
   required AdyenConfiguration configuration,
   required Function(PaymentResult payment) onPaymentResult,
   required ShopperPaymentInformation shopperPaymentInformation,
-  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
+  PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)?
+  skipPaymentMethodCallback,
   bool acceptOnlyCard = false,
   bool ignoreGooglePay = false,
-  required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+  required Function(ConfigurationStatus configurationStatus)
+  onConfigurationStatus,
   PaymentInformation? paymentInformation,
   CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
 }) async {
   onConfigurationStatus(ConfigurationStatus.started);
   final ValueNotifier<bool> isKlarnaNotifier = ValueNotifier(false);
-  final channel = defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
+  final channel =
+      defaultTargetPlatform == TargetPlatform.android ? 'android' : 'ios';
   var paymentInfo = paymentInformation;
   PaymentMethodResponse? paymentMethods;
-  String userAgentStr = 'Bloomwell/8.0.0 (Android 15; SM-A546B; a54x; arm64-v8a)';
+  String userAgentStr =
+      'Bloomwell/8.0.0 (Android 15; SM-A546B; a54x; arm64-v8a)';
   try {
     userAgentStr = await userAgent();
 
@@ -76,7 +86,8 @@ Future<void> dropInAdvancedMobile({
         'shopperLocale': shopperPaymentInformation.locale,
       },
     );
-    paymentMethods = skipPaymentMethodCallback?.call(paymentMethods) ?? paymentMethods;
+    paymentMethods =
+        skipPaymentMethodCallback?.call(paymentMethods) ?? paymentMethods;
     onConfigurationStatus(ConfigurationStatus.done);
   } catch (e, trace) {
     debugPrint(e.toString());
@@ -87,7 +98,10 @@ Future<void> dropInAdvancedMobile({
 
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
-    amount: Amount(value: configuration.amount ?? paymentInfo.amountDue, currency: 'EUR'),
+    amount: Amount(
+      value: configuration.amount ?? paymentInfo.amountDue,
+      currency: 'EUR',
+    ),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
     cardConfiguration: CardConfiguration(
@@ -120,7 +134,8 @@ Future<void> dropInAdvancedMobile({
     storedPaymentMethodConfiguration: StoredPaymentMethodConfiguration(
       showPreselectedStoredPaymentMethod: true,
     ),
-    environment: configuration.env == 'test' ? Environment.test : Environment.europe,
+    environment:
+        configuration.env == 'test' ? Environment.test : Environment.europe,
     countryCode: shopperPaymentInformation.countryCode,
   );
   final paymentResult = await AdyenCheckout.advanced.startDropIn(
@@ -135,8 +150,12 @@ Future<void> dropInAdvancedMobile({
         final paymentMethodType = data['paymentMethod']['type'];
         if (paymentMethodType.contains('klarna')) {
           data['paymentMethod'] = {'type': paymentMethodType};
-          if (customPaymentConfigurationWidget?.klarnaPayEnum == KlarnaPayEnum.sdk) {
-            data['paymentMethod'] = {'type': paymentMethodType, 'subtype': 'sdk'};
+          if (customPaymentConfigurationWidget?.klarnaPayEnum ==
+              KlarnaPayEnum.sdk) {
+            data['paymentMethod'] = {
+              'type': paymentMethodType,
+              'subtype': 'sdk',
+            };
           }
         }
         final modifiedData =
@@ -166,10 +185,14 @@ Future<void> dropInAdvancedMobile({
           countryCode: shopperPaymentInformation.countryCode,
           shopperLocale: shopperPaymentInformation.locale,
           telephoneNumber: shopperPaymentInformation.telephoneNumber,
-          userAgent: defaultTargetPlatform == TargetPlatform.android ? userAgentStr : null,
+          userAgent:
+              defaultTargetPlatform == TargetPlatform.android
+                  ? userAgentStr
+                  : null,
         );
         if (result.action?['paymentMethodType']?.contains('klarna') == true &&
-            customPaymentConfigurationWidget?.klarnaPayEnum != KlarnaPayEnum.redirect &&
+            customPaymentConfigurationWidget?.klarnaPayEnum !=
+                KlarnaPayEnum.redirect &&
             customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
           debugPrint("result: ${result.action?.toString()}");
           // setPaymentData(result.action?['paymentData']);
@@ -191,10 +214,13 @@ Future<void> dropInAdvancedMobile({
               paymentData: result.action!['paymentData'],
               category: result.action!['sdkData']['payment_method_category'],
               environment: configuration.env,
-              processingWidget: customPaymentConfigurationWidget?.processingKlarnaWidget,
-              initializationWidget: customPaymentConfigurationWidget?.initializationKlarnaWidget,
+              processingWidget:
+                  customPaymentConfigurationWidget?.processingKlarnaWidget,
+              initializationWidget:
+                  customPaymentConfigurationWidget?.initializationKlarnaWidget,
               bottomSheetMaxHeightRatio:
-                  customPaymentConfigurationWidget?.bottomSheetMaxHeightRatio ?? 0.6,
+                  customPaymentConfigurationWidget?.bottomSheetMaxHeightRatio ??
+                  0.6,
             ),
             onRetry: () {
               debugPrint("onRetry called");
@@ -226,7 +252,9 @@ Future<void> dropInAdvancedMobile({
               }
 
               onPaymentResult(
-                PaymentAdvancedFinished(resultCode: resultCodeFromString(resultKlarna.resultCode)),
+                PaymentAdvancedFinished(
+                  resultCode: resultCodeFromString(resultKlarna.resultCode),
+                ),
               );
               break;
             case Action():
@@ -235,11 +263,16 @@ Future<void> dropInAdvancedMobile({
             case Error():
               onPaymentResult(PaymentError(reason: resultKlarna.errorMessage));
           }
-        } else if ((result.action?['paymentMethodType']?.contains('paybybank') == true &&
+        } else if ((result.action?['paymentMethodType']?.contains(
+                      'paybybank',
+                    ) ==
+                    true &&
                 result.actionType == 'redirect') ||
             (result.action?['paymentMethodType']?.contains('klarna') == true &&
-                    customPaymentConfigurationWidget?.klarnaPayEnum == KlarnaPayEnum.redirect) &&
-                customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
+                    customPaymentConfigurationWidget?.klarnaPayEnum ==
+                        KlarnaPayEnum.redirect) &&
+                customPaymentConfigurationWidget?.defaultKlarnaAction ==
+                    false) {
           isKlarnaNotifier.value = true;
           await AdyenCheckout.advanced.stopDropIn();
           if (!context.mounted) {
@@ -254,7 +287,8 @@ Future<void> dropInAdvancedMobile({
 
         if (result.actionType == 'threeDS2' ||
             (result.actionType == 'redirect' &&
-                customPaymentConfigurationWidget?.defaultKlarnaAction != false) ||
+                customPaymentConfigurationWidget?.defaultKlarnaAction !=
+                    false) ||
             result.actionType == 'qrCode' ||
             result.actionType == 'await' ||
             result.actionType == 'sdk') {
@@ -274,10 +308,14 @@ Future<void> dropInAdvancedMobile({
         data["provider"] = paymentResult;
         data["payment"] = {'invoiceId': reference};
         final result = await client.makeDetailPayment(data);
-        if (result.resultCode.toLowerCase() == PaymentResultCode.authorised.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.received.name.toLowerCase() ||
-            result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
+        if (result.resultCode.toLowerCase() ==
+                PaymentResultCode.authorised.name.toLowerCase() ||
+            result.resultCode.toLowerCase() ==
+                PaymentResultCode.pending.name.toLowerCase() ||
+            result.resultCode.toLowerCase() ==
+                PaymentResultCode.received.name.toLowerCase() ||
+            result.resultCode.toLowerCase() ==
+                PaymentResultCode.paid.name.toLowerCase()) {
           return Finished(resultCode: result.resultCode);
         }
         return Error(errorMessage: result.resultCode);

@@ -85,7 +85,8 @@ class PaymentInformation {
 
   bool get isAdyen => provider == PaymentProvider.adyen;
 
-  AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
+  AdyenBasket? get activeBasket =>
+      baskets.where((basket) => basket.active).firstOrNull;
   List<Transaction> get _costCoverageTransactions => transactions
       .where((t) => t.type == 'cost_coverage' && t.costCoverage != null)
       .sorted((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -122,12 +123,17 @@ class PaymentInformation {
     );
   }
 
-  Transaction? get latestTransaction =>
-      transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
+  Transaction? get latestTransaction => transactions
+      .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
+      .lastOrNull;
 
-  factory PaymentInformation.fromJson(Map<String, dynamic> json,{
+  factory PaymentInformation.fromJson(
+    Map<String, dynamic> json, {
     int? amountDue,
   }) {
+    final productTypes = _parseProductTypes(json);
+    final transactions = _parseTransactions(json);
+
     return PaymentInformation(
       invoiceId: json['invoice_id'],
       email: json['email'],
@@ -169,11 +175,43 @@ class PaymentInformation {
       updatedAt: json['updated_at'],
       isFiveGram: json['is_five_gram'],
       reverseTransfers: json['reverse_transfers'],
-      productTypes: (json['product_types'] as List).map((e) => e.toString()).toList(),
-      transactions: json['transactions'] != null
-          ? (json['transactions'] as List).map((e) => Transaction.fromJson(e)).toList()
-          : null,
+      productTypes: productTypes,
+      transactions: transactions,
     );
+  }
+
+  static List<String> _parseProductTypes(Map<String, dynamic> json) {
+    final productTypes = json['product_types'];
+    if (productTypes is List) {
+      return productTypes.map((e) => e.toString()).toList();
+    }
+
+    final productType = json['product_type'];
+    if (productType == null || productType.toString().isEmpty) {
+      return const [];
+    }
+
+    return [productType.toString()];
+  }
+
+  static List<Transaction>? _parseTransactions(Map<String, dynamic> json) {
+    final transactions = json['transactions'];
+    if (transactions is! List) {
+      return null;
+    }
+
+    return transactions.map((rawTransaction) {
+      final normalizedTransaction = Map<String, dynamic>.from(
+        rawTransaction as Map,
+      );
+      if (normalizedTransaction['costCoverage'] == null &&
+          normalizedTransaction['cost_coverage'] != null) {
+        normalizedTransaction['costCoverage'] =
+            normalizedTransaction['cost_coverage'];
+      }
+
+      return Transaction.fromJson(normalizedTransaction);
+    }).toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -314,10 +352,13 @@ class AdyenBasket {
     required this.items,
   });
 
-  bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
+  bool get hasVoucher =>
+      items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
   String? get voucherCode => items
-      .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+      .firstWhereOrNull(
+        (item) => item.type == VoucherBasketItemType.voucher.label,
+      )
       ?.basketItemReferenceId;
 
   // we want to not show vouchers in the list
@@ -343,7 +384,9 @@ class AdyenBasket {
       resourceId: json['resource_id'],
       subMerchantResourceId: json['sub_merchant_resource_id'],
       active: json['active'],
-      items: (json['items'] as List).map((itemJson) => AdyenBasketItem.fromJson(itemJson)).toList(),
+      items: (json['items'] as List)
+          .map((itemJson) => AdyenBasketItem.fromJson(itemJson))
+          .toList(),
     );
   }
 

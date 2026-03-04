@@ -1,5 +1,5 @@
-import 'package:klarna_flutter_pay/src/interface/klarna_flutter_pay_platform_interface.dart' show KlarnaFlutterPayPlatform;
-
+import 'package:klarna_flutter_pay/src/interface/klarna_flutter_pay_platform_interface.dart'
+    show KlarnaFlutterPayPlatform;
 
 class KlarnaFlutterPay {
   /// Initialize Klarna payment with client token and configuration

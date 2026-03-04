@@ -24,13 +24,13 @@ class Transaction with _$Transaction {
     String? pspNumber,
     String? capturePspNumber,
     required int basketId,
-    @JsonKey(name: 'costCoverage')
-    CostCoverageTransaction? costCoverage,
+    @JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage,
     String? transferId,
     int? transactionId,
   }) = _Transaction;
 
-  factory Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
+  factory Transaction.fromJson(Map<String, dynamic> json) =>
+      _$TransactionFromJson(json);
   bool get hasPspNumber =>
       pspNumber != null &&
       pspNumber!.isNotEmpty &&

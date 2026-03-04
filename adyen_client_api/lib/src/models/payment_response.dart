@@ -37,7 +37,10 @@ class DetailPaymentResponse {
   }
 
   Map<String, dynamic> toJson() {
-    return {'resultCode': resultCode, if (pspReference != null) 'pspReference': pspReference};
+    return {
+      'resultCode': resultCode,
+      if (pspReference != null) 'pspReference': pspReference,
+    };
   }
 }
 

@@ -18,8 +18,8 @@ class _DropInWidgetState extends State<DropInWidget> {
   ValueNotifier<PaymentInformation?> paymentInformation = ValueNotifier(null);
   ValueNotifier<ConfigurationStatus?> configurationStatus = ValueNotifier(null);
   AdyenClient? client;
-  late final listenable =
-      Listenable.merge([amount, reference, configurationStatus, paymentInformation]);
+  late final listenable = Listenable.merge(
+      [amount, reference, configurationStatus, paymentInformation]);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +43,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                         )
                       ]);
                       reference.value = invoiceID;
-                      paymentInformation.value = await showDialog<PaymentInformation>(
+                      paymentInformation.value =
+                          await showDialog<PaymentInformation>(
                         context: context,
                         builder: (context) {
                           return LoadInformation(
@@ -97,7 +98,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                         TableRow(
                           children: [
                             const Text('status'),
-                            Text(paymentInformation.value!.paymentStatus.toString()),
+                            Text(paymentInformation.value!.paymentStatus
+                                .toString()),
                           ],
                         ),
                       ],
@@ -109,13 +111,16 @@ class _DropInWidgetState extends State<DropInWidget> {
                 animation: listenable,
                 builder: (context, child) {
                   return TextButton(
-                    onPressed: !isDone(paymentInformation.value?.paymentStatus) &&
+                    onPressed: !isDone(
+                                paymentInformation.value?.paymentStatus) &&
                             amount.value != null &&
                             reference.value != null &&
-                            configurationStatus.value != ConfigurationStatus.started
+                            configurationStatus.value !=
+                                ConfigurationStatus.started
                         ? () async {
-                            final information =
-                                await client!.paymentInformation(invoiceId: reference.value!);
+                            final information = await client!
+                                .paymentInformation(
+                                    invoiceId: reference.value!);
                             if (!context.mounted) {
                               return;
                             }
@@ -150,12 +155,14 @@ class _DropInWidgetState extends State<DropInWidget> {
                               onConfigurationStatus: (status) {
                                 configurationStatus.value = status;
                               },
-                              customPaymentConfigurationWidget: CustomPaymentConfigurationWidget(
+                              customPaymentConfigurationWidget:
+                                  CustomPaymentConfigurationWidget(
                                 klarnaPayEnum: KlarnaPayEnum.redirect,
                                 processingKlarnaWidget: const Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       CircularProgressIndicator(),
                                       Text('Processing Klarna'),
@@ -165,7 +172,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                                 initializationKlarnaWidget: const Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       CircularProgressIndicator(),
                                       Text('Initializing Klarna'),
@@ -173,7 +181,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                                   ),
                                 ),
                               ),
-                              shopperPaymentInformation: ShopperPaymentInformation(
+                              shopperPaymentInformation:
+                                  ShopperPaymentInformation(
                                 billingAddress: ShopperBillingAddress(
                                   city: 'Frankfurt',
                                   street: 'berliner strasse',
@@ -200,7 +209,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                                             color: Colors.green,
                                             size: 64,
                                           ),
-                                          title: const Text('Payment successful'),
+                                          title:
+                                              const Text('Payment successful'),
                                           actions: [
                                             TextButton(
                                               child: const Text('OK'),
@@ -223,7 +233,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                                             color: Colors.green,
                                             size: 64,
                                           ),
-                                          title: const Text('Payment successful'),
+                                          title:
+                                              const Text('Payment successful'),
                                           actions: [
                                             TextButton(
                                               child: const Text('OK'),
@@ -246,7 +257,8 @@ class _DropInWidgetState extends State<DropInWidget> {
                                             color: Colors.orangeAccent,
                                             size: 56,
                                           ),
-                                          title: const Text('Payment cancelled'),
+                                          title:
+                                              const Text('Payment cancelled'),
                                           actions: [
                                             TextButton(
                                               child: const Text('OK'),
@@ -294,8 +306,10 @@ class _DropInWidgetState extends State<DropInWidget> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              Text('Pay now ${amount.value! / 100}€ for ${reference.value!}'),
-                              if (configurationStatus.value == ConfigurationStatus.started) ...[
+                              Text(
+                                  'Pay now ${amount.value! / 100}€ for ${reference.value!}'),
+                              if (configurationStatus.value ==
+                                  ConfigurationStatus.started) ...[
                                 const SizedBox.square(
                                   dimension: 16,
                                   child: CircularProgressIndicator(),
@@ -325,7 +339,8 @@ class _DropInWidgetState extends State<DropInWidget> {
 
 class ConfigurationInputWidget extends StatefulWidget {
   final Function(String, String, String) onConfigurationSaved;
-  const ConfigurationInputWidget({super.key, required this.onConfigurationSaved});
+  const ConfigurationInputWidget(
+      {super.key, required this.onConfigurationSaved});
 
   @override
   State<StatefulWidget> createState() => _ConfigurationInputState();
@@ -333,8 +348,8 @@ class ConfigurationInputWidget extends StatefulWidget {
 
 class _ConfigurationInputState extends State<ConfigurationInputWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _baseUrlController =
-      TextEditingController(text: 'https://api.payments.staging.bloomwell.de/v1');
+  final _baseUrlController = TextEditingController(
+      text: 'https://api.payments.staging.bloomwell.de/v1');
   final _invoiceIdController = TextEditingController(text: 'A06733043421394');
   final _tokenController = TextEditingController(
       text:
@@ -522,7 +537,8 @@ class _LoadInformationState extends State<LoadInformation> {
   }
 
   Future<PaymentInformation> loadInformation() async {
-    final data = await widget.client.paymentInformation(invoiceId: widget.invoiceID);
+    final data =
+        await widget.client.paymentInformation(invoiceId: widget.invoiceID);
     widget.onResult(data);
     return data;
   }

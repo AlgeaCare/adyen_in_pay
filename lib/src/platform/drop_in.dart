@@ -11,13 +11,15 @@ class DropInPlatform {
     required AdyenConfiguration configuration,
     required ShopperPaymentInformation shopperPaymentInformation,
     required Function(PaymentResult payment) onPaymentResult,
-    required Function(ConfigurationStatus configurationStatus) onConfigurationStatus,
+    required Function(ConfigurationStatus configurationStatus)
+    onConfigurationStatus,
     PaymentInformation? paymentInformation,
     Widget? widgetChildCloseForWeb,
     bool acceptOnlyCard = false,
     bool ignoreGooglePay = false,
     String? webURL,
-    PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)? skipPaymentMethodCallback,
+    PaymentMethodResponse Function(PaymentMethodResponse paymentMethods)?
+    skipPaymentMethodCallback,
     CustomPaymentConfigurationWidget? customPaymentConfigurationWidget,
   }) async => dropInPlatform(
     context: context,
@@ -35,7 +37,8 @@ class DropInPlatform {
     webURL: webURL,
     customPaymentConfigurationWidget: customPaymentConfigurationWidget,
   );
-  static Future<void> dropInAdvancedFlowPlatformClose() => dropInPlatformClose();
+  static Future<void> dropInAdvancedFlowPlatformClose() =>
+      dropInPlatformClose();
 }
 
 String? get paymentData => DropInPlatform._paymentData;

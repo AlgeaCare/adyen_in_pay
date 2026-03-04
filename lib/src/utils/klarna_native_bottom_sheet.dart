@@ -1,6 +1,9 @@
 import 'dart:async';
-import 'package:adyen_checkout/adyen_checkout.dart' as adyen show PaymentEvent, Finished, Error;
-import 'package:adyen_in_pay/adyen_in_pay.dart' show DetailPaymentResponse, PaymentResultCode;
+import 'package:adyen_checkout/adyen_checkout.dart'
+    as adyen
+    show PaymentEvent, Finished, Error;
+import 'package:adyen_in_pay/adyen_in_pay.dart'
+    show DetailPaymentResponse, PaymentResultCode;
 import 'package:adyen_in_pay/src/models/custom_payment_configuration_widget.dart';
 import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart'
     show KlarnaNativeConfiguration;
@@ -10,7 +13,9 @@ import 'package:klarna_flutter_pay/klarna_flutter_pay.dart';
 Future<adyen.PaymentEvent> showKlarnaBottomSheet({
   required BuildContext context,
   required KlarnaNativeConfiguration klarnaNativeConfiguration,
-  required Future<DetailPaymentResponse> Function(Map<String, dynamic> paymentDetailBody)
+  required Future<DetailPaymentResponse> Function(
+    Map<String, dynamic> paymentDetailBody,
+  )
   onPaymentDetail,
   required Function() onRetry,
   KlarnaEnvironment environment = KlarnaEnvironment.staging,
@@ -49,18 +54,26 @@ Future<adyen.PaymentEvent> showKlarnaBottomSheet({
               }
               if (result.resultCode.toLowerCase() ==
                       PaymentResultCode.authorised.name.toLowerCase() ||
-                  result.resultCode.toLowerCase() == PaymentResultCode.pending.name.toLowerCase() ||
+                  result.resultCode.toLowerCase() ==
+                      PaymentResultCode.pending.name.toLowerCase() ||
                   result.resultCode.toLowerCase() ==
                       PaymentResultCode.received.name.toLowerCase() ||
-                  result.resultCode.toLowerCase() == PaymentResultCode.paid.name.toLowerCase()) {
+                  result.resultCode.toLowerCase() ==
+                      PaymentResultCode.paid.name.toLowerCase()) {
                 // completer.complete(adyen.Finished(resultCode: event));
-                Navigator.of(context).pop(adyen.Finished(resultCode: result.resultCode.toString()));
+                Navigator.of(
+                  context,
+                ).pop(adyen.Finished(resultCode: result.resultCode.toString()));
               } else {
-                Navigator.of(context).pop(adyen.Error(errorMessage: result.resultCode.toString()));
+                Navigator.of(
+                  context,
+                ).pop(adyen.Error(errorMessage: result.resultCode.toString()));
                 // completer.complete(adyen.Error(errorMessage: result.resultCode.toString()));
               }
             } catch (e) {
-              Navigator.of(context).pop(adyen.Error(errorMessage: e.toString()));
+              Navigator.of(
+                context,
+              ).pop(adyen.Error(errorMessage: e.toString()));
             }
           },
         ),
@@ -110,7 +123,9 @@ class KlarnaWidgetBottomSheet extends StatelessWidget {
         initializationWidget: klarnaNativeConfiguration.initializationWidget,
         onKlarnaFinished: (authToken, approved) async {
           if (authToken == null || !approved || authToken.isEmpty) {
-            Navigator.of(context).pop(adyen.Error(errorMessage: "no authtoken"));
+            Navigator.of(
+              context,
+            ).pop(adyen.Error(errorMessage: "no authtoken"));
             return;
           }
 

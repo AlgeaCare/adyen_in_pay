@@ -111,12 +111,17 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.blue,
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   widget.initializationText,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             ),
@@ -144,12 +149,17 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.green,
+                              ),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               widget.processingText,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -172,7 +182,11 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Error: $errorMessage',
@@ -184,7 +198,10 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
-                        ElevatedButton(onPressed: _retry, child: const Text('Retry')),
+                        ElevatedButton(
+                          onPressed: _retry,
+                          child: const Text('Retry'),
+                        ),
                       ],
                     ),
                   ),
@@ -235,7 +252,10 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
       case 'finishKlarna':
         _isProcessingPayment.value = true;
         final finishData = Map<String, dynamic>.from(call.arguments);
-        widget.onKlarnaFinished?.call(finishData['authToken'], finishData['approved'] ?? false);
+        widget.onKlarnaFinished?.call(
+          finishData['authToken'],
+          finishData['approved'] ?? false,
+        );
         break;
       case 'klarnaEvent':
         final eventData = call.arguments as Map<String, dynamic>?;
@@ -272,7 +292,10 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
     }
   }
 
-  Future<void> authorize({bool autoFinalize = true, String? sessionData}) async {
+  Future<void> authorize({
+    bool autoFinalize = true,
+    String? sessionData,
+  }) async {
     if (_methodChannel != null) {
       try {
         await _methodChannel!.invokeMethod('authorize', {
@@ -288,7 +311,9 @@ class _KlarnaPaymentWidgetState extends State<KlarnaPaymentWidget> {
   Future<void> finalize({String? sessionData}) async {
     if (_methodChannel != null) {
       try {
-        await _methodChannel!.invokeMethod('finalize', {'sessionData': sessionData});
+        await _methodChannel!.invokeMethod('finalize', {
+          'sessionData': sessionData,
+        });
       } catch (e) {
         _errorMessage.value = 'Failed to finalize: $e';
       }

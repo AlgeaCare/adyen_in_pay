@@ -5,7 +5,7 @@ class KlarnaNativeConfiguration {
   final String clientToken;
   final String paymentData;
   final String category;
-  final String environment; 
+  final String environment;
   final Widget? initializationWidget;
   final Widget? processingWidget;
   final double bottomSheetMaxHeightRatio;
