@@ -16,6 +16,7 @@ class PaymentInformation {
   final String? preferredMethod;
   final List<AdyenBasket> baskets;
   final int amountDue;
+  final int amountPaid;
   final PaymentProvider provider;
   final String createdAt;
   final String metaData;
@@ -45,6 +46,7 @@ class PaymentInformation {
     this.preferredMethod,
     required this.baskets,
     required this.amountDue,
+    required this.amountPaid,
     required this.provider,
     required this.createdAt,
     required this.metaData,
@@ -71,6 +73,7 @@ class PaymentInformation {
         zid: '',
         baskets: [],
         amountDue: 0,
+        amountPaid: 0,
         provider: PaymentProvider.adyen,
         createdAt: '',
         metaData: '',
@@ -158,6 +161,7 @@ class PaymentInformation {
       hsId: json['hs_id'],
       preferredMethod: json['preferred_method'],
       amountDue: amountDue ?? json['amount_due'],
+      amountPaid: amountDue ?? json['amount_paid'],
       provider: PaymentProvider.values.firstWhere(
         (e) => e.label == json['provider'],
         orElse: () => PaymentProvider.adyen,
