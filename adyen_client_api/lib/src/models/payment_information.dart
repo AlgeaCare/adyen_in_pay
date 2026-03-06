@@ -88,8 +88,7 @@ class PaymentInformation {
 
   bool get isAdyen => provider == PaymentProvider.adyen;
 
-  AdyenBasket? get activeBasket =>
-      baskets.where((basket) => basket.active).firstOrNull;
+  AdyenBasket? get activeBasket => baskets.where((basket) => basket.active).firstOrNull;
   List<Transaction> get _costCoverageTransactions => transactions
       .where((t) => t.type == 'cost_coverage' && t.costCoverage != null)
       .sorted((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -97,21 +96,21 @@ class PaymentInformation {
     if (_costCoverageTransactions.isEmpty) return false;
     final latestTransaction = _costCoverageTransactions.last;
 
-    return latestTransaction.costCoverage?.status != 'replaced';
+    return latestTransaction.status != 'replaced';
   }
 
   bool get isCostCoveragedApplied {
     if (_costCoverageTransactions.isEmpty) return false;
     final latestTransaction = _costCoverageTransactions.last;
 
-    return latestTransaction.costCoverage?.status == 'completed';
+    return latestTransaction.status == 'completed';
   }
 
   bool get isCostCoveragedCanceled {
     if (_costCoverageTransactions.isEmpty) return false;
     final latestTransaction = _costCoverageTransactions.last;
 
-    return latestTransaction.costCoverage?.status == 'replaced';
+    return latestTransaction.costCoverage?.status == 'cancelled';
   }
 
   ({int discountAmount, String code})? get costCoverageAmount {
@@ -126,9 +125,8 @@ class PaymentInformation {
     );
   }
 
-  Transaction? get latestTransaction => transactions
-      .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
-      .lastOrNull;
+  Transaction? get latestTransaction =>
+      transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
 
   factory PaymentInformation.fromJson(
     Map<String, dynamic> json, {
@@ -210,8 +208,7 @@ class PaymentInformation {
       );
       if (normalizedTransaction['costCoverage'] == null &&
           normalizedTransaction['cost_coverage'] != null) {
-        normalizedTransaction['costCoverage'] =
-            normalizedTransaction['cost_coverage'];
+        normalizedTransaction['costCoverage'] = normalizedTransaction['cost_coverage'];
       }
 
       return Transaction.fromJson(normalizedTransaction);
@@ -356,8 +353,7 @@ class AdyenBasket {
     required this.items,
   });
 
-  bool get hasVoucher =>
-      items.any((item) => item.type == VoucherBasketItemType.voucher.label);
+  bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
   String? get voucherCode => items
       .firstWhereOrNull(
@@ -388,9 +384,7 @@ class AdyenBasket {
       resourceId: json['resource_id'],
       subMerchantResourceId: json['sub_merchant_resource_id'],
       active: json['active'],
-      items: (json['items'] as List)
-          .map((itemJson) => AdyenBasketItem.fromJson(itemJson))
-          .toList(),
+      items: (json['items'] as List).map((itemJson) => AdyenBasketItem.fromJson(itemJson)).toList(),
     );
   }
 
