@@ -217,7 +217,7 @@ class AdyenClient {
       final response = await dio.post<Map<String, dynamic>>(
         '/remove-cost-coverage',
         data: {
-          'invoice_id': invoiceId,
+          'invoiceId': invoiceId,
         },
       );
 
