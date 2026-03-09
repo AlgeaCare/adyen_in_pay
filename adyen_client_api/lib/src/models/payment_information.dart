@@ -129,6 +129,10 @@ class PaymentInformation {
       .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
       .lastWhere((t) => t.type == 'payment');
 
+  Transaction? get latestTransactionCompleted => transactions
+      .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
+      .lastWhere((t) => t.type == 'payment' && t.status == 'completed');
+
   factory PaymentInformation.fromJson(
     Map<String, dynamic> json, {
     int? amountDue,
