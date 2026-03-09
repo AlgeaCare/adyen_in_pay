@@ -125,8 +125,9 @@ class PaymentInformation {
     );
   }
 
-  Transaction? get latestTransaction =>
-      transactions.sorted((a, b) => a.createdAt.compareTo(b.createdAt)).lastOrNull;
+  Transaction? get latestTransaction => transactions
+      .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
+      .lastWhere((t) => t.type == 'payment');
 
   factory PaymentInformation.fromJson(
     Map<String, dynamic> json, {
