@@ -17,8 +17,7 @@ class AdyenClient {
     required this.baseUrl,
     List<Interceptor> interceptors = const [],
     //  required this.apiKey,
-  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))
-         ..interceptors.addAll(interceptors);
+  }) : dio = Dio(BaseOptions(baseUrl: '$baseUrl/payments'))..interceptors.addAll(interceptors);
 
   Future<PaymentMethodResponse> getPaymentMethods({
     required Map<String, dynamic> data,
@@ -224,7 +223,10 @@ class AdyenClient {
       if (response.statusCode == 200 &&
           response.data != null &&
           response.data!['removed'] == true) {
-        return PaymentInformation.fromJson(response.data!['payment']);
+        return PaymentInformation.fromJson(
+          response.data!['payment'],
+          amountDue: response.data!['newPaymentTransaction']['amount'],
+        );
       } else {
         throw Exception(
           'Failed to remove cost coverage: ${response.statusCode}',
