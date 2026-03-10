@@ -133,6 +133,15 @@ class PaymentInformation {
       .sorted((a, b) => a.createdAt.compareTo(b.createdAt))
       .lastWhereOrNull((t) => t.type == 'payment' && t.status == 'completed');
 
+  bool get hasNoPaymentTransactionsCompletedOrPending {
+    return transactions.isEmpty ||
+        transactions
+            .where(
+              (t) => t.type == 'payment' && (t.status == 'completed' || t.status == 'pending'),
+            )
+            .isEmpty;
+  }
+
   factory PaymentInformation.fromJson(
     Map<String, dynamic> json, {
     int? amountDue,
