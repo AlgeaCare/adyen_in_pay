@@ -145,6 +145,7 @@ class PaymentInformation {
   factory PaymentInformation.fromJson(
     Map<String, dynamic> json, {
     int? amountDue,
+    int? amount,
   }) {
     final productTypes = _parseProductTypes(json);
     final transactions = _parseTransactions(json);
@@ -173,7 +174,7 @@ class PaymentInformation {
       hsId: json['hs_id'],
       preferredMethod: json['preferred_method'],
       amountDue: amountDue ?? json['amount_due'],
-      amountPaid: amountDue ?? json['amount_paid'],
+      amountPaid: amount ?? json['amount_paid'],
       provider: PaymentProvider.values.firstWhere(
         (e) => e.label == json['provider'],
         orElse: () => PaymentProvider.adyen,
