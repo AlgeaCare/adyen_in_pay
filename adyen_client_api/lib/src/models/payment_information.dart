@@ -174,7 +174,7 @@ class PaymentInformation {
       hsId: json['hs_id'],
       preferredMethod: json['preferred_method'],
       amountDue: amountDue ?? json['amount_due'],
-      amountPaid: amount ?? json['amount_paid'],
+      amountPaid: amount ?? json['amount_paid'] ?? 0,
       provider: PaymentProvider.values.firstWhere(
         (e) => e.label == json['provider'],
         orElse: () => PaymentProvider.adyen,

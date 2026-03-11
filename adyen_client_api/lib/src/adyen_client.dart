@@ -226,6 +226,7 @@ class AdyenClient {
         return PaymentInformation.fromJson(
           response.data!['payment'],
           amountDue: response.data!['newPaymentTransaction']['amount'],
+          amount: 0,
         );
       } else {
         throw Exception(
