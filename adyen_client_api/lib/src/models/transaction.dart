@@ -4,7 +4,7 @@ part 'transaction.freezed.dart';
 part 'transaction.g.dart';
 
 @freezed
-class Transaction with _$Transaction {
+abstract class Transaction with _$Transaction {
   const Transaction._();
 
   // ignore: invalid_annotation_target
@@ -40,7 +40,7 @@ class Transaction with _$Transaction {
 }
 
 @freezed
-class CostCoverageTransaction with _$CostCoverageTransaction {
+abstract class CostCoverageTransaction with _$CostCoverageTransaction {
   factory CostCoverageTransaction({
     @JsonKey(name: 'amount') required int discountAmount,
     @JsonKey(name: 'code') required String code,
