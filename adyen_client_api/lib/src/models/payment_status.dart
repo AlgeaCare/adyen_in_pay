@@ -15,7 +15,7 @@ enum AdyenPaymentStatus {
   adminChargeback('admin_chargeback'),
   debt('debt'),
   debtCollectionDone('debt_collection_done'),
-  debtCollectionUncollectable('debt_collection_uncollectible'),
+  debtCollectionUncollectible('debt_collection_uncollectible'),
   debtCollection('debt_collection'),
   authorized('authorized'),
   failed('failed'),

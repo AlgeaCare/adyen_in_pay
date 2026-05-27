@@ -154,7 +154,7 @@ class PaymentInformation {
           json.containsKey('payment_status')
               ? normalizedPaymentStatus == AdyenPaymentStatus.debtCollectionDone.label ||
                       normalizedPaymentStatus ==
-                          AdyenPaymentStatus.debtCollectionUncollectable.label ||
+                          AdyenPaymentStatus.debtCollectionUncollectible.label ||
                       normalizedPaymentStatus == AdyenPaymentStatus.debtCollection.label
                   ? AdyenPaymentStatus.values.firstWhere((e) {
                     return normalizedPaymentStatus == e.label;
