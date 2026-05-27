@@ -136,36 +136,38 @@ class PaymentInformation {
   bool get hasNoPaymentTransactionsCompletedOrPending {
     return transactions.isEmpty ||
         transactions
-            .where(
-              (t) => t.type == 'payment' && (t.status == 'completed' || t.status == 'pending'),
-            )
+            .where((t) => t.type == 'payment' && (t.status == 'completed' || t.status == 'pending'))
             .isEmpty;
   }
 
-  factory PaymentInformation.fromJson(
-    Map<String, dynamic> json, {
-    int? amountDue,
-    int? amount,
-  }) {
+  factory PaymentInformation.fromJson(Map<String, dynamic> json, {int? amountDue, int? amount}) {
     final productTypes = _parseProductTypes(json);
     final transactions = _parseTransactions(json);
+    final normalizedPaymentStatus = json['payment_status'].toString().toLowerCase();
 
     return PaymentInformation(
       invoiceId: json['invoice_id'],
       email: json['email'],
       firstName: json['first_name'],
       lastName: json['last_name'],
-      paymentStatus: json.containsKey('payment_status')
-          ? json['payment_status'].toString().toLowerCase().contains('debt')
-                ? AdyenPaymentStatus.debt
-                : json['payment_status'].toString().toLowerCase() ==
-                          AdyenPaymentStatus.adminWaiting.label &&
+      paymentStatus:
+          json.containsKey('payment_status')
+              ? normalizedPaymentStatus == AdyenPaymentStatus.debtCollectionDone.label ||
+                      normalizedPaymentStatus ==
+                          AdyenPaymentStatus.debtCollectionUncollectable.label ||
+                      normalizedPaymentStatus == AdyenPaymentStatus.debtCollection.label
+                  ? AdyenPaymentStatus.values.firstWhere((e) {
+                    return normalizedPaymentStatus == e.label;
+                  }, orElse: () => AdyenPaymentStatus.unknown)
+                  : normalizedPaymentStatus.contains('debt')
+                  ? AdyenPaymentStatus.debt
+                  : normalizedPaymentStatus == AdyenPaymentStatus.adminWaiting.label &&
                       json['provider'] == PaymentProvider.adyen.label
-                ? AdyenPaymentStatus.unknown
-                : AdyenPaymentStatus.values.firstWhere((e) {
+                  ? AdyenPaymentStatus.unknown
+                  : AdyenPaymentStatus.values.firstWhere((e) {
                     return json['payment_status'] == e.label;
                   }, orElse: () => AdyenPaymentStatus.unknown)
-          : AdyenPaymentStatus.unknown,
+              : AdyenPaymentStatus.unknown,
       productType: json['product_type'],
       paymentId: json['payment_id'],
       voucherCode: json['voucher_code'],
@@ -180,9 +182,8 @@ class PaymentInformation {
         orElse: () => PaymentProvider.adyen,
       ),
       createdAt: json['created_at'],
-      baskets: (json['baskets'] as List)
-          .map((basketJson) => AdyenBasket.fromJson(basketJson))
-          .toList(),
+      baskets:
+          (json['baskets'] as List).map((basketJson) => AdyenBasket.fromJson(basketJson)).toList(),
       metaData: json['meta_data'],
       warnings: json['warnings'],
       comment: json['comment'],
@@ -218,9 +219,7 @@ class PaymentInformation {
     }
 
     return transactions.map((rawTransaction) {
-      final normalizedTransaction = Map<String, dynamic>.from(
-        rawTransaction as Map,
-      );
+      final normalizedTransaction = Map<String, dynamic>.from(rawTransaction as Map);
       if (normalizedTransaction['costCoverage'] == null &&
           normalizedTransaction['cost_coverage'] != null) {
         normalizedTransaction['costCoverage'] = normalizedTransaction['cost_coverage'];
@@ -370,11 +369,10 @@ class AdyenBasket {
 
   bool get hasVoucher => items.any((item) => item.type == VoucherBasketItemType.voucher.label);
 
-  String? get voucherCode => items
-      .firstWhereOrNull(
-        (item) => item.type == VoucherBasketItemType.voucher.label,
-      )
-      ?.basketItemReferenceId;
+  String? get voucherCode =>
+      items
+          .firstWhereOrNull((item) => item.type == VoucherBasketItemType.voucher.label)
+          ?.basketItemReferenceId;
 
   // we want to not show vouchers in the list
   List<AdyenBasketItem> get itemsWithoutVouchers {
