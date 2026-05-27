@@ -19,6 +19,7 @@ class PaymentInformation {
   final int amountPaid;
   final PaymentProvider provider;
   final String createdAt;
+  final String? orderDate;
   final String metaData;
   final dynamic warnings;
   final String? comment;
@@ -49,6 +50,7 @@ class PaymentInformation {
     required this.amountPaid,
     required this.provider,
     required this.createdAt,
+    this.orderDate,
     required this.metaData,
     this.warnings,
     this.comment,
@@ -182,6 +184,7 @@ class PaymentInformation {
         orElse: () => PaymentProvider.adyen,
       ),
       createdAt: json['created_at'],
+      orderDate: json['order_date'],
       baskets:
           (json['baskets'] as List).map((basketJson) => AdyenBasket.fromJson(basketJson)).toList(),
       metaData: json['meta_data'],
@@ -246,6 +249,7 @@ class PaymentInformation {
       'amount_due': amountDue,
       'provider': provider,
       'created_at': createdAt,
+      'order_date': orderDate,
       'baskets': baskets.map((basket) => basket.toJson()).toList(),
       'meta_data': metaData,
       'warnings': warnings,
@@ -294,6 +298,7 @@ class PaymentInformation {
         other.preferredMethod == preferredMethod &&
         other.amountDue == amountDue &&
         other.provider == provider &&
+        other.orderDate == orderDate &&
         _listEquals(other.baskets, baskets) &&
         _listEquals(other.transactions, transactions);
   }
@@ -324,6 +329,7 @@ class PaymentInformation {
       preferredMethod,
       amountDue,
       provider,
+      orderDate,
       Object.hashAll(baskets),
       Object.hashAll(transactions),
     );
