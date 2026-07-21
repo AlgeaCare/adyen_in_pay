@@ -9,7 +9,7 @@ enum AdyenPaymentStatus {
   completed('completed'),
   adminCompleted('admin_completed'),
   review('review'),
-  cancelled('canceled'),
+  cancelled('cancelled'),
   adminCancelled('admin_canceled'),
   refunded('refunded'),
   adminChargeback('admin_chargeback'),
