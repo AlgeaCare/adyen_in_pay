@@ -5,7 +5,10 @@ homepage:
 
 environment:
   sdk: ^3.9.0
-  flutter: '>=3.3.0'
+  # The iOS Swift Package (ios/klarna_flutter_pay/Package.swift) depends on the
+  # generated `FlutterFramework` package, which the Flutter tool only emits from
+  # 3.44.0 onwards. CocoaPods consumers work on older SDKs via the podspec.
+  flutter: '>=3.44.0'
 
 dependencies:
   flutter:

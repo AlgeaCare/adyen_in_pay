@@ -11,17 +11,23 @@ let package = Package(
     products: [
         .library(name: "klarna-flutter-pay", targets: ["klarna_flutter_pay"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(name: "FlutterFramework", path: "../FlutterFramework"),
+        // Mirrors the `~> 2.7.1` constraint in klarna_flutter_pay.podspec.
+        .package(
+            url: "https://github.com/klarna/klarna-mobile-sdk-spm.git",
+            .upToNextMinor(from: "2.7.1")
+        )
+    ],
     targets: [
         .target(
             name: "klarna_flutter_pay",
-            dependencies: [],
+            dependencies: [
+                .product(name: "FlutterFramework", package: "FlutterFramework"),
+                .product(name: "KlarnaMobileSDK", package: "klarna-mobile-sdk-spm")
+            ],
             resources: [
-                // If your plugin requires a privacy manifest, for example if it uses any required
-                // reason APIs, update the PrivacyInfo.xcprivacy file to describe your plugin's
-                // privacy impact, and then uncomment these lines. For more information, see
-                // https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-                // .process("PrivacyInfo.xcprivacy"),
+                .process("PrivacyInfo.xcprivacy"),
 
                 // If you have other resources that need to be bundled with your plugin, refer to
                 // the following instructions to add them:
