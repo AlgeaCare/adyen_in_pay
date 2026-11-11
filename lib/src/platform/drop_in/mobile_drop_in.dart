@@ -96,6 +96,29 @@ Future<void> dropInAdvancedMobile({
     return;
   }
 
+  // The full list stays in `paymentMethods`: onSubmit reads the card types
+  // from it. Only Drop-in gets the narrowed list.
+  var dropInPaymentMethods = paymentMethods;
+  final selectPaymentMethod =
+      customPaymentConfigurationWidget?.selectPaymentMethod;
+  if (selectPaymentMethod != null && !acceptOnlyCard) {
+    final selected = await selectPaymentMethod(
+      paymentMethods.paymentMethods
+          .where(
+            (method) => _isShownOnThisDevice(
+              method.type,
+              ignoreGooglePay: ignoreGooglePay,
+            ),
+          )
+          .toList(),
+    );
+    if (selected == null) {
+      onPaymentResult(PaymentCancelledByUser());
+      return;
+    }
+    dropInPaymentMethods = PaymentMethodResponse(paymentMethods: [selected]);
+  }
+
   final paymentMethodNotes =
       customPaymentConfigurationWidget?.paymentMethodNotes ?? {};
   final paymentMethodNames = {
@@ -151,7 +174,7 @@ Future<void> dropInAdvancedMobile({
     paymentMethods:
         acceptOnlyCard
             ? paymentMethods.onlyCards()
-            : paymentMethods.toJson(ignoreGooglePay: ignoreGooglePay),
+            : dropInPaymentMethods.toJson(ignoreGooglePay: ignoreGooglePay),
     checkout: AdvancedCheckout(
       onSubmit: (data, [extra]) async {
         final selectedPaymentMethod = data['paymentMethod']['type'];
@@ -341,3 +364,16 @@ Future<void> dropInAdvancedMobile({
 }
 
 Future<void> closeAdyenDropIn() => AdyenCheckout.advanced.stopDropIn();
+
+/// Mirrors what Drop-in leaves out of its own list: `multibanco` (see
+/// [PaymentMethodResponse.toJson]), Google Pay when it is switched off or on
+/// iOS, and Apple Pay off iOS.
+bool _isShownOnThisDevice(String type, {required bool ignoreGooglePay}) {
+  final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+  return switch (type) {
+    'multibanco' => false,
+    'googlepay' || 'paywithgoogle' => !ignoreGooglePay && !isIOS,
+    'applepay' => isIOS,
+    _ => true,
+  };
+}
