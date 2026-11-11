@@ -23,7 +23,7 @@ abstract class Transaction with _$Transaction {
     String? method,
     String? pspNumber,
     String? capturePspNumber,
-    required int basketId,
+    int? basketId,
     @JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage,
     String? transferId,
     int? transactionId,
