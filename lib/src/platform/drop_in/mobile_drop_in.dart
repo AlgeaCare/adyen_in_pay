@@ -104,6 +104,7 @@ Future<void> dropInAdvancedMobile({
     ),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
+    paymentMethodNames: customPaymentConfigurationWidget?.paymentMethodNames,
     cardConfiguration: CardConfiguration(
       holderNameRequired: true,
       showStorePaymentField: true,
