@@ -96,6 +96,13 @@ Future<void> dropInAdvancedMobile({
     return;
   }
 
+  final paymentMethodNotes =
+      customPaymentConfigurationWidget?.paymentMethodNotes ?? {};
+  final paymentMethodNames = {
+    for (final method in paymentMethods.paymentMethods)
+      if (paymentMethodNotes[method.type] case final note?)
+        method.type: '${method.name}\n$note',
+  };
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
     amount: Amount(
@@ -104,7 +111,7 @@ Future<void> dropInAdvancedMobile({
     ),
     skipListWhenSinglePaymentMethod: true,
     shopperLocale: shopperPaymentInformation.locale,
-    paymentMethodNames: customPaymentConfigurationWidget?.paymentMethodNames,
+    paymentMethodNames: paymentMethodNames,
     cardConfiguration: CardConfiguration(
       holderNameRequired: true,
       showStorePaymentField: true,

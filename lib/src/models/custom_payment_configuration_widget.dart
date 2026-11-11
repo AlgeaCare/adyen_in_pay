@@ -9,10 +9,11 @@ class CustomPaymentConfigurationWidget {
   bool defaultKlarnaAction;
   double bottomSheetMaxHeightRatio;
 
-  /// Display names for the mobile Drop-in list, keyed by payment method type
-  /// (for example `klarna` or `klarna_account`). Types not in the map keep
-  /// Adyen's default name.
-  Map<String, String>? paymentMethodNames;
+  /// Notes for the mobile Drop-in list, keyed by payment method type (for
+  /// example `klarna` or `klarna_account`). Each note goes on a new line
+  /// under the name Adyen returns for that type. Types not in the map keep
+  /// Adyen's name as it is.
+  Map<String, String>? paymentMethodNotes;
 
   CustomPaymentConfigurationWidget({
     this.processingKlarnaWidget,
@@ -20,6 +21,6 @@ class CustomPaymentConfigurationWidget {
     this.klarnaPayEnum = KlarnaPayEnum.sdk,
     this.defaultKlarnaAction = true,
     this.bottomSheetMaxHeightRatio = 0.6,
-    this.paymentMethodNames,
+    this.paymentMethodNotes,
   });
 }
