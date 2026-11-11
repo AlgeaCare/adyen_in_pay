@@ -29,6 +29,12 @@ class CustomPaymentConfigurationWidget {
   /// so Drop-in skips its own list. When `null`, Drop-in shows its own list.
   PaymentMethodSelector? selectPaymentMethod;
 
+  /// Types that start right away through Adyen's Instant Component when
+  /// [selectPaymentMethod] returns them, without opening Drop-in. Only list
+  /// types that need no input from the shopper (for example `klarna` or
+  /// `paypal`). Other types open Drop-in with just that method.
+  Set<String> instantPaymentMethodTypes;
+
   CustomPaymentConfigurationWidget({
     this.processingKlarnaWidget,
     this.initializationKlarnaWidget,
@@ -37,5 +43,6 @@ class CustomPaymentConfigurationWidget {
     this.bottomSheetMaxHeightRatio = 0.6,
     this.paymentMethodNotes,
     this.selectPaymentMethod,
+    this.instantPaymentMethodTypes = const {},
   });
 }

@@ -99,10 +99,11 @@ Future<void> dropInAdvancedMobile({
   // The full list stays in `paymentMethods`: onSubmit reads the card types
   // from it. Only Drop-in gets the narrowed list.
   var dropInPaymentMethods = paymentMethods;
+  PaymentMethodConfig? selected;
   final selectPaymentMethod =
       customPaymentConfigurationWidget?.selectPaymentMethod;
   if (selectPaymentMethod != null && !acceptOnlyCard) {
-    final selected = await selectPaymentMethod(
+    selected = await selectPaymentMethod(
       paymentMethods.paymentMethods
           .where(
             (method) => _isShownOnThisDevice(
@@ -169,191 +170,215 @@ Future<void> dropInAdvancedMobile({
         configuration.env == 'test' ? Environment.test : Environment.europe,
     countryCode: shopperPaymentInformation.countryCode,
   );
-  final paymentResult = await AdyenCheckout.advanced.startDropIn(
-    dropInConfiguration: dropInConfig,
-    paymentMethods:
-        acceptOnlyCard
-            ? paymentMethods.onlyCards()
-            : dropInPaymentMethods.toJson(ignoreGooglePay: ignoreGooglePay),
-    checkout: AdvancedCheckout(
-      onSubmit: (data, [extra]) async {
-        final selectedPaymentMethod = data['paymentMethod']['type'];
-        final paymentMethodType = data['paymentMethod']['type'];
-        if (paymentMethodType.contains('klarna')) {
-          data['paymentMethod'] = {'type': paymentMethodType};
-          if (customPaymentConfigurationWidget?.klarnaPayEnum ==
-              KlarnaPayEnum.sdk) {
-            data['paymentMethod'] = {
-              'type': paymentMethodType,
-              'subtype': 'sdk',
-            };
-          }
+  final checkout = AdvancedCheckout(
+    onSubmit: (data, [extra]) async {
+      final selectedPaymentMethod = data['paymentMethod']['type'];
+      final paymentMethodType = data['paymentMethod']['type'];
+      if (paymentMethodType.contains('klarna')) {
+        data['paymentMethod'] = {'type': paymentMethodType};
+        if (customPaymentConfigurationWidget?.klarnaPayEnum ==
+            KlarnaPayEnum.sdk) {
+          data['paymentMethod'] = {'type': paymentMethodType, 'subtype': 'sdk'};
         }
-        final modifiedData =
-            data
-              ..putIfAbsent('channel', () => channel)
-              ..putIfAbsent('reference', () => reference)
-              ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+      }
+      final modifiedData =
+          data
+            ..putIfAbsent('channel', () => channel)
+            ..putIfAbsent('reference', () => reference)
+            ..putIfAbsent('returnUrl', () => configuration.redirectURL);
 
-        final onlyCardsTypes =
-            ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
-                .map((method) => method['type'])
-                .cast<String>()
-                .toList();
+      final onlyCardsTypes =
+          ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
+              .map((method) => method['type'])
+              .cast<String>()
+              .toList();
 
-        if (onlyCardsTypes.contains(selectedPaymentMethod)) {
-          modifiedData.putIfAbsent(
-            'authenticationData',
-            () => {
-              'threeDSRequestData': {'nativeThreeDS': 'preferred'},
-            },
-          );
-        }
-        final result = await client.makePayment(
-          paymentInfo!,
-          modifiedData,
-          billingAddress: shopperPaymentInformation.billingAddress,
-          countryCode: shopperPaymentInformation.countryCode,
-          shopperLocale: shopperPaymentInformation.locale,
-          telephoneNumber: shopperPaymentInformation.telephoneNumber,
-          userAgent:
-              defaultTargetPlatform == TargetPlatform.android
-                  ? userAgentStr
-                  : null,
+      if (onlyCardsTypes.contains(selectedPaymentMethod)) {
+        modifiedData.putIfAbsent(
+          'authenticationData',
+          () => {
+            'threeDSRequestData': {'nativeThreeDS': 'preferred'},
+          },
         );
-        if (result.action?['paymentMethodType']?.contains('klarna') == true &&
-            customPaymentConfigurationWidget?.klarnaPayEnum !=
-                KlarnaPayEnum.redirect &&
-            customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
-          debugPrint("result: ${result.action?.toString()}");
-          // setPaymentData(result.action?['paymentData']);
+      }
+      final result = await client.makePayment(
+        paymentInfo!,
+        modifiedData,
+        billingAddress: shopperPaymentInformation.billingAddress,
+        countryCode: shopperPaymentInformation.countryCode,
+        shopperLocale: shopperPaymentInformation.locale,
+        telephoneNumber: shopperPaymentInformation.telephoneNumber,
+        userAgent:
+            defaultTargetPlatform == TargetPlatform.android
+                ? userAgentStr
+                : null,
+      );
+      if (result.action?['paymentMethodType']?.contains('klarna') == true &&
+          customPaymentConfigurationWidget?.klarnaPayEnum !=
+              KlarnaPayEnum.redirect &&
+          customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
+        debugPrint("result: ${result.action?.toString()}");
+        // setPaymentData(result.action?['paymentData']);
 
-          isKlarnaNotifier.value = true;
-          await AdyenCheckout.advanced.stopDropIn();
-          if (!context.mounted) {
-            return Error(errorMessage: "context is not mounted");
-          }
-          final resultKlarna = await showKlarnaBottomSheet(
-            context: context,
-            environment:
-                configuration.env == 'test'
-                    ? KlarnaEnvironment.staging
-                    : KlarnaEnvironment.production,
-            klarnaNativeConfiguration: KlarnaNativeConfiguration(
-              redirectUrl: configuration.redirectURL,
-              clientToken: result.action!['sdkData']['client_token'],
-              paymentData: result.action!['paymentData'],
-              category: result.action!['sdkData']['payment_method_category'],
-              environment: configuration.env,
-              processingWidget:
-                  customPaymentConfigurationWidget?.processingKlarnaWidget,
-              initializationWidget:
-                  customPaymentConfigurationWidget?.initializationKlarnaWidget,
-              bottomSheetMaxHeightRatio:
-                  customPaymentConfigurationWidget?.bottomSheetMaxHeightRatio ??
-                  0.6,
-            ),
-            onRetry: () {
-              debugPrint("onRetry called");
-              dropInAdvancedMobile(
-                context: context,
-                client: client,
-                reference: reference,
-                configuration: configuration,
-                onPaymentResult: onPaymentResult,
-                shopperPaymentInformation: shopperPaymentInformation,
-                onConfigurationStatus: onConfigurationStatus,
-                acceptOnlyCard: false,
-                paymentInformation: paymentInfo,
-              );
-            },
-            onPaymentDetail: (Map<String, dynamic> paymentDetailbody) async {
-              final data = <String, dynamic>{};
-              // data.putIfAbsent('paymentData', () => paymentData);
-              data["provider"] = paymentDetailbody;
-              data["payment"] = {'invoiceId': reference};
-              return client.makeDetailPayment(data);
-            },
-          );
-          switch (resultKlarna) {
-            case Finished():
-              if (resultKlarna.resultCode == "cancelled") {
-                onPaymentResult(PaymentCancelledByUser());
-                break;
-              }
-
-              onPaymentResult(
-                PaymentAdvancedFinished(
-                  resultCode: resultCodeFromString(resultKlarna.resultCode),
-                ),
-              );
+        isKlarnaNotifier.value = true;
+        await AdyenCheckout.advanced.stopDropIn();
+        if (!context.mounted) {
+          return Error(errorMessage: "context is not mounted");
+        }
+        final resultKlarna = await showKlarnaBottomSheet(
+          context: context,
+          environment:
+              configuration.env == 'test'
+                  ? KlarnaEnvironment.staging
+                  : KlarnaEnvironment.production,
+          klarnaNativeConfiguration: KlarnaNativeConfiguration(
+            redirectUrl: configuration.redirectURL,
+            clientToken: result.action!['sdkData']['client_token'],
+            paymentData: result.action!['paymentData'],
+            category: result.action!['sdkData']['payment_method_category'],
+            environment: configuration.env,
+            processingWidget:
+                customPaymentConfigurationWidget?.processingKlarnaWidget,
+            initializationWidget:
+                customPaymentConfigurationWidget?.initializationKlarnaWidget,
+            bottomSheetMaxHeightRatio:
+                customPaymentConfigurationWidget?.bottomSheetMaxHeightRatio ??
+                0.6,
+          ),
+          onRetry: () {
+            debugPrint("onRetry called");
+            dropInAdvancedMobile(
+              context: context,
+              client: client,
+              reference: reference,
+              configuration: configuration,
+              onPaymentResult: onPaymentResult,
+              shopperPaymentInformation: shopperPaymentInformation,
+              onConfigurationStatus: onConfigurationStatus,
+              acceptOnlyCard: false,
+              paymentInformation: paymentInfo,
+            );
+          },
+          onPaymentDetail: (Map<String, dynamic> paymentDetailbody) async {
+            final data = <String, dynamic>{};
+            // data.putIfAbsent('paymentData', () => paymentData);
+            data["provider"] = paymentDetailbody;
+            data["payment"] = {'invoiceId': reference};
+            return client.makeDetailPayment(data);
+          },
+        );
+        switch (resultKlarna) {
+          case Finished():
+            if (resultKlarna.resultCode == "cancelled") {
+              onPaymentResult(PaymentCancelledByUser());
               break;
-            case Action():
-            case Update():
-              onPaymentResult(PaymentError(reason: 'Action should not happen'));
-            case Error():
-              onPaymentResult(PaymentError(reason: resultKlarna.errorMessage));
-          }
-        } else if ((result.action?['paymentMethodType']?.contains(
-                      'paybybank',
-                    ) ==
-                    true &&
-                result.actionType == 'redirect') ||
-            (result.action?['paymentMethodType']?.contains('klarna') == true &&
-                    customPaymentConfigurationWidget?.klarnaPayEnum ==
-                        KlarnaPayEnum.redirect) &&
-                customPaymentConfigurationWidget?.defaultKlarnaAction ==
-                    false) {
-          isKlarnaNotifier.value = true;
-          await AdyenCheckout.advanced.stopDropIn();
-          if (!context.mounted) {
-            return Error(errorMessage: "");
-          }
-          await launchUrl(
-            Uri.parse(result.action!['url']),
-            mode: LaunchMode.externalApplication,
-            browserConfiguration: const BrowserConfiguration(showTitle: true),
-          );
-        }
+            }
 
-        if (result.actionType == 'threeDS2' ||
-            (result.actionType == 'redirect' &&
-                customPaymentConfigurationWidget?.defaultKlarnaAction !=
-                    false) ||
-            result.actionType == 'qrCode' ||
-            result.actionType == 'await' ||
-            result.actionType == 'sdk') {
-          setPaymentData(result.action?['paymentData']);
-          return Action(actionResponse: result.action!);
+            onPaymentResult(
+              PaymentAdvancedFinished(
+                resultCode: resultCodeFromString(resultKlarna.resultCode),
+              ),
+            );
+            break;
+          case Action():
+          case Update():
+            onPaymentResult(PaymentError(reason: 'Action should not happen'));
+          case Error():
+            onPaymentResult(PaymentError(reason: resultKlarna.errorMessage));
         }
-        if (result.resultCode == PaymentResultCode.authorised ||
-            result.resultCode == PaymentResultCode.received ||
-            result.resultCode == PaymentResultCode.paid) {
-          return Finished(resultCode: result.resultCode.label);
+      } else if ((result.action?['paymentMethodType']?.contains('paybybank') ==
+                  true &&
+              result.actionType == 'redirect') ||
+          (result.action?['paymentMethodType']?.contains('klarna') == true &&
+                  customPaymentConfigurationWidget?.klarnaPayEnum ==
+                      KlarnaPayEnum.redirect) &&
+              customPaymentConfigurationWidget?.defaultKlarnaAction == false) {
+        isKlarnaNotifier.value = true;
+        await AdyenCheckout.advanced.stopDropIn();
+        if (!context.mounted) {
+          return Error(errorMessage: "");
         }
-        return Error(errorMessage: result.resultCode.label);
-      },
-      onAdditionalDetails: (paymentResult) async {
-        final data = <String, dynamic>{};
-        paymentResult.putIfAbsent('paymentData', () => paymentData);
-        data["provider"] = paymentResult;
-        data["payment"] = {'invoiceId': reference};
-        final result = await client.makeDetailPayment(data);
-        if (result.resultCode.toLowerCase() ==
-                PaymentResultCode.authorised.name.toLowerCase() ||
-            result.resultCode.toLowerCase() ==
-                PaymentResultCode.pending.name.toLowerCase() ||
-            result.resultCode.toLowerCase() ==
-                PaymentResultCode.received.name.toLowerCase() ||
-            result.resultCode.toLowerCase() ==
-                PaymentResultCode.paid.name.toLowerCase()) {
-          return Finished(resultCode: result.resultCode);
-        }
-        return Error(errorMessage: result.resultCode);
-      },
-    ),
+        await launchUrl(
+          Uri.parse(result.action!['url']),
+          mode: LaunchMode.externalApplication,
+          browserConfiguration: const BrowserConfiguration(showTitle: true),
+        );
+      }
+
+      if (result.actionType == 'threeDS2' ||
+          (result.actionType == 'redirect' &&
+              customPaymentConfigurationWidget?.defaultKlarnaAction != false) ||
+          result.actionType == 'qrCode' ||
+          result.actionType == 'await' ||
+          result.actionType == 'sdk') {
+        setPaymentData(result.action?['paymentData']);
+        return Action(actionResponse: result.action!);
+      }
+      if (result.resultCode == PaymentResultCode.authorised ||
+          result.resultCode == PaymentResultCode.received ||
+          result.resultCode == PaymentResultCode.paid) {
+        return Finished(resultCode: result.resultCode.label);
+      }
+      return Error(errorMessage: result.resultCode.label);
+    },
+    onAdditionalDetails: (paymentResult) async {
+      final data = <String, dynamic>{};
+      paymentResult.putIfAbsent('paymentData', () => paymentData);
+      data["provider"] = paymentResult;
+      data["payment"] = {'invoiceId': reference};
+      final result = await client.makeDetailPayment(data);
+      if (result.resultCode.toLowerCase() ==
+              PaymentResultCode.authorised.name.toLowerCase() ||
+          result.resultCode.toLowerCase() ==
+              PaymentResultCode.pending.name.toLowerCase() ||
+          result.resultCode.toLowerCase() ==
+              PaymentResultCode.received.name.toLowerCase() ||
+          result.resultCode.toLowerCase() ==
+              PaymentResultCode.paid.name.toLowerCase()) {
+        return Finished(resultCode: result.resultCode);
+      }
+      return Error(errorMessage: result.resultCode);
+    },
   );
-  if (paymentResult is PaymentCancelledByUser) {
+  // A picked method with no input of its own (Klarna, PayPal) starts right
+  // away through the Instant Component. Everything else goes through Drop-in.
+  final instantPaymentMethod =
+      selected != null &&
+              (customPaymentConfigurationWidget?.instantPaymentMethodTypes ??
+                      const {})
+                  .contains(selected.type)
+          ? selected
+          : null;
+  final paymentResult =
+      instantPaymentMethod != null
+          ? await AdyenCheckout.advanced.startInstantComponent(
+            configuration: InstantComponentConfiguration(
+              environment:
+                  configuration.env == 'test'
+                      ? Environment.test
+                      : Environment.europe,
+              clientKey: configuration.adyenKeysConfiguration.clientKey,
+              countryCode: shopperPaymentInformation.countryCode,
+              amount: Amount(
+                value: configuration.amount ?? paymentInfo.amountDue,
+                currency: 'EUR',
+              ),
+              shopperLocale: shopperPaymentInformation.locale,
+            ),
+            paymentMethod: instantPaymentMethod.toJson(),
+            checkout: checkout,
+          )
+          : await AdyenCheckout.advanced.startDropIn(
+            dropInConfiguration: dropInConfig,
+            paymentMethods:
+                acceptOnlyCard
+                    ? paymentMethods.onlyCards()
+                    : dropInPaymentMethods.toJson(
+                      ignoreGooglePay: ignoreGooglePay,
+                    ),
+            checkout: checkout,
+          );
+  if (paymentResult is PaymentCancelledByUser && instantPaymentMethod == null) {
     await AdyenCheckout.advanced.stopDropIn();
   }
   if (!isKlarnaNotifier.value) {
