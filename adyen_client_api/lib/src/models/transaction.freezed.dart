@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Transaction {
 
- int get id; String? get pspStatus; String get createdAt; String get updatedAt; String get paymentInvoiceId; int get amount; int get refundAmount; String get status; String get transactionDate; String get type; String? get method; String? get pspNumber; String? get capturePspNumber; int get basketId;@JsonKey(name: 'costCoverage') CostCoverageTransaction? get costCoverage; String? get transferId; int? get transactionId;
+ int get id; String? get pspStatus; String get createdAt; String get updatedAt; String get paymentInvoiceId; int get amount; int get refundAmount; String get status; String get transactionDate; String get type; String? get method; String? get pspNumber; String? get capturePspNumber;
+ int? get basketId;@JsonKey(name: 'costCoverage') CostCoverageTransaction? get costCoverage; String? get transferId; int? get transactionId;
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +49,7 @@ abstract mixin class $TransactionCopyWith<$Res>  {
   factory $TransactionCopyWith(Transaction value, $Res Function(Transaction) _then) = _$TransactionCopyWithImpl;
 @useResult
 $Res call({
- int id, String? pspStatus, String createdAt, String updatedAt, String paymentInvoiceId, int amount, int refundAmount, String status, String transactionDate, String type, String? method, String? pspNumber, String? capturePspNumber, int basketId,@JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage, String? transferId, int? transactionId
+ int id, String? pspStatus, String createdAt, String updatedAt, String paymentInvoiceId, int amount, int refundAmount, String status, String transactionDate, String type, String? method, String? pspNumber, String? capturePspNumber, int? basketId,@JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage, String? transferId, int? transactionId
 });
 
 
@@ -65,7 +66,7 @@ class _$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? pspStatus = freezed,Object? createdAt = null,Object? updatedAt = null,Object? paymentInvoiceId = null,Object? amount = null,Object? refundAmount = null,Object? status = null,Object? transactionDate = null,Object? type = null,Object? method = freezed,Object? pspNumber = freezed,Object? capturePspNumber = freezed,Object? basketId = null,Object? costCoverage = freezed,Object? transferId = freezed,Object? transactionId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? pspStatus = freezed,Object? createdAt = null,Object? updatedAt = null,Object? paymentInvoiceId = null,Object? amount = null,Object? refundAmount = null,Object? status = null,Object? transactionDate = null,Object? type = null,Object? method = freezed,Object? pspNumber = freezed,Object? capturePspNumber = freezed,Object? basketId = freezed,Object? costCoverage = freezed,Object? transferId = freezed,Object? transactionId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,pspStatus: freezed == pspStatus ? _self.pspStatus : pspStatus // ignore: cast_nullable_to_non_nullable
@@ -80,8 +81,8 @@ as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non
 as String,method: freezed == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
 as String?,pspNumber: freezed == pspNumber ? _self.pspNumber : pspNumber // ignore: cast_nullable_to_non_nullable
 as String?,capturePspNumber: freezed == capturePspNumber ? _self.capturePspNumber : capturePspNumber // ignore: cast_nullable_to_non_nullable
-as String?,basketId: null == basketId ? _self.basketId : basketId // ignore: cast_nullable_to_non_nullable
-as int,costCoverage: freezed == costCoverage ? _self.costCoverage : costCoverage // ignore: cast_nullable_to_non_nullable
+as String?,basketId: freezed == basketId ? _self.basketId : basketId // ignore: cast_nullable_to_non_nullable
+as int?,costCoverage: freezed == costCoverage ? _self.costCoverage : costCoverage // ignore: cast_nullable_to_non_nullable
 as CostCoverageTransaction?,transferId: freezed == transferId ? _self.transferId : transferId // ignore: cast_nullable_to_non_nullable
 as String?,transactionId: freezed == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
 as int?,
@@ -181,7 +182,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? pspStatus,  String createdAt,  String updatedAt,  String paymentInvoiceId,  int amount,  int refundAmount,  String status,  String transactionDate,  String type,  String? method,  String? pspNumber,  String? capturePspNumber,  int basketId, @JsonKey(name: 'costCoverage')  CostCoverageTransaction? costCoverage,  String? transferId,  int? transactionId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? pspStatus,  String createdAt,  String updatedAt,  String paymentInvoiceId,  int amount,  int refundAmount,  String status,  String transactionDate,  String type,  String? method,  String? pspNumber,  String? capturePspNumber,  int? basketId, @JsonKey(name: 'costCoverage')  CostCoverageTransaction? costCoverage,  String? transferId,  int? transactionId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
 return $default(_that.id,_that.pspStatus,_that.createdAt,_that.updatedAt,_that.paymentInvoiceId,_that.amount,_that.refundAmount,_that.status,_that.transactionDate,_that.type,_that.method,_that.pspNumber,_that.capturePspNumber,_that.basketId,_that.costCoverage,_that.transferId,_that.transactionId);case _:
@@ -202,7 +203,7 @@ return $default(_that.id,_that.pspStatus,_that.createdAt,_that.updatedAt,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? pspStatus,  String createdAt,  String updatedAt,  String paymentInvoiceId,  int amount,  int refundAmount,  String status,  String transactionDate,  String type,  String? method,  String? pspNumber,  String? capturePspNumber,  int basketId, @JsonKey(name: 'costCoverage')  CostCoverageTransaction? costCoverage,  String? transferId,  int? transactionId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? pspStatus,  String createdAt,  String updatedAt,  String paymentInvoiceId,  int amount,  int refundAmount,  String status,  String transactionDate,  String type,  String? method,  String? pspNumber,  String? capturePspNumber,  int? basketId, @JsonKey(name: 'costCoverage')  CostCoverageTransaction? costCoverage,  String? transferId,  int? transactionId)  $default,) {final _that = this;
 switch (_that) {
 case _Transaction():
 return $default(_that.id,_that.pspStatus,_that.createdAt,_that.updatedAt,_that.paymentInvoiceId,_that.amount,_that.refundAmount,_that.status,_that.transactionDate,_that.type,_that.method,_that.pspNumber,_that.capturePspNumber,_that.basketId,_that.costCoverage,_that.transferId,_that.transactionId);case _:
@@ -222,7 +223,7 @@ return $default(_that.id,_that.pspStatus,_that.createdAt,_that.updatedAt,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? pspStatus,  String createdAt,  String updatedAt,  String paymentInvoiceId,  int amount,  int refundAmount,  String status,  String transactionDate,  String type,  String? method,  String? pspNumber,  String? capturePspNumber,  int basketId, @JsonKey(name: 'costCoverage')  CostCoverageTransaction? costCoverage,  String? transferId,  int? transactionId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? pspStatus,  String createdAt,  String updatedAt,  String paymentInvoiceId,  int amount,  int refundAmount,  String status,  String transactionDate,  String type,  String? method,  String? pspNumber,  String? capturePspNumber,  int? basketId, @JsonKey(name: 'costCoverage')  CostCoverageTransaction? costCoverage,  String? transferId,  int? transactionId)?  $default,) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
 return $default(_that.id,_that.pspStatus,_that.createdAt,_that.updatedAt,_that.paymentInvoiceId,_that.amount,_that.refundAmount,_that.status,_that.transactionDate,_that.type,_that.method,_that.pspNumber,_that.capturePspNumber,_that.basketId,_that.costCoverage,_that.transferId,_that.transactionId);case _:
@@ -237,7 +238,7 @@ return $default(_that.id,_that.pspStatus,_that.createdAt,_that.updatedAt,_that.p
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class _Transaction extends Transaction {
-   _Transaction({required this.id, this.pspStatus, required this.createdAt, required this.updatedAt, required this.paymentInvoiceId, required this.amount, required this.refundAmount, required this.status, required this.transactionDate, required this.type, this.method, this.pspNumber, this.capturePspNumber, required this.basketId, @JsonKey(name: 'costCoverage') this.costCoverage, this.transferId, this.transactionId}): super._();
+   _Transaction({required this.id, this.pspStatus, required this.createdAt, required this.updatedAt, required this.paymentInvoiceId, required this.amount, required this.refundAmount, required this.status, required this.transactionDate, required this.type, this.method, this.pspNumber, this.capturePspNumber, this.basketId, @JsonKey(name: 'costCoverage') this.costCoverage, this.transferId, this.transactionId}): super._();
   factory _Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
 
 @override final  int id;
@@ -253,7 +254,7 @@ class _Transaction extends Transaction {
 @override final  String? method;
 @override final  String? pspNumber;
 @override final  String? capturePspNumber;
-@override final  int basketId;
+@override final  int? basketId;
 @override@JsonKey(name: 'costCoverage') final  CostCoverageTransaction? costCoverage;
 @override final  String? transferId;
 @override final  int? transactionId;
@@ -291,7 +292,7 @@ abstract mixin class _$TransactionCopyWith<$Res> implements $TransactionCopyWith
   factory _$TransactionCopyWith(_Transaction value, $Res Function(_Transaction) _then) = __$TransactionCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? pspStatus, String createdAt, String updatedAt, String paymentInvoiceId, int amount, int refundAmount, String status, String transactionDate, String type, String? method, String? pspNumber, String? capturePspNumber, int basketId,@JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage, String? transferId, int? transactionId
+ int id, String? pspStatus, String createdAt, String updatedAt, String paymentInvoiceId, int amount, int refundAmount, String status, String transactionDate, String type, String? method, String? pspNumber, String? capturePspNumber, int? basketId,@JsonKey(name: 'costCoverage') CostCoverageTransaction? costCoverage, String? transferId, int? transactionId
 });
 
 
@@ -308,7 +309,7 @@ class __$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? pspStatus = freezed,Object? createdAt = null,Object? updatedAt = null,Object? paymentInvoiceId = null,Object? amount = null,Object? refundAmount = null,Object? status = null,Object? transactionDate = null,Object? type = null,Object? method = freezed,Object? pspNumber = freezed,Object? capturePspNumber = freezed,Object? basketId = null,Object? costCoverage = freezed,Object? transferId = freezed,Object? transactionId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? pspStatus = freezed,Object? createdAt = null,Object? updatedAt = null,Object? paymentInvoiceId = null,Object? amount = null,Object? refundAmount = null,Object? status = null,Object? transactionDate = null,Object? type = null,Object? method = freezed,Object? pspNumber = freezed,Object? capturePspNumber = freezed,Object? basketId = freezed,Object? costCoverage = freezed,Object? transferId = freezed,Object? transactionId = freezed,}) {
   return _then(_Transaction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,pspStatus: freezed == pspStatus ? _self.pspStatus : pspStatus // ignore: cast_nullable_to_non_nullable
@@ -323,8 +324,8 @@ as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non
 as String,method: freezed == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
 as String?,pspNumber: freezed == pspNumber ? _self.pspNumber : pspNumber // ignore: cast_nullable_to_non_nullable
 as String?,capturePspNumber: freezed == capturePspNumber ? _self.capturePspNumber : capturePspNumber // ignore: cast_nullable_to_non_nullable
-as String?,basketId: null == basketId ? _self.basketId : basketId // ignore: cast_nullable_to_non_nullable
-as int,costCoverage: freezed == costCoverage ? _self.costCoverage : costCoverage // ignore: cast_nullable_to_non_nullable
+as String?,basketId: freezed == basketId ? _self.basketId : basketId // ignore: cast_nullable_to_non_nullable
+as int?,costCoverage: freezed == costCoverage ? _self.costCoverage : costCoverage // ignore: cast_nullable_to_non_nullable
 as CostCoverageTransaction?,transferId: freezed == transferId ? _self.transferId : transferId // ignore: cast_nullable_to_non_nullable
 as String?,transactionId: freezed == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
 as int?,

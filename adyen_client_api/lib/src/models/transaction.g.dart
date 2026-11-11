@@ -20,7 +20,7 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => _Transaction(
   method: json['method'] as String?,
   pspNumber: json['psp_number'] as String?,
   capturePspNumber: json['capture_psp_number'] as String?,
-  basketId: (json['basket_id'] as num).toInt(),
+  basketId: (json['basket_id'] as num?)?.toInt(),
   costCoverage: json['costCoverage'] == null
       ? null
       : CostCoverageTransaction.fromJson(
