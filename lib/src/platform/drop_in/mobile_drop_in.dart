@@ -96,30 +96,6 @@ Future<void> dropInAdvancedMobile({
     return;
   }
 
-  // The full list stays in `paymentMethods`: onSubmit reads the card types
-  // from it. Only Drop-in gets the narrowed list.
-  var dropInPaymentMethods = paymentMethods;
-  PaymentMethodConfig? selected;
-  final selectPaymentMethod =
-      customPaymentConfigurationWidget?.selectPaymentMethod;
-  if (selectPaymentMethod != null && !acceptOnlyCard) {
-    selected = await selectPaymentMethod(
-      paymentMethods.paymentMethods
-          .where(
-            (method) => _isShownOnThisDevice(
-              method.type,
-              ignoreGooglePay: ignoreGooglePay,
-            ),
-          )
-          .toList(),
-    );
-    if (selected == null) {
-      onPaymentResult(PaymentCancelledByUser());
-      return;
-    }
-    dropInPaymentMethods = PaymentMethodResponse(paymentMethods: [selected]);
-  }
-
   final paymentMethodNotes =
       customPaymentConfigurationWidget?.paymentMethodNotes ?? {};
   final paymentMethodNames = {
@@ -340,46 +316,84 @@ Future<void> dropInAdvancedMobile({
       return Error(errorMessage: result.resultCode);
     },
   );
-  // A picked method with no input of its own (Klarna, PayPal) starts right
-  // away through the Instant Component. Everything else goes through Drop-in.
-  final instantPaymentMethod =
-      selected != null &&
-              (customPaymentConfigurationWidget?.instantPaymentMethodTypes ??
-                      const {})
-                  .contains(selected.type)
-          ? selected
-          : null;
-  final paymentResult =
-      instantPaymentMethod != null
-          ? await AdyenCheckout.advanced.startInstantComponent(
-            configuration: InstantComponentConfiguration(
-              environment:
-                  configuration.env == 'test'
-                      ? Environment.test
-                      : Environment.europe,
-              clientKey: configuration.adyenKeysConfiguration.clientKey,
-              countryCode: shopperPaymentInformation.countryCode,
-              amount: Amount(
-                value: configuration.amount ?? paymentInfo.amountDue,
-                currency: 'EUR',
-              ),
-              shopperLocale: shopperPaymentInformation.locale,
+  final selectPaymentMethod =
+      customPaymentConfigurationWidget?.selectPaymentMethod;
+  final usesAppList = selectPaymentMethod != null && !acceptOnlyCard;
+  final selectablePaymentMethods =
+      paymentMethods.paymentMethods
+          .where(
+            (method) => _isShownOnThisDevice(
+              method.type,
+              ignoreGooglePay: ignoreGooglePay,
             ),
-            paymentMethod: instantPaymentMethod.toJson(),
-            checkout: checkout,
           )
-          : await AdyenCheckout.advanced.startDropIn(
-            dropInConfiguration: dropInConfig,
-            paymentMethods:
-                acceptOnlyCard
-                    ? paymentMethods.onlyCards()
-                    : dropInPaymentMethods.toJson(
-                      ignoreGooglePay: ignoreGooglePay,
-                    ),
-            checkout: checkout,
-          );
-  if (paymentResult is PaymentCancelledByUser && instantPaymentMethod == null) {
-    await AdyenCheckout.advanced.stopDropIn();
+          .toList();
+  final instantPaymentMethodTypes =
+      customPaymentConfigurationWidget?.instantPaymentMethodTypes ?? const {};
+
+  // With the app's own list, closing the picked method's payment brings the
+  // list back. Only closing the list itself ends the flow as cancelled.
+  PaymentResult paymentResult;
+  while (true) {
+    PaymentMethodConfig? selected;
+    if (usesAppList) {
+      selected = await selectPaymentMethod(selectablePaymentMethods);
+      if (selected == null) {
+        onPaymentResult(PaymentCancelledByUser());
+        return;
+      }
+    }
+    // A picked method with no input of its own (Klarna, PayPal) starts right
+    // away through the Instant Component. Everything else goes through
+    // Drop-in, narrowed to the picked method so it skips its own list. The
+    // full list stays in `paymentMethods`: onSubmit reads the card types from
+    // it.
+    final instantPaymentMethod =
+        selected != null && instantPaymentMethodTypes.contains(selected.type)
+            ? selected
+            : null;
+    final dropInPaymentMethods =
+        selected != null
+            ? PaymentMethodResponse(paymentMethods: [selected])
+            : paymentMethods;
+    paymentResult =
+        instantPaymentMethod != null
+            ? await AdyenCheckout.advanced.startInstantComponent(
+              configuration: InstantComponentConfiguration(
+                environment:
+                    configuration.env == 'test'
+                        ? Environment.test
+                        : Environment.europe,
+                clientKey: configuration.adyenKeysConfiguration.clientKey,
+                countryCode: shopperPaymentInformation.countryCode,
+                amount: Amount(
+                  value: configuration.amount ?? paymentInfo.amountDue,
+                  currency: 'EUR',
+                ),
+                shopperLocale: shopperPaymentInformation.locale,
+              ),
+              paymentMethod: instantPaymentMethod.toJson(),
+              checkout: checkout,
+            )
+            : await AdyenCheckout.advanced.startDropIn(
+              dropInConfiguration: dropInConfig,
+              paymentMethods:
+                  acceptOnlyCard
+                      ? paymentMethods.onlyCards()
+                      : dropInPaymentMethods.toJson(
+                        ignoreGooglePay: ignoreGooglePay,
+                      ),
+              checkout: checkout,
+            );
+    if (paymentResult is PaymentCancelledByUser &&
+        instantPaymentMethod == null) {
+      await AdyenCheckout.advanced.stopDropIn();
+    }
+    if (!usesAppList ||
+        paymentResult is! PaymentCancelledByUser ||
+        isKlarnaNotifier.value) {
+      break;
+    }
   }
   if (!isKlarnaNotifier.value) {
     onPaymentResult(paymentResult);
