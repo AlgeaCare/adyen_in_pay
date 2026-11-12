@@ -99,9 +99,11 @@ Future<void> dropInAdvancedMobile({
   final paymentMethodNotes =
       customPaymentConfigurationWidget?.paymentMethodNotes ?? {};
   final paymentMethodNames = {
-    for (final method in paymentMethods.paymentMethods)
-      if (paymentMethodNotes[method.type] case final note?)
+    for (final method in paymentMethods.paymentMethods) ...{
+      if (paymentMethodNotes[method.type] case final note?) ...{
         method.type: '${method.name}\n$note',
+      },
+    },
   };
   final dropInConfig = DropInConfiguration(
     clientKey: configuration.adyenKeysConfiguration.clientKey,
