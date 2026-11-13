@@ -1,6 +1,7 @@
 import 'package:adyen_checkout/adyen_checkout.dart';
 import 'package:adyen_in_pay/adyen_in_pay.dart';
 import 'package:adyen_in_pay/src/models/klarna_native_configuration.dart';
+import 'package:adyen_in_pay/src/platform/drop_in/google_pay_direct.dart';
 import 'package:adyen_in_pay/src/platform/drop_in.dart'
     show paymentData, setPaymentData;
 import 'package:adyen_in_pay/src/utils/commons.dart' show resultCodeFromString;
@@ -360,8 +361,39 @@ Future<void> dropInAdvancedMobile({
         selected != null
             ? PaymentMethodResponse(paymentMethods: [selected])
             : paymentMethods;
+    // Google Pay opens Google's sheet directly. Null means it isn't available
+    // here, and Drop-in takes over below.
+    final googlePayResult =
+        selected != null && _googlePayTypes.contains(selected.type)
+            ? await startGooglePayDirectly(
+              configuration: GooglePayComponentConfiguration(
+                environment:
+                    configuration.env == 'test'
+                        ? Environment.test
+                        : Environment.europe,
+                clientKey: configuration.adyenKeysConfiguration.clientKey,
+                countryCode: shopperPaymentInformation.countryCode,
+                amount: Amount(
+                  value: configuration.amount ?? paymentInfo.amountDue,
+                  currency: 'EUR',
+                ),
+                shopperLocale: shopperPaymentInformation.locale,
+                googlePayConfiguration: GooglePayConfiguration(
+                  googlePayEnvironment:
+                      configuration.env == 'test'
+                          ? GooglePayEnvironment.test
+                          : GooglePayEnvironment.production,
+                ),
+              ),
+              paymentMethod: selected.toJson(),
+              checkout: checkout,
+            )
+            : null;
+    final startedWithoutDropIn =
+        instantPaymentMethod != null || googlePayResult != null;
     paymentResult =
-        instantPaymentMethod != null
+        googlePayResult ??
+        (instantPaymentMethod != null
             ? await AdyenCheckout.advanced.startInstantComponent(
               configuration: InstantComponentConfiguration(
                 environment:
@@ -388,9 +420,8 @@ Future<void> dropInAdvancedMobile({
                         ignoreGooglePay: ignoreGooglePay,
                       ),
               checkout: checkout,
-            );
-    if (paymentResult is PaymentCancelledByUser &&
-        instantPaymentMethod == null) {
+            ));
+    if (paymentResult is PaymentCancelledByUser && !startedWithoutDropIn) {
       await AdyenCheckout.advanced.stopDropIn();
     }
     if (!usesAppList ||
@@ -413,6 +444,10 @@ Future<void> closeAdyenDropIn() => AdyenCheckout.advanced.stopDropIn();
 /// that the Instant Component can start. Picked from the app's list, they go
 /// through the Instant Component so the shopper doesn't tap them twice.
 const _dropInNeverSkipsInstantTypes = {'paybybank', 'ideal'};
+
+/// Google Pay is also on Drop-in's never-skip list but the Instant Component
+/// can't run it, so it gets its own direct start.
+const _googlePayTypes = {'googlepay', 'paywithgoogle'};
 
 /// Mirrors what Drop-in leaves out of its own list: `multibanco` (see
 /// [PaymentMethodResponse.toJson]), Google Pay when it is switched off or on
