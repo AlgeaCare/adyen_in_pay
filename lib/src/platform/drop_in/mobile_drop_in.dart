@@ -465,22 +465,30 @@ const _googlePayTypes = {'googlepay', 'paywithgoogle'};
 
 /// Where the shopper lands after a redirect (Klarna, Pay by Bank, 3DS).
 ///
-/// On Android, Adyen's Drop-in library claims `adyencheckout://<appId>`
-/// exactly (`path=""`), so a redirect to it always opens DropInActivity. A
-/// payment started outside Drop-in waits in MainActivity instead, whose
-/// filter only takes URLs with a path (`pathPrefix="/"`). The trailing `/`
-/// sends the redirect there, and the Adyen plugin hands it to the waiting
-/// component. Drop-in payments and iOS keep the URL as it is.
+/// On Android, Adyen's Drop-in library claims every
+/// `adyencheckout://<appId>…` link (`path=""` matches any path), so a
+/// redirect there opens DropInActivity, or a chooser when another activity
+/// matches too. A payment started outside Drop-in waits in MainActivity
+/// instead, so it returns on its own host, `adyencheckout://<appId>.component`,
+/// which only the app's MainActivity filter takes. The Adyen plugin then hands
+/// it to the waiting component. Drop-in payments and iOS keep the URL as it is.
 String _returnUrlFor(String redirectUrl, {required bool startsOutsideDropIn}) {
   final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+  final uri = Uri.tryParse(redirectUrl);
   if (!isAndroid ||
       !startsOutsideDropIn ||
-      !redirectUrl.startsWith('adyencheckout://') ||
-      redirectUrl.endsWith('/')) {
+      uri == null ||
+      uri.scheme != 'adyencheckout' ||
+      uri.host.isEmpty ||
+      uri.host.endsWith(_componentReturnHostSuffix)) {
     return redirectUrl;
   }
-  return '$redirectUrl/';
+  return 'adyencheckout://${uri.host}$_componentReturnHostSuffix';
 }
+
+/// Must match the host of the app's MainActivity `adyencheckout` intent
+/// filter: `${applicationId}.component`.
+const _componentReturnHostSuffix = '.component';
 
 /// Mirrors what Drop-in leaves out of its own list: `multibanco` (see
 /// [PaymentMethodResponse.toJson]), Google Pay when it is switched off or on
