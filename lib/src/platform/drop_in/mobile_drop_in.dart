@@ -149,6 +149,9 @@ Future<void> dropInAdvancedMobile({
         configuration.env == 'test' ? Environment.test : Environment.europe,
     countryCode: shopperPaymentInformation.countryCode,
   );
+  // Set right before each start: true when the picked method runs outside
+  // Drop-in (Instant Component, direct Google Pay).
+  var startsOutsideDropIn = false;
   final checkout = AdvancedCheckout(
     onSubmit: (data, [extra]) async {
       final selectedPaymentMethod = data['paymentMethod']['type'];
@@ -164,7 +167,13 @@ Future<void> dropInAdvancedMobile({
           data
             ..putIfAbsent('channel', () => channel)
             ..putIfAbsent('reference', () => reference)
-            ..putIfAbsent('returnUrl', () => configuration.redirectURL);
+            ..putIfAbsent(
+              'returnUrl',
+              () => _returnUrlFor(
+                configuration.redirectURL,
+                startsOutsideDropIn: startsOutsideDropIn,
+              ),
+            );
 
       final onlyCardsTypes =
           ((paymentMethods?.onlyCards()['paymentMethods'] as List?) ?? [])
@@ -361,6 +370,9 @@ Future<void> dropInAdvancedMobile({
         selected != null
             ? PaymentMethodResponse(paymentMethods: [selected])
             : paymentMethods;
+    startsOutsideDropIn =
+        instantPaymentMethod != null ||
+        (selected != null && _googlePayTypes.contains(selected.type));
     // Google Pay opens Google's sheet directly. Null means it isn't available
     // here, and Drop-in takes over below.
     final googlePayResult =
@@ -391,6 +403,8 @@ Future<void> dropInAdvancedMobile({
             : null;
     final startedWithoutDropIn =
         instantPaymentMethod != null || googlePayResult != null;
+    // Google Pay unavailable: Drop-in runs it, so its redirect goes back there.
+    startsOutsideDropIn = startedWithoutDropIn;
     paymentResult =
         googlePayResult ??
         (instantPaymentMethod != null
@@ -448,6 +462,25 @@ const _dropInNeverSkipsInstantTypes = {'paybybank', 'ideal'};
 /// Google Pay is also on Drop-in's never-skip list but the Instant Component
 /// can't run it, so it gets its own direct start.
 const _googlePayTypes = {'googlepay', 'paywithgoogle'};
+
+/// Where the shopper lands after a redirect (Klarna, Pay by Bank, 3DS).
+///
+/// On Android, Adyen's Drop-in library claims `adyencheckout://<appId>`
+/// exactly (`path=""`), so a redirect to it always opens DropInActivity. A
+/// payment started outside Drop-in waits in MainActivity instead, whose
+/// filter only takes URLs with a path (`pathPrefix="/"`). The trailing `/`
+/// sends the redirect there, and the Adyen plugin hands it to the waiting
+/// component. Drop-in payments and iOS keep the URL as it is.
+String _returnUrlFor(String redirectUrl, {required bool startsOutsideDropIn}) {
+  final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+  if (!isAndroid ||
+      !startsOutsideDropIn ||
+      !redirectUrl.startsWith('adyencheckout://') ||
+      redirectUrl.endsWith('/')) {
+    return redirectUrl;
+  }
+  return '$redirectUrl/';
+}
 
 /// Mirrors what Drop-in leaves out of its own list: `multibanco` (see
 /// [PaymentMethodResponse.toJson]), Google Pay when it is switched off or on
