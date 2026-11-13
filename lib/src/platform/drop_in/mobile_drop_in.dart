@@ -330,8 +330,10 @@ Future<void> dropInAdvancedMobile({
             ),
           )
           .toList();
-  final instantPaymentMethodTypes =
-      customPaymentConfigurationWidget?.instantPaymentMethodTypes ?? const {};
+  final instantPaymentMethodTypes = {
+    ...?customPaymentConfigurationWidget?.instantPaymentMethodTypes,
+    ..._dropInNeverSkipsInstantTypes,
+  };
 
   // With the app's own list, closing the picked method's payment brings the
   // list back. Only closing the list itself ends the flow as cancelled.
@@ -405,6 +407,12 @@ Future<void> dropInAdvancedMobile({
 }
 
 Future<void> closeAdyenDropIn() => AdyenCheckout.advanced.stopDropIn();
+
+/// Types Adyen's Android Drop-in never skips its list for, even when it gets
+/// only that one method (`DropInViewModel.SKIP_TO_SINGLE_PM_BLOCK_LIST`), and
+/// that the Instant Component can start. Picked from the app's list, they go
+/// through the Instant Component so the shopper doesn't tap them twice.
+const _dropInNeverSkipsInstantTypes = {'paybybank', 'ideal'};
 
 /// Mirrors what Drop-in leaves out of its own list: `multibanco` (see
 /// [PaymentMethodResponse.toJson]), Google Pay when it is switched off or on
